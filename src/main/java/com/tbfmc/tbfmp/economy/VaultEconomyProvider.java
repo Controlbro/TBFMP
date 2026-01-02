@@ -2,6 +2,7 @@ package com.tbfmc.tbfmp.economy;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.List;
@@ -59,6 +60,16 @@ public class VaultEconomyProvider implements Economy {
     }
 
     @Override
+    public boolean hasAccount(String playerName) {
+        return true;
+    }
+
+    @Override
+    public boolean hasAccount(String playerName, String worldName) {
+        return true;
+    }
+
+    @Override
     public double getBalance(OfflinePlayer player) {
         return storage.getBalance(player.getUniqueId());
     }
@@ -69,6 +80,16 @@ public class VaultEconomyProvider implements Economy {
     }
 
     @Override
+    public double getBalance(String playerName) {
+        return getBalance(playerFromName(playerName));
+    }
+
+    @Override
+    public double getBalance(String playerName, String world) {
+        return getBalance(playerName);
+    }
+
+    @Override
     public boolean has(OfflinePlayer player, double amount) {
         return getBalance(player) >= amount;
     }
@@ -76,6 +97,16 @@ public class VaultEconomyProvider implements Economy {
     @Override
     public boolean has(OfflinePlayer player, String worldName, double amount) {
         return has(player, amount);
+    }
+
+    @Override
+    public boolean has(String playerName, double amount) {
+        return has(playerFromName(playerName), amount);
+    }
+
+    @Override
+    public boolean has(String playerName, String worldName, double amount) {
+        return has(playerName, amount);
     }
 
     @Override
@@ -96,6 +127,16 @@ public class VaultEconomyProvider implements Economy {
     }
 
     @Override
+    public EconomyResponse withdrawPlayer(String playerName, double amount) {
+        return withdrawPlayer(playerFromName(playerName), amount);
+    }
+
+    @Override
+    public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
+        return withdrawPlayer(playerName, amount);
+    }
+
+    @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
         if (amount < 0) {
             return new EconomyResponse(0, getBalance(player), EconomyResponse.ResponseType.FAILURE, "Invalid amount");
@@ -107,6 +148,16 @@ public class VaultEconomyProvider implements Economy {
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
         return depositPlayer(player, amount);
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(String playerName, double amount) {
+        return depositPlayer(playerFromName(playerName), amount);
+    }
+
+    @Override
+    public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
+        return depositPlayer(playerName, amount);
     }
 
     @Override
@@ -180,7 +231,21 @@ public class VaultEconomyProvider implements Economy {
         return createPlayerAccount(player);
     }
 
+    @Override
+    public boolean createPlayerAccount(String playerName) {
+        return createPlayerAccount(playerFromName(playerName));
+    }
+
+    @Override
+    public boolean createPlayerAccount(String playerName, String worldName) {
+        return createPlayerAccount(playerName);
+    }
+
     private EconomyResponse bankUnsupported() {
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Bank support not available");
+    }
+
+    private OfflinePlayer playerFromName(String playerName) {
+        return Bukkit.getOfflinePlayer(playerName);
     }
 }
