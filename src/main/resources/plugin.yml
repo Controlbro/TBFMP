@@ -1,0 +1,45 @@
+name: TBFMP
+main: com.tbfmc.tbfmp.TBFMPPlugin
+version: 1.0.0
+api-version: '1.21'
+load: POSTWORLD
+depend: [Vault]
+commands:
+  balance:
+    aliases: [bal]
+    description: Check your balance.
+    usage: /<command> [player]
+  balancetop:
+    aliases: [baltop]
+    description: View the top balances.
+    usage: /<command>
+  eco:
+    description: Manage player balances.
+    usage: /<command> <give|take|set> <player> <amount>
+    permission: tbfmp.admin.eco
+  rtp:
+    description: Start a one-time random teleport.
+    usage: /<command>
+  confirm:
+    description: Confirm your one-time random teleport.
+    usage: /<command>
+  resetrtp:
+    description: Reset a player's one-time RTP.
+    usage: /<command> <player>
+    permission: tbfmp.admin.rtp
+  pay:
+    description: Pay another player.
+    usage: /<command> <player> <amount>
+  paytoggle:
+    description: Toggle whether you can receive payments.
+    usage: /<command>
+permissions:
+  tbfmp.admin.eco:
+    description: Allows use of /eco commands.
+    default: op
+  tbfmp.admin.rtp:
+    description: Allows use of /resetrtp.
+    default: op
+  tbfmp.balance.others:
+    description: Allows viewing other players' balances.
+    default: op
