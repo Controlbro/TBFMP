@@ -27,6 +27,12 @@ commands:
     description: Reset a player's one-time RTP.
     usage: /<command> <player>
     permission: tbfmp.admin.rtp
+  pay:
+    description: Pay another player.
+    usage: /<command> <player> <amount>
+  paytoggle:
+    description: Toggle whether you can receive payments.
+    usage: /<command>
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.

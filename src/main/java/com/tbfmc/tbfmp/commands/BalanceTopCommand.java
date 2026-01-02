@@ -32,6 +32,11 @@ public class BalanceTopCommand implements CommandExecutor {
                 .limit(10)
                 .collect(Collectors.toList());
 
+        if (topBalances.isEmpty()) {
+            sender.sendMessage(messages.getMessage("messages.baltop-empty"));
+            return true;
+        }
+
         int rank = 1;
         for (Map.Entry<UUID, Double> entry : topBalances) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());

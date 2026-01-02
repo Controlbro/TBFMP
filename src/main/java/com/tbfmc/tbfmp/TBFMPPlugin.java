@@ -5,9 +5,12 @@ import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
+import com.tbfmc.tbfmp.commands.PayCommand;
+import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
+import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.rtp.RtpManager;
@@ -18,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class TBFMPPlugin extends JavaPlugin {
     private BalanceStorage balanceStorage;
+    private PaySettingsStorage paySettingsStorage;
     private RtpManager rtpManager;
     private MessageService messageService;
     private ChatNotificationTask chatNotificationTask;
@@ -27,6 +31,7 @@ public class TBFMPPlugin extends JavaPlugin {
         saveDefaultConfig();
         this.messageService = new MessageService(this);
         this.balanceStorage = new BalanceStorage(this);
+        this.paySettingsStorage = new PaySettingsStorage(this);
         this.rtpManager = new RtpManager(this, messageService);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
@@ -45,6 +50,9 @@ public class TBFMPPlugin extends JavaPlugin {
         if (balanceStorage != null) {
             balanceStorage.save();
         }
+        if (paySettingsStorage != null) {
+            paySettingsStorage.save();
+        }
         if (rtpManager != null) {
             rtpManager.save();
         }
@@ -57,6 +65,8 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("rtp").setExecutor(new RtpCommand(rtpManager, messageService));
         getCommand("confirm").setExecutor(new ConfirmCommand(rtpManager, messageService));
         getCommand("resetrtp").setExecutor(new ResetRtpCommand(rtpManager, messageService));
+        getCommand("pay").setExecutor(new PayCommand(balanceStorage, paySettingsStorage, messageService));
+        getCommand("paytoggle").setExecutor(new PayToggleCommand(paySettingsStorage, messageService));
     }
 
     private void registerListeners() {

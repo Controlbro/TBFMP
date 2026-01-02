@@ -14,6 +14,15 @@ messages:
   player-not-found: "&aPlayer not found."
   invalid-amount: "&aInvalid amount."
   baltop-title: "&aTop Balances"
+  baltop-empty: "&aNo balances have been recorded yet."
+  insufficient-funds: "&aYou do not have enough money."
+  pay-usage: "&aUsage: &f/pay <player> <amount>"
+  pay-self: "&aYou cannot pay yourself."
+  pay-sent: "&aYou sent &f{amount} &ato &f{player}."
+  pay-received: "&aYou received &f{amount} &afrom &f{player}."
+  pay-target-disabled: "&aThat player is not accepting payments."
+  pay-toggle-on: "&aPayments are now &fON&a."
+  pay-toggle-off: "&aPayments are now &fOFF&a."
 rtp:
   world: "world"
   min-radius: 500
