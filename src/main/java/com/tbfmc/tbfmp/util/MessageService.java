@@ -18,7 +18,7 @@ public class MessageService {
 
     public String getMessage(String path) {
         String value = plugin.getConfig().getString(path, "");
-        return formatMessage(value);
+        return colorize(value);
     }
 
     public String formatMessage(String message) {

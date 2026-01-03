@@ -76,6 +76,7 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("vote").setExecutor(new InfoCommand(messageService, "messages.vote"));
         getCommand("web").setExecutor(new InfoCommand(messageService, "messages.web"));
         getCommand("discord").setExecutor(new InfoCommand(messageService, "messages.discord"));
+        getCommand("shoptut").setExecutor(new InfoCommand(messageService, "messages.shoptut"));
         getCommand("hug").setExecutor(hugCommand);
         getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService));
         getCommand("fly").setExecutor(new FlyCommand(messageService));

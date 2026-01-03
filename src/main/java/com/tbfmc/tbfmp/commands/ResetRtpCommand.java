@@ -20,22 +20,22 @@ public class ResetRtpCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("tbfmp.admin.rtp")) {
-            sender.sendMessage(messages.getMessage("messages.no-permission"));
+            messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }
         if (args.length < 1) {
-            sender.sendMessage(messages.formatMessage("&aUsage: /resetrtp <player>"));
+            messages.sendMessage(sender, "Usage: /resetrtp <player>");
             return true;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
         if (!target.hasPlayedBefore() && !target.isOnline()) {
-            sender.sendMessage(messages.getMessage("messages.player-not-found"));
+            messages.sendMessage(sender, messages.getMessage("messages.player-not-found"));
             return true;
         }
         rtpManager.resetRtp(target.getUniqueId());
-        sender.sendMessage(messages.formatMessage("&aRTP reset for &f" + (target.getName() == null ? args[0] : target.getName())));
+        messages.sendMessage(sender, "RTP reset for " + (target.getName() == null ? args[0] : target.getName()));
         if (target.isOnline()) {
-            target.getPlayer().sendMessage(messages.getMessage("messages.rtp-reset"));
+            messages.sendMessage(target.getPlayer(), messages.getMessage("messages.rtp-reset"));
         }
         return true;
     }

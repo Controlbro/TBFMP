@@ -42,6 +42,9 @@ commands:
   discord:
     description: Show the Discord link.
     usage: /<command>
+  shoptut:
+    description: Show the shop tutorial link.
+    usage: /<command>
   hug:
     description: Send a hug to another player.
     usage: /<command> <player>

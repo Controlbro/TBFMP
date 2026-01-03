@@ -28,18 +28,18 @@ public class BalanceCommand implements CommandExecutor {
             double balance = storage.getBalance(player.getUniqueId());
             String message = messages.getMessage("messages.balance-self")
                     .replace("{balance}", String.format("%.2f", balance));
-            player.sendMessage(message);
+            messages.sendMessage(player, message);
             return true;
         }
 
         if (!sender.hasPermission("tbfmp.balance.others")) {
-            sender.sendMessage(messages.getMessage("messages.no-permission"));
+            messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }
 
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
         if (!target.hasPlayedBefore() && !target.isOnline()) {
-            sender.sendMessage(messages.getMessage("messages.player-not-found"));
+            messages.sendMessage(sender, messages.getMessage("messages.player-not-found"));
             return true;
         }
 
@@ -47,7 +47,7 @@ public class BalanceCommand implements CommandExecutor {
         String message = messages.getMessage("messages.balance-other")
                 .replace("{player}", target.getName() == null ? args[0] : target.getName())
                 .replace("{balance}", String.format("%.2f", balance));
-        sender.sendMessage(message);
+        messages.sendMessage(sender, message);
         return true;
     }
 }

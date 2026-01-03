@@ -25,7 +25,7 @@ public class BalanceTopCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage(messages.getMessage("messages.baltop-title"));
+        messages.sendMessage(sender, messages.getMessage("messages.baltop-title"));
 
         List<Map.Entry<UUID, Double>> topBalances = storage.getAllBalances().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -33,7 +33,7 @@ public class BalanceTopCommand implements CommandExecutor {
                 .collect(Collectors.toList());
 
         if (topBalances.isEmpty()) {
-            sender.sendMessage(messages.getMessage("messages.baltop-empty"));
+            messages.sendMessage(sender, messages.getMessage("messages.baltop-empty"));
             return true;
         }
 
@@ -41,7 +41,7 @@ public class BalanceTopCommand implements CommandExecutor {
         for (Map.Entry<UUID, Double> entry : topBalances) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
             String name = player.getName() == null ? entry.getKey().toString() : player.getName();
-            sender.sendMessage(messages.formatMessage("&a" + rank + ". &f" + name + " &a- &f" + String.format("%.2f", entry.getValue())));
+            messages.sendMessage(sender, "&a" + rank + ". &f" + name + " &a- &f" + String.format("%.2f", entry.getValue()));
             rank++;
         }
         return true;

@@ -26,6 +26,7 @@ messages:
   vote: "&aVote for the server at &fexample.com/vote"
   web: "&aVisit our website at &ftbfmc.com"
   discord: "&aJoin our Discord at &fdiscord.com"
+  shoptut: "&aShop tutorial: &fexample.com/shop"
   hug-usage: "&aUsage: &f/hug <player>"
   hug-disabled: "&aHugs are currently disabled."
   hug-cooldown: "&aYou must wait &f{seconds} &aseconds before hugging again."
@@ -37,6 +38,9 @@ messages:
   fly-enabled: "&aFlight enabled."
   fly-disabled: "&aFlight disabled."
   fly-creative: "&aYou already have flight in this mode."
+  join: "&aWelcome back, &f{player}&a!"
+  first-join: "&aWelcome to TBFMC, &f{player}&a!"
+  leave: "&a{player} left the server."
 rtp:
   world: "world"
   min-radius: 500
