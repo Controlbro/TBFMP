@@ -23,6 +23,20 @@ messages:
   pay-target-disabled: "&aThat player is not accepting payments."
   pay-toggle-on: "&aPayments are now &fON&a."
   pay-toggle-off: "&aPayments are now &fOFF&a."
+  vote: "&aVote for the server at &fexample.com/vote"
+  web: "&aVisit our website at &ftbfmc.com"
+  discord: "&aJoin our Discord at &fdiscord.com"
+  hug-usage: "&aUsage: &f/hug <player>"
+  hug-disabled: "&aHugs are currently disabled."
+  hug-cooldown: "&aYou must wait &f{seconds} &aseconds before hugging again."
+  hug-self: "&aYou cannot hug yourself."
+  hug-sent: "&aYou hugged &f{player} &a{hearts}"
+  hug-received: "&a{player} hugged you &a{hearts}"
+  tbfmc-usage: "&aUsage: &f/tbfmc reload"
+  reload-complete: "&aConfiguration reloaded."
+  fly-enabled: "&aFlight enabled."
+  fly-disabled: "&aFlight disabled."
+  fly-creative: "&aYou already have flight in this mode."
 rtp:
   world: "world"
   min-radius: 500
@@ -46,3 +60,7 @@ chat-notifications:
     - "&aJoin our Discord: &fdiscord.com"
     - "&aVisit our website: &ftbfmc.com"
 starting-balance: 100.0
+hug:
+  enabled: true
+  heart_count: 15
+  cooldown: 15 # seconds

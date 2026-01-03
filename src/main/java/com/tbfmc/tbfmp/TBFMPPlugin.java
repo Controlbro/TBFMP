@@ -5,10 +5,14 @@ import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
+import com.tbfmc.tbfmp.commands.FlyCommand;
+import com.tbfmc.tbfmp.commands.HugCommand;
+import com.tbfmc.tbfmp.commands.InfoCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
+import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
@@ -25,6 +29,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private RtpManager rtpManager;
     private MessageService messageService;
     private ChatNotificationTask chatNotificationTask;
+    private HugCommand hugCommand;
 
     @Override
     public void onEnable() {
@@ -33,6 +38,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.balanceStorage = new BalanceStorage(this);
         this.paySettingsStorage = new PaySettingsStorage(this);
         this.rtpManager = new RtpManager(this, messageService);
+        this.hugCommand = new HugCommand(this, messageService);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -67,6 +73,12 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("resetrtp").setExecutor(new ResetRtpCommand(rtpManager, messageService));
         getCommand("pay").setExecutor(new PayCommand(balanceStorage, paySettingsStorage, messageService));
         getCommand("paytoggle").setExecutor(new PayToggleCommand(paySettingsStorage, messageService));
+        getCommand("vote").setExecutor(new InfoCommand(messageService, "messages.vote"));
+        getCommand("web").setExecutor(new InfoCommand(messageService, "messages.web"));
+        getCommand("discord").setExecutor(new InfoCommand(messageService, "messages.discord"));
+        getCommand("hug").setExecutor(hugCommand);
+        getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService));
+        getCommand("fly").setExecutor(new FlyCommand(messageService));
     }
 
     private void registerListeners() {
@@ -78,5 +90,20 @@ public class TBFMPPlugin extends JavaPlugin {
             chatNotificationTask = new ChatNotificationTask(this, messageService);
             chatNotificationTask.start();
         }
+    }
+
+    public void reloadPluginConfig() {
+        reloadConfig();
+        this.messageService = new MessageService(this);
+        if (chatNotificationTask != null) {
+            chatNotificationTask.stop();
+            chatNotificationTask = null;
+        }
+        if (getConfig().getBoolean("chat-notifications.enabled", true)) {
+            chatNotificationTask = new ChatNotificationTask(this, messageService);
+            chatNotificationTask.start();
+        }
+        this.hugCommand = new HugCommand(this, messageService);
+        registerCommands();
     }
 }

@@ -33,6 +33,24 @@ commands:
   paytoggle:
     description: Toggle whether you can receive payments.
     usage: /<command>
+  vote:
+    description: Show the voting link.
+    usage: /<command>
+  web:
+    description: Show the website link.
+    usage: /<command>
+  discord:
+    description: Show the Discord link.
+    usage: /<command>
+  hug:
+    description: Send a hug to another player.
+    usage: /<command> <player>
+  tbfmc:
+    description: TBFMC administration command.
+    usage: /<command> reload
+  fly:
+    description: Toggle flight in survival.
+    usage: /<command>
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.
@@ -42,4 +60,10 @@ permissions:
     default: op
   tbfmp.balance.others:
     description: Allows viewing other players' balances.
+    default: op
+  tbfmp.admin.reload:
+    description: Allows /tbfmc reload.
+    default: op
+  tbfmp.fly:
+    description: Allows /fly in survival.
     default: op
