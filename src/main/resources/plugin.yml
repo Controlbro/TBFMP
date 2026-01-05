@@ -54,6 +54,23 @@ commands:
   fly:
     description: Toggle flight in survival.
     usage: /<command>
+  sit:
+    description: Toggle sit options.
+    usage: /<command> <player|chair> <enable|disable>
+  bank:
+    description: Open the bank menu.
+    usage: /<command>
+  tags:
+    description: Open the chat tag menu.
+    usage: /<command>
+  invsee:
+    description: View a player's inventory.
+    usage: /<command> <player>
+    permission: tbfmp.admin.invsee
+  echestsee:
+    description: View a player's ender chest.
+    usage: /<command> <player>
+    permission: tbfmp.admin.echestsee
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.
@@ -69,4 +86,10 @@ permissions:
     default: op
   tbfmp.fly:
     description: Allows /fly in survival.
+    default: op
+  tbfmp.admin.invsee:
+    description: Allows /invsee.
+    default: op
+  tbfmp.admin.echestsee:
+    description: Allows /echestsee.
     default: op

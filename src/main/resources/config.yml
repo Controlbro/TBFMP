@@ -33,6 +33,20 @@ messages:
   hug-self: "&aYou cannot hug yourself."
   hug-sent: "&aYou hugged &f{player} &a{hearts}"
   hug-received: "&a{player} hugged you &a{hearts}"
+  sit-usage: "&aUsage: &f/sit <player|chair> <enable|disable>"
+  sit-chair-enabled: "&aSitting on chairs enabled."
+  sit-chair-disabled: "&aSitting on chairs disabled."
+  sit-player-enabled: "&aSitting on players enabled."
+  sit-player-disabled: "&aSitting on players disabled."
+  bank-opened: "&aBank opened."
+  bank-no-space: "&aYou need inventory space to receive a diamond."
+  bank-no-diamonds: "&aYou need a diamond to sell."
+  bank-buy-success: "&aYou bought a diamond for &f$2000&a."
+  bank-sell-success: "&aYou sold a diamond for &f$2000&a."
+  tag-selected: "&aTag selected: &f{tag}"
+  tag-no-permission: "&aYou do not have permission for that tag."
+  invsee-usage: "&aUsage: &f/invsee <player>"
+  echestsee-usage: "&aUsage: &f/echestsee <player>"
   tbfmc-usage: "&aUsage: &f/tbfmc reload"
   reload-complete: "&aConfiguration reloaded."
   fly-enabled: "&aFlight enabled."
@@ -41,6 +55,8 @@ messages:
   join: "&aWelcome back, &f{player}&a!"
   first-join: "&aWelcome to TBFMC, &f{player}&a!"
   leave: "&a{player} left the server."
+chat:
+  format: "{prefix}{name}&r %tag% &7>> {message-color}{message}"
 rtp:
   world: "world"
   min-radius: 500
@@ -68,3 +84,6 @@ hug:
   enabled: true
   heart_count: 15
   cooldown: 15 # seconds
+tree-feller:
+  enabled: true
+  auto-replant: false

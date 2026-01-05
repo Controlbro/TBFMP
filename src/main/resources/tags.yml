@@ -1,0 +1,7 @@
+tags:
+  default:
+    display: "&7[Adventurer]"
+    permission: "tbfmp.tag.default"
+  vip:
+    display: "&6[VIP]"
+    permission: "tbfmp.tag.vip"

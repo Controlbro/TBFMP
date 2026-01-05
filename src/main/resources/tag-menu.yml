@@ -1,0 +1,12 @@
+menu:
+  title: "&2Chat Tags"
+  size: 27
+  item-material: "NAME_TAG"
+  lore:
+    - "&7Preview:"
+    - "{preview}"
+  selected-lore:
+    - "&aSelected"
+  no-permission-lore:
+    - "&cNo permission"
+  preview-message: "&fHello!"
