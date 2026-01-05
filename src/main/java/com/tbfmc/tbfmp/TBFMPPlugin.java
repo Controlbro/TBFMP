@@ -20,6 +20,7 @@ import com.tbfmc.tbfmp.commands.EchestseeCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
 import com.tbfmc.tbfmp.commands.SitCommand;
+import com.tbfmc.tbfmp.commands.SitSettingCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
@@ -27,12 +28,14 @@ import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
+import com.tbfmc.tbfmp.listeners.DurabilityWarningListener;
 import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
 import com.tbfmc.tbfmp.rtp.RtpManager;
+import com.tbfmc.tbfmp.sit.SitManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
@@ -46,11 +49,13 @@ public class TBFMPPlugin extends JavaPlugin {
     private BalanceStorage balanceStorage;
     private PaySettingsStorage paySettingsStorage;
     private SitSettingsStorage sitSettingsStorage;
+    private SitManager sitManager;
     private RtpManager rtpManager;
     private MessageService messageService;
     private ChatNotificationTask chatNotificationTask;
     private HugCommand hugCommand;
     private SitCommand sitCommand;
+    private SitSettingCommand sitSettingCommand;
     private OfflineInventoryStorage offlineInventoryStorage;
     private TagConfig tagConfig;
     private TagMenuConfig tagMenuConfig;
@@ -67,20 +72,23 @@ public class TBFMPPlugin extends JavaPlugin {
         this.balanceStorage = new BalanceStorage(this);
         this.paySettingsStorage = new PaySettingsStorage(this);
         this.sitSettingsStorage = new SitSettingsStorage(this);
+        this.sitManager = new SitManager(messageService);
         this.offlineInventoryStorage = new OfflineInventoryStorage(this);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
         this.tagSelectionStorage = new TagSelectionStorage(this);
         this.rtpManager = new RtpManager(this, messageService);
         this.hugCommand = new HugCommand(this, messageService);
-        this.sitCommand = new SitCommand(sitSettingsStorage, messageService);
+        this.sitCommand = new SitCommand(sitManager, messageService);
+        this.sitSettingCommand = new SitSettingCommand(sitSettingsStorage, messageService);
         this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
                 : null;
 
         NamespacedKey tagKey = new NamespacedKey(this, "tag-id");
+        NamespacedKey navigationKey = new NamespacedKey(this, "tag-menu-page");
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
-                messageService, vaultChat, tagKey);
+                messageService, vaultChat, tagKey, navigationKey);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -129,7 +137,8 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService));
         getCommand("fly").setExecutor(new FlyCommand(messageService));
         getCommand("sit").setExecutor(sitCommand);
-        getCommand("sit").setTabCompleter(sitCommand);
+        getCommand("sitsetting").setExecutor(sitSettingCommand);
+        getCommand("sitsetting").setTabCompleter(sitSettingCommand);
         getCommand("bank").setExecutor(new BankCommand(balanceStorage, messageService));
         getCommand("invsee").setExecutor(new InvseeCommand(offlineInventoryStorage, messageService));
         getCommand("echestsee").setExecutor(new EchestseeCommand(offlineInventoryStorage, messageService));
@@ -139,13 +148,16 @@ public class TBFMPPlugin extends JavaPlugin {
 
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
-        Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
         Bukkit.getPluginManager().registerEvents(new OfflineInventoryListener(offlineInventoryStorage), this);
-        Bukkit.getPluginManager().registerEvents(new TagMenuListener(tagConfig, tagSelectionStorage, messageService,
-                new NamespacedKey(this, "tag-id"), messageService.colorize(tagMenuConfig.getTitle())), this);
+        Bukkit.getPluginManager().registerEvents(new TagMenuListener(tagConfig, tagSelectionStorage, tagMenuService,
+                messageService, new NamespacedKey(this, "tag-id"),
+                new NamespacedKey(this, "tag-menu-page"), messageService.colorize(tagMenuConfig.getTitle()),
+                getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
+        Bukkit.getPluginManager().registerEvents(new DurabilityWarningListener(messageService), this);
         Bukkit.getPluginManager().registerEvents(new TreeFellerListener(this, getConfig()), this);
     }
 
@@ -168,7 +180,8 @@ public class TBFMPPlugin extends JavaPlugin {
             chatNotificationTask.start();
         }
         this.hugCommand = new HugCommand(this, messageService);
-        this.sitCommand = new SitCommand(sitSettingsStorage, messageService);
+        this.sitCommand = new SitCommand(sitManager, messageService);
+        this.sitSettingCommand = new SitSettingCommand(sitSettingsStorage, messageService);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
         this.tagSelectionStorage = new TagSelectionStorage(this);
@@ -176,7 +189,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
                 : null;
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
-                messageService, vaultChat, new NamespacedKey(this, "tag-id"));
+                messageService, vaultChat, new NamespacedKey(this, "tag-id"), new NamespacedKey(this, "tag-menu-page"));
         registerCommands();
     }
 }

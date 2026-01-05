@@ -6,7 +6,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MessageService {
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private final JavaPlugin plugin;
     private final String prefix;
 
@@ -37,6 +41,16 @@ public class MessageService {
     }
 
     public String colorize(String input) {
-        return ChatColor.translateAlternateColorCodes('&', input);
+        if (input == null) {
+            return "";
+        }
+        Matcher matcher = HEX_PATTERN.matcher(input);
+        StringBuffer buffer = new StringBuffer();
+        while (matcher.find()) {
+            String color = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + color).toString());
+        }
+        matcher.appendTail(buffer);
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 }
