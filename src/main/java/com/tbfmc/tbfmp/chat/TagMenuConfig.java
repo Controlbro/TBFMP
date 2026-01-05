@@ -50,4 +50,28 @@ public class TagMenuConfig {
     public String getPreviewMessage() {
         return data.getString("menu.preview-message", "&fHello!");
     }
+
+    public Material getNavigationMaterial() {
+        String materialName = data.getString("menu.navigation-material", "ARROW");
+        Material material = Material.matchMaterial(materialName);
+        return material != null ? material : Material.ARROW;
+    }
+
+    public int getPreviousPageSlot(int size) {
+        int slot = data.getInt("menu.previous-page-slot", size - 9);
+        return Math.max(0, Math.min(slot, size - 1));
+    }
+
+    public int getNextPageSlot(int size) {
+        int slot = data.getInt("menu.next-page-slot", size - 1);
+        return Math.max(0, Math.min(slot, size - 1));
+    }
+
+    public String getPreviousPageName() {
+        return data.getString("menu.previous-page-name", "&aPrevious Page");
+    }
+
+    public String getNextPageName() {
+        return data.getString("menu.next-page-name", "&aNext Page");
+    }
 }

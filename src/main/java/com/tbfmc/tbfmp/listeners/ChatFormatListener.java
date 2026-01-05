@@ -31,7 +31,7 @@ public class ChatFormatListener implements Listener {
         Player player = event.getPlayer();
         String tagDisplay = getTagDisplay(player);
         String prefix = chat != null ? chat.getPlayerPrefix(player) : "";
-        String messageColor = chat != null ? chat.getPlayerSuffix(player) : "";
+        String messageColor = resolveMessageColor(player);
         String format = formatTemplate
                 .replace("{prefix}", prefix)
                 .replace("{name}", player.getName())
@@ -54,5 +54,16 @@ public class ChatFormatListener implements Listener {
             return "";
         }
         return tag.getDisplay();
+    }
+
+    private String resolveMessageColor(Player player) {
+        if (chat == null) {
+            return "";
+        }
+        String metaColor = chat.getPlayerInfoString(player, "message-color", "");
+        if (metaColor == null || metaColor.isEmpty()) {
+            return chat.getPlayerSuffix(player);
+        }
+        return metaColor;
     }
 }

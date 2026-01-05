@@ -55,6 +55,9 @@ commands:
     description: Toggle flight in survival.
     usage: /<command>
   sit:
+    description: Sit on the ground.
+    usage: /<command>
+  sitsetting:
     description: Toggle sit options.
     usage: /<command> <player|chair> <enable|disable>
   bank:
