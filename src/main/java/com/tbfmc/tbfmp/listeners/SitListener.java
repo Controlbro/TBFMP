@@ -3,6 +3,7 @@ package com.tbfmc.tbfmp.listeners;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
@@ -18,6 +19,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -44,6 +46,9 @@ public class SitListener implements Listener {
         }
         Player player = event.getPlayer();
         if (!settingsStorage.isChairEnabled(player.getUniqueId())) {
+            return;
+        }
+        if (!canSit(player)) {
             return;
         }
         if (player.isInsideVehicle()) {
@@ -80,6 +85,9 @@ public class SitListener implements Listener {
         if (!settingsStorage.isPlayerEnabled(player.getUniqueId())) {
             return;
         }
+        if (!canSit(player)) {
+            return;
+        }
         if (player.isInsideVehicle()) {
             return;
         }
@@ -88,6 +96,18 @@ public class SitListener implements Listener {
         }
         event.setCancelled(true);
         target.addPassenger(player);
+    }
+
+    private boolean canSit(Player player) {
+        if (player.isSneaking()) {
+            return false;
+        }
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+        if (mainHand != null && mainHand.getType() != Material.AIR) {
+            return false;
+        }
+        return offHand == null || offHand.getType() == Material.AIR;
     }
 
     @EventHandler

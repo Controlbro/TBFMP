@@ -1,6 +1,10 @@
 package com.tbfmc.tbfmp;
 
 import com.tbfmc.tbfmp.chat.ChatNotificationTask;
+import com.tbfmc.tbfmp.chat.TagConfig;
+import com.tbfmc.tbfmp.chat.TagMenuConfig;
+import com.tbfmc.tbfmp.chat.TagMenuService;
+import com.tbfmc.tbfmp.chat.TagSelectionStorage;
 import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.BankCommand;
@@ -9,22 +13,32 @@ import com.tbfmc.tbfmp.commands.EcoCommand;
 import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
+import com.tbfmc.tbfmp.commands.InvseeCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
+import com.tbfmc.tbfmp.commands.EchestseeCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
 import com.tbfmc.tbfmp.commands.SitCommand;
+import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
 import com.tbfmc.tbfmp.listeners.BankListener;
+import com.tbfmc.tbfmp.listeners.ChatFormatListener;
+import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
+import com.tbfmc.tbfmp.listeners.TagMenuListener;
+import com.tbfmc.tbfmp.listeners.TreeFellerListener;
 import com.tbfmc.tbfmp.rtp.RtpManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
+import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
+import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -37,17 +51,36 @@ public class TBFMPPlugin extends JavaPlugin {
     private ChatNotificationTask chatNotificationTask;
     private HugCommand hugCommand;
     private SitCommand sitCommand;
+    private OfflineInventoryStorage offlineInventoryStorage;
+    private TagConfig tagConfig;
+    private TagMenuConfig tagMenuConfig;
+    private TagSelectionStorage tagSelectionStorage;
+    private TagMenuService tagMenuService;
+    private Chat vaultChat;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        saveResource("tags.yml", false);
+        saveResource("tag-menu.yml", false);
         this.messageService = new MessageService(this);
         this.balanceStorage = new BalanceStorage(this);
         this.paySettingsStorage = new PaySettingsStorage(this);
         this.sitSettingsStorage = new SitSettingsStorage(this);
+        this.offlineInventoryStorage = new OfflineInventoryStorage(this);
+        this.tagConfig = new TagConfig(this);
+        this.tagMenuConfig = new TagMenuConfig(this);
+        this.tagSelectionStorage = new TagSelectionStorage(this);
         this.rtpManager = new RtpManager(this, messageService);
         this.hugCommand = new HugCommand(this, messageService);
         this.sitCommand = new SitCommand(sitSettingsStorage, messageService);
+        this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
+                ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
+                : null;
+
+        NamespacedKey tagKey = new NamespacedKey(this, "tag-id");
+        this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
+                messageService, vaultChat, tagKey);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -70,6 +103,9 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         if (sitSettingsStorage != null) {
             sitSettingsStorage.save();
+        }
+        if (tagSelectionStorage != null) {
+            tagSelectionStorage.save();
         }
         if (rtpManager != null) {
             rtpManager.save();
@@ -95,12 +131,22 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("sit").setExecutor(sitCommand);
         getCommand("sit").setTabCompleter(sitCommand);
         getCommand("bank").setExecutor(new BankCommand(balanceStorage, messageService));
+        getCommand("invsee").setExecutor(new InvseeCommand(offlineInventoryStorage, messageService));
+        getCommand("echestsee").setExecutor(new EchestseeCommand(offlineInventoryStorage, messageService));
+        getCommand("tags").setExecutor(new TagMenuCommand(tagMenuService, messageService,
+                getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")));
     }
 
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, messageService), this);
         Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new OfflineInventoryListener(offlineInventoryStorage), this);
+        Bukkit.getPluginManager().registerEvents(new TagMenuListener(tagConfig, tagSelectionStorage, messageService,
+                new NamespacedKey(this, "tag-id"), messageService.colorize(tagMenuConfig.getTitle())), this);
+        Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
+                vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
+        Bukkit.getPluginManager().registerEvents(new TreeFellerListener(this, getConfig()), this);
     }
 
     private void startChatNotifications() {
@@ -123,6 +169,14 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         this.hugCommand = new HugCommand(this, messageService);
         this.sitCommand = new SitCommand(sitSettingsStorage, messageService);
+        this.tagConfig = new TagConfig(this);
+        this.tagMenuConfig = new TagMenuConfig(this);
+        this.tagSelectionStorage = new TagSelectionStorage(this);
+        this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
+                ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
+                : null;
+        this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
+                messageService, vaultChat, new NamespacedKey(this, "tag-id"));
         registerCommands();
     }
 }

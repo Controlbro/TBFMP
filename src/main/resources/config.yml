@@ -43,6 +43,10 @@ messages:
   bank-no-diamonds: "&aYou need a diamond to sell."
   bank-buy-success: "&aYou bought a diamond for &f$2000&a."
   bank-sell-success: "&aYou sold a diamond for &f$2000&a."
+  tag-selected: "&aTag selected: &f{tag}"
+  tag-no-permission: "&aYou do not have permission for that tag."
+  invsee-usage: "&aUsage: &f/invsee <player>"
+  echestsee-usage: "&aUsage: &f/echestsee <player>"
   tbfmc-usage: "&aUsage: &f/tbfmc reload"
   reload-complete: "&aConfiguration reloaded."
   fly-enabled: "&aFlight enabled."
@@ -51,6 +55,8 @@ messages:
   join: "&aWelcome back, &f{player}&a!"
   first-join: "&aWelcome to TBFMC, &f{player}&a!"
   leave: "&a{player} left the server."
+chat:
+  format: "{prefix}{name}&r %tag% &7>> {message-color}{message}"
 rtp:
   world: "world"
   min-radius: 500
@@ -78,3 +84,6 @@ hug:
   enabled: true
   heart_count: 15
   cooldown: 15 # seconds
+tree-feller:
+  enabled: true
+  auto-replant: false
