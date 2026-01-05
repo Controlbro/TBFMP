@@ -54,6 +54,12 @@ commands:
   fly:
     description: Toggle flight in survival.
     usage: /<command>
+  sit:
+    description: Toggle sit options.
+    usage: /<command> <player|chair> <enable|disable>
+  bank:
+    description: Open the bank menu.
+    usage: /<command>
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.

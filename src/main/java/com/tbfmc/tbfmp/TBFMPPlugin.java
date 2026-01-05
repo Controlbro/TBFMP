@@ -3,6 +3,7 @@ package com.tbfmc.tbfmp;
 import com.tbfmc.tbfmp.chat.ChatNotificationTask;
 import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
+import com.tbfmc.tbfmp.commands.BankCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
 import com.tbfmc.tbfmp.commands.FlyCommand;
@@ -12,12 +13,16 @@ import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
+import com.tbfmc.tbfmp.commands.SitCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
+import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
+import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.rtp.RtpManager;
+import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
@@ -26,10 +31,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TBFMPPlugin extends JavaPlugin {
     private BalanceStorage balanceStorage;
     private PaySettingsStorage paySettingsStorage;
+    private SitSettingsStorage sitSettingsStorage;
     private RtpManager rtpManager;
     private MessageService messageService;
     private ChatNotificationTask chatNotificationTask;
     private HugCommand hugCommand;
+    private SitCommand sitCommand;
 
     @Override
     public void onEnable() {
@@ -37,8 +44,10 @@ public class TBFMPPlugin extends JavaPlugin {
         this.messageService = new MessageService(this);
         this.balanceStorage = new BalanceStorage(this);
         this.paySettingsStorage = new PaySettingsStorage(this);
+        this.sitSettingsStorage = new SitSettingsStorage(this);
         this.rtpManager = new RtpManager(this, messageService);
         this.hugCommand = new HugCommand(this, messageService);
+        this.sitCommand = new SitCommand(sitSettingsStorage, messageService);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -58,6 +67,9 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         if (paySettingsStorage != null) {
             paySettingsStorage.save();
+        }
+        if (sitSettingsStorage != null) {
+            sitSettingsStorage.save();
         }
         if (rtpManager != null) {
             rtpManager.save();
@@ -80,10 +92,15 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("hug").setExecutor(hugCommand);
         getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService));
         getCommand("fly").setExecutor(new FlyCommand(messageService));
+        getCommand("sit").setExecutor(sitCommand);
+        getCommand("sit").setTabCompleter(sitCommand);
+        getCommand("bank").setExecutor(new BankCommand(balanceStorage, messageService));
     }
 
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
+        Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
     }
 
     private void startChatNotifications() {
@@ -105,6 +122,7 @@ public class TBFMPPlugin extends JavaPlugin {
             chatNotificationTask.start();
         }
         this.hugCommand = new HugCommand(this, messageService);
+        this.sitCommand = new SitCommand(sitSettingsStorage, messageService);
         registerCommands();
     }
 }
