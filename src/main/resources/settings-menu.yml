@@ -1,0 +1,43 @@
+menu:
+  title: "&2Settings"
+  size: 27
+  filler:
+    material: "GRAY_STAINED_GLASS_PANE"
+    name: " "
+  status-enabled: "&aEnabled"
+  status-disabled: "&cDisabled"
+items:
+  pay:
+    slot: 10
+    material: "GOLD_INGOT"
+    name: "&aPayments"
+    lore:
+      - "&7Toggle whether other players"
+      - "&7can send you money."
+      - ""
+      - "&7Status: {status}"
+  sit-chair:
+    slot: 12
+    material: "OAK_STAIRS"
+    name: "&aChair Sitting"
+    lore:
+      - "&7Toggle sitting on chairs."
+      - ""
+      - "&7Status: {status}"
+  sit-player:
+    slot: 14
+    material: "ARMOR_STAND"
+    name: "&aHead Sitting"
+    lore:
+      - "&7Toggle sitting on players."
+      - ""
+      - "&7Status: {status}"
+  auto-messages:
+    slot: 16
+    material: "PAPER"
+    name: "&aAuto Messages"
+    lore:
+      - "&7Toggle automated server"
+      - "&7messages just for you."
+      - ""
+      - "&7Status: {status}"

@@ -11,12 +11,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChatNotificationTask {
     private final JavaPlugin plugin;
     private final MessageService messages;
+    private final ChatNotificationSettingsStorage settingsStorage;
     private final AtomicInteger index = new AtomicInteger(0);
     private BukkitTask task;
 
-    public ChatNotificationTask(JavaPlugin plugin, MessageService messages) {
+    public ChatNotificationTask(JavaPlugin plugin, MessageService messages,
+                                ChatNotificationSettingsStorage settingsStorage) {
         this.plugin = plugin;
         this.messages = messages;
+        this.settingsStorage = settingsStorage;
     }
 
     public void start() {
@@ -31,7 +34,11 @@ public class ChatNotificationTask {
             }
             int current = index.getAndUpdate(value -> (value + 1) % notifications.size());
             String message = notifications.get(current);
-            Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(messages.formatMessage(message)));
+            Bukkit.getOnlinePlayers().forEach(player -> {
+                if (settingsStorage.isEnabled(player.getUniqueId())) {
+                    player.sendMessage(messages.formatMessage(message));
+                }
+            });
         }, intervalTicks, intervalTicks);
     }
 

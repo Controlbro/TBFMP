@@ -1,0 +1,51 @@
+menu:
+  title: "&2Miner Quests"
+  size: 27
+  filler:
+    material: "GRAY_STAINED_GLASS_PANE"
+    name: " "
+  status-complete: "&aComplete"
+  status-incomplete: "&eIn progress"
+  default-lore:
+    - "&7Type: &f{type}"
+    - "&7Progress: &f{progress}&7/&f{target}"
+    - "&7Status: {status}"
+    - ""
+    - "&7Rewards: &f${money}&7, {diamonds} diamonds, {iron} iron"
+quests:
+  daily_stone:
+    name: "&aMine Stone"
+    type: DAILY
+    objective:
+      type: BLOCK_BREAK
+      material: STONE
+    target: 256
+    item: STONE_PICKAXE
+    rewards:
+      money: 300
+      diamonds: 0
+      iron: 6
+  weekly_iron:
+    name: "&aMine Iron Ore"
+    type: WEEKLY
+    objective:
+      type: BLOCK_BREAK
+      material: IRON_ORE
+    target: 64
+    item: IRON_ORE
+    rewards:
+      money: 2200
+      diamonds: 0
+      iron: 16
+  monthly_diamond:
+    name: "&aMine Diamonds"
+    type: MONTHLY
+    objective:
+      type: BLOCK_BREAK
+      material: DIAMOND_ORE
+    target: 24
+    item: DIAMOND
+    rewards:
+      money: 9000
+      diamonds: 2
+      iron: 16
