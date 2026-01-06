@@ -1,7 +1,6 @@
 package com.tbfmc.tbfmp.listeners;
 
 import com.tbfmc.tbfmp.quests.QuestService;
-import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -43,7 +42,7 @@ public class QuestProgressListener implements Listener {
 
     @EventHandler
     public void onEntityBreed(EntityBreedEvent event) {
-        AnimalTamer breeder = event.getBreeder();
+        LivingEntity breeder = event.getBreeder();
         if (!(breeder instanceof Player player)) {
             return;
         }
