@@ -26,6 +26,7 @@ import com.tbfmc.tbfmp.commands.SitSettingCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.commands.QuestMenuCommand;
+import com.tbfmc.tbfmp.commands.QuestSummaryCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
@@ -40,9 +41,11 @@ import com.tbfmc.tbfmp.listeners.QuestProgressListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
+import com.tbfmc.tbfmp.quests.QuestAssignmentManager;
 import com.tbfmc.tbfmp.quests.QuestConfig;
 import com.tbfmc.tbfmp.quests.QuestProgressStorage;
 import com.tbfmc.tbfmp.quests.QuestService;
+import com.tbfmc.tbfmp.quests.QuestSummaryService;
 import com.tbfmc.tbfmp.rtp.RtpManager;
 import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
 import com.tbfmc.tbfmp.settings.SettingsMenuService;
@@ -77,9 +80,11 @@ public class TBFMPPlugin extends JavaPlugin {
     private SettingsMenuConfig settingsMenuConfig;
     private SettingsMenuService settingsMenuService;
     private QuestProgressStorage questProgressStorage;
+    private QuestAssignmentManager questAssignmentManager;
     private QuestService farmerQuestService;
     private QuestService mobQuestService;
     private QuestService minerQuestService;
+    private QuestSummaryService questSummaryService;
     private Chat vaultChat;
 
     @Override
@@ -105,6 +110,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.tagSelectionStorage = new TagSelectionStorage(this);
         this.settingsMenuConfig = new SettingsMenuConfig(this);
         this.questProgressStorage = new QuestProgressStorage(this);
+        this.questAssignmentManager = new QuestAssignmentManager(questProgressStorage);
         this.rtpManager = new RtpManager(this, messageService);
         this.hugCommand = new HugCommand(this, messageService);
         this.sitCommand = new SitCommand(sitManager, messageService);
@@ -120,11 +126,17 @@ public class TBFMPPlugin extends JavaPlugin {
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
                 chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
         this.farmerQuestService = new QuestService(new QuestConfig(this, "farmer", "farmer-quests.yml"),
-                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "farmer-quest"));
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "farmer-quest"),
+                questAssignmentManager);
         this.mobQuestService = new QuestService(new QuestConfig(this, "mob", "mob-quests.yml"),
-                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "mob-quest"));
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "mob-quest"),
+                questAssignmentManager);
         this.minerQuestService = new QuestService(new QuestConfig(this, "miner", "miner-quests.yml"),
-                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "miner-quest"));
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "miner-quest"),
+                questAssignmentManager);
+        this.questAssignmentManager.setQuestServices(
+                java.util.List.of(farmerQuestService, mobQuestService, minerQuestService));
+        this.questSummaryService = new QuestSummaryService(this, messageService, questAssignmentManager);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -190,10 +202,11 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("farmerquest").setExecutor(new QuestMenuCommand(farmerQuestService, messageService));
         getCommand("mobquest").setExecutor(new QuestMenuCommand(mobQuestService, messageService));
         getCommand("minerquest").setExecutor(new QuestMenuCommand(minerQuestService, messageService));
+        getCommand("quests").setExecutor(new QuestSummaryCommand(questSummaryService, messageService));
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService, questAssignmentManager), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
         Bukkit.getPluginManager().registerEvents(new OfflineInventoryListener(offlineInventoryStorage), this);
@@ -204,7 +217,11 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SettingsMenuListener(settingsMenuService, paySettingsStorage,
                 sitSettingsStorage, chatNotificationSettingsStorage, messageService,
                 new NamespacedKey(this, "settings-option")), this);
-        Bukkit.getPluginManager().registerEvents(new QuestMenuListener(), this);
+        Bukkit.getPluginManager().registerEvents(new QuestMenuListener(java.util.Map.of(
+                "farmer", farmerQuestService,
+                "mob", mobQuestService,
+                "miner", minerQuestService
+        )), this);
         Bukkit.getPluginManager().registerEvents(new QuestProgressListener(
                 java.util.List.of(farmerQuestService, mobQuestService, minerQuestService)), this);
         Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
@@ -250,12 +267,19 @@ public class TBFMPPlugin extends JavaPlugin {
                 messageService, vaultChat, new NamespacedKey(this, "tag-id"), new NamespacedKey(this, "tag-menu-page"));
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
                 chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
+        this.questAssignmentManager = new QuestAssignmentManager(questProgressStorage);
         this.farmerQuestService = new QuestService(new QuestConfig(this, "farmer", "farmer-quests.yml"),
-                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "farmer-quest"));
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "farmer-quest"),
+                questAssignmentManager);
         this.mobQuestService = new QuestService(new QuestConfig(this, "mob", "mob-quests.yml"),
-                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "mob-quest"));
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "mob-quest"),
+                questAssignmentManager);
         this.minerQuestService = new QuestService(new QuestConfig(this, "miner", "miner-quests.yml"),
-                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "miner-quest"));
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "miner-quest"),
+                questAssignmentManager);
+        this.questAssignmentManager.setQuestServices(
+                java.util.List.of(farmerQuestService, mobQuestService, minerQuestService));
+        this.questSummaryService = new QuestSummaryService(this, messageService, questAssignmentManager);
         registerCommands();
     }
 }
