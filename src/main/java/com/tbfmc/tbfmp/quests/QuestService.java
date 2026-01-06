@@ -56,7 +56,6 @@ public class QuestService {
         int size = config.getSize();
         Inventory inventory = Bukkit.createInventory(new QuestMenuHolder(config.getCategory()), size,
                 messages.colorize(config.getTitle()));
-        fillFiller(inventory);
         Set<Integer> usedSlots = new HashSet<>();
         for (QuestDefinition quest : config.getQuests()) {
             if (!assignmentManager.isQuestAssigned(player.getUniqueId(), getQuestKey(quest))) {
@@ -73,6 +72,7 @@ public class QuestService {
             QuestProgress progress = progressStorage.getProgress(player.getUniqueId(), config.getCategory(), quest);
             inventory.setItem(slot, buildQuestItem(quest, progress));
         }
+        fillFiller(inventory);
         return inventory;
     }
 

@@ -29,7 +29,6 @@ public class QuestSummaryService {
         int size = clampSize(config.getInt("quests-summary.size", 27));
         Inventory inventory = Bukkit.createInventory(new QuestSummaryMenuHolder(), size,
                 messages.colorize(config.getString("quests-summary.title", "&2Quests")));
-        fillFiller(inventory);
         Set<Integer> usedSlots = new HashSet<>();
         List<AssignedQuest> assignedQuests = assignmentManager.getAssignedQuests(player.getUniqueId());
         for (AssignedQuest assignedQuest : assignedQuests) {
@@ -42,6 +41,7 @@ public class QuestSummaryService {
             usedSlots.add(slot);
             inventory.setItem(slot, service.createQuestSummaryItem(player, quest));
         }
+        fillFiller(inventory);
         return inventory;
     }
 
