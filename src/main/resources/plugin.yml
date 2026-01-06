@@ -66,6 +66,18 @@ commands:
   tags:
     description: Open the chat tag menu.
     usage: /<command>
+  settings:
+    description: Open the settings menu.
+    usage: /<command>
+  farmerquest:
+    description: Open the farmer quest menu.
+    usage: /<command>
+  mobquest:
+    description: Open the mob quest menu.
+    usage: /<command>
+  minerquest:
+    description: Open the miner quest menu.
+    usage: /<command>
   invsee:
     description: View a player's inventory.
     usage: /<command> <player>

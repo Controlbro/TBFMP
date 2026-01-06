@@ -1,6 +1,7 @@
 package com.tbfmc.tbfmp;
 
 import com.tbfmc.tbfmp.chat.ChatNotificationTask;
+import com.tbfmc.tbfmp.chat.ChatNotificationSettingsStorage;
 import com.tbfmc.tbfmp.chat.TagConfig;
 import com.tbfmc.tbfmp.chat.TagMenuConfig;
 import com.tbfmc.tbfmp.chat.TagMenuService;
@@ -19,24 +20,35 @@ import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.EchestseeCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
+import com.tbfmc.tbfmp.commands.SettingsCommand;
 import com.tbfmc.tbfmp.commands.SitCommand;
 import com.tbfmc.tbfmp.commands.SitSettingCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
+import com.tbfmc.tbfmp.commands.QuestMenuCommand;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
+import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
 import com.tbfmc.tbfmp.listeners.DurabilityWarningListener;
 import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
+import com.tbfmc.tbfmp.listeners.QuestMenuListener;
+import com.tbfmc.tbfmp.listeners.QuestProgressListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
+import com.tbfmc.tbfmp.quests.QuestConfig;
+import com.tbfmc.tbfmp.quests.QuestProgressStorage;
+import com.tbfmc.tbfmp.quests.QuestService;
 import com.tbfmc.tbfmp.rtp.RtpManager;
+import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
+import com.tbfmc.tbfmp.settings.SettingsMenuService;
 import com.tbfmc.tbfmp.sit.SitManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
+import com.tbfmc.tbfmp.util.ConfigUpdater;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
 import net.milkbowl.vault.chat.Chat;
@@ -49,6 +61,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private BalanceStorage balanceStorage;
     private PaySettingsStorage paySettingsStorage;
     private SitSettingsStorage sitSettingsStorage;
+    private ChatNotificationSettingsStorage chatNotificationSettingsStorage;
     private SitManager sitManager;
     private RtpManager rtpManager;
     private MessageService messageService;
@@ -61,22 +74,37 @@ public class TBFMPPlugin extends JavaPlugin {
     private TagMenuConfig tagMenuConfig;
     private TagSelectionStorage tagSelectionStorage;
     private TagMenuService tagMenuService;
+    private SettingsMenuConfig settingsMenuConfig;
+    private SettingsMenuService settingsMenuService;
+    private QuestProgressStorage questProgressStorage;
+    private QuestService farmerQuestService;
+    private QuestService mobQuestService;
+    private QuestService minerQuestService;
     private Chat vaultChat;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        ConfigUpdater.updateConfig(this, "config.yml");
+        ConfigUpdater.updateConfig(this, "settings-menu.yml");
+        ConfigUpdater.updateConfig(this, "farmer-quests.yml");
+        ConfigUpdater.updateConfig(this, "mob-quests.yml");
+        ConfigUpdater.updateConfig(this, "miner-quests.yml");
+        reloadConfig();
         saveResource("tags.yml", false);
         saveResource("tag-menu.yml", false);
         this.messageService = new MessageService(this);
         this.balanceStorage = new BalanceStorage(this);
         this.paySettingsStorage = new PaySettingsStorage(this);
         this.sitSettingsStorage = new SitSettingsStorage(this);
+        this.chatNotificationSettingsStorage = new ChatNotificationSettingsStorage(this);
         this.sitManager = new SitManager(messageService);
         this.offlineInventoryStorage = new OfflineInventoryStorage(this);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
         this.tagSelectionStorage = new TagSelectionStorage(this);
+        this.settingsMenuConfig = new SettingsMenuConfig(this);
+        this.questProgressStorage = new QuestProgressStorage(this);
         this.rtpManager = new RtpManager(this, messageService);
         this.hugCommand = new HugCommand(this, messageService);
         this.sitCommand = new SitCommand(sitManager, messageService);
@@ -89,6 +117,14 @@ public class TBFMPPlugin extends JavaPlugin {
         NamespacedKey navigationKey = new NamespacedKey(this, "tag-menu-page");
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
                 messageService, vaultChat, tagKey, navigationKey);
+        this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
+                chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
+        this.farmerQuestService = new QuestService(new QuestConfig(this, "farmer", "farmer-quests.yml"),
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "farmer-quest"));
+        this.mobQuestService = new QuestService(new QuestConfig(this, "mob", "mob-quests.yml"),
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "mob-quest"));
+        this.minerQuestService = new QuestService(new QuestConfig(this, "miner", "miner-quests.yml"),
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "miner-quest"));
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -112,11 +148,17 @@ public class TBFMPPlugin extends JavaPlugin {
         if (sitSettingsStorage != null) {
             sitSettingsStorage.save();
         }
+        if (chatNotificationSettingsStorage != null) {
+            chatNotificationSettingsStorage.save();
+        }
         if (tagSelectionStorage != null) {
             tagSelectionStorage.save();
         }
         if (rtpManager != null) {
             rtpManager.save();
+        }
+        if (questProgressStorage != null) {
+            questProgressStorage.save();
         }
     }
 
@@ -144,6 +186,10 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("echestsee").setExecutor(new EchestseeCommand(offlineInventoryStorage, messageService));
         getCommand("tags").setExecutor(new TagMenuCommand(tagMenuService, messageService,
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")));
+        getCommand("settings").setExecutor(new SettingsCommand(settingsMenuService, messageService));
+        getCommand("farmerquest").setExecutor(new QuestMenuCommand(farmerQuestService, messageService));
+        getCommand("mobquest").setExecutor(new QuestMenuCommand(mobQuestService, messageService));
+        getCommand("minerquest").setExecutor(new QuestMenuCommand(minerQuestService, messageService));
     }
 
     private void registerListeners() {
@@ -155,6 +201,12 @@ public class TBFMPPlugin extends JavaPlugin {
                 messageService, new NamespacedKey(this, "tag-id"),
                 new NamespacedKey(this, "tag-menu-page"), messageService.colorize(tagMenuConfig.getTitle()),
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
+        Bukkit.getPluginManager().registerEvents(new SettingsMenuListener(settingsMenuService, paySettingsStorage,
+                sitSettingsStorage, chatNotificationSettingsStorage, messageService,
+                new NamespacedKey(this, "settings-option")), this);
+        Bukkit.getPluginManager().registerEvents(new QuestMenuListener(), this);
+        Bukkit.getPluginManager().registerEvents(new QuestProgressListener(
+                java.util.List.of(farmerQuestService, mobQuestService, minerQuestService)), this);
         Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new DurabilityWarningListener(messageService), this);
@@ -163,12 +215,17 @@ public class TBFMPPlugin extends JavaPlugin {
 
     private void startChatNotifications() {
         if (getConfig().getBoolean("chat-notifications.enabled", true)) {
-            chatNotificationTask = new ChatNotificationTask(this, messageService);
+            chatNotificationTask = new ChatNotificationTask(this, messageService, chatNotificationSettingsStorage);
             chatNotificationTask.start();
         }
     }
 
     public void reloadPluginConfig() {
+        ConfigUpdater.updateConfig(this, "config.yml");
+        ConfigUpdater.updateConfig(this, "settings-menu.yml");
+        ConfigUpdater.updateConfig(this, "farmer-quests.yml");
+        ConfigUpdater.updateConfig(this, "mob-quests.yml");
+        ConfigUpdater.updateConfig(this, "miner-quests.yml");
         reloadConfig();
         this.messageService = new MessageService(this);
         if (chatNotificationTask != null) {
@@ -176,7 +233,7 @@ public class TBFMPPlugin extends JavaPlugin {
             chatNotificationTask = null;
         }
         if (getConfig().getBoolean("chat-notifications.enabled", true)) {
-            chatNotificationTask = new ChatNotificationTask(this, messageService);
+            chatNotificationTask = new ChatNotificationTask(this, messageService, chatNotificationSettingsStorage);
             chatNotificationTask.start();
         }
         this.hugCommand = new HugCommand(this, messageService);
@@ -185,11 +242,20 @@ public class TBFMPPlugin extends JavaPlugin {
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
         this.tagSelectionStorage = new TagSelectionStorage(this);
+        this.settingsMenuConfig = new SettingsMenuConfig(this);
         this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
                 : null;
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
                 messageService, vaultChat, new NamespacedKey(this, "tag-id"), new NamespacedKey(this, "tag-menu-page"));
+        this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
+                chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
+        this.farmerQuestService = new QuestService(new QuestConfig(this, "farmer", "farmer-quests.yml"),
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "farmer-quest"));
+        this.mobQuestService = new QuestService(new QuestConfig(this, "mob", "mob-quests.yml"),
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "mob-quest"));
+        this.minerQuestService = new QuestService(new QuestConfig(this, "miner", "miner-quests.yml"),
+                questProgressStorage, balanceStorage, messageService, new NamespacedKey(this, "miner-quest"));
         registerCommands();
     }
 }
