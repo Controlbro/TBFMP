@@ -78,6 +78,9 @@ commands:
   minerquest:
     description: Open the miner quest menu.
     usage: /<command>
+  quests:
+    description: Open the quests summary menu.
+    usage: /<command>
   invsee:
     description: View a player's inventory.
     usage: /<command> <player>

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class QuestService {
     private final QuestConfig config;
@@ -22,18 +23,33 @@ public class QuestService {
     private final BalanceStorage balanceStorage;
     private final MessageService messages;
     private final NamespacedKey questKey;
+    private final QuestAssignmentManager assignmentManager;
 
     public QuestService(QuestConfig config, QuestProgressStorage progressStorage,
-                        BalanceStorage balanceStorage, MessageService messages, NamespacedKey questKey) {
+                        BalanceStorage balanceStorage, MessageService messages, NamespacedKey questKey,
+                        QuestAssignmentManager assignmentManager) {
         this.config = config;
         this.progressStorage = progressStorage;
         this.balanceStorage = balanceStorage;
         this.messages = messages;
         this.questKey = questKey;
+        this.assignmentManager = assignmentManager;
     }
 
     public String getCategory() {
         return config.getCategory();
+    }
+
+    public List<QuestDefinition> getQuests() {
+        return config.getQuests();
+    }
+
+    public QuestProgress getProgress(UUID uuid, QuestDefinition quest) {
+        return progressStorage.getProgress(uuid, config.getCategory(), quest);
+    }
+
+    public String getQuestKey(QuestDefinition quest) {
+        return config.getCategory() + ":" + quest.getId();
     }
 
     public Inventory createMenu(Player player) {
@@ -43,6 +59,9 @@ public class QuestService {
         fillFiller(inventory);
         Set<Integer> usedSlots = new HashSet<>();
         for (QuestDefinition quest : config.getQuests()) {
+            if (!assignmentManager.isQuestAssigned(player.getUniqueId(), getQuestKey(quest))) {
+                continue;
+            }
             int slot = quest.getSlot();
             if (slot < 0 || slot >= size || usedSlots.contains(slot)) {
                 slot = findNextSlot(inventory, usedSlots);
@@ -59,6 +78,9 @@ public class QuestService {
 
     public void handleBlockBreak(Player player, Material material) {
         for (QuestDefinition quest : config.getQuests()) {
+            if (!assignmentManager.isQuestAssigned(player.getUniqueId(), getQuestKey(quest))) {
+                continue;
+            }
             if (quest.getObjectiveType() != QuestObjectiveType.BLOCK_BREAK) {
                 continue;
             }
@@ -71,6 +93,9 @@ public class QuestService {
 
     public void handleMobKill(Player player, org.bukkit.entity.EntityType entityType) {
         for (QuestDefinition quest : config.getQuests()) {
+            if (!assignmentManager.isQuestAssigned(player.getUniqueId(), getQuestKey(quest))) {
+                continue;
+            }
             if (quest.getObjectiveType() != QuestObjectiveType.MOB_KILL) {
                 continue;
             }
@@ -83,6 +108,9 @@ public class QuestService {
 
     public void handleBreed(Player player, org.bukkit.entity.EntityType entityType) {
         for (QuestDefinition quest : config.getQuests()) {
+            if (!assignmentManager.isQuestAssigned(player.getUniqueId(), getQuestKey(quest))) {
+                continue;
+            }
             if (quest.getObjectiveType() != QuestObjectiveType.BREED) {
                 continue;
             }
@@ -101,10 +129,58 @@ public class QuestService {
         int newProgress = Math.min(quest.getTarget(), progress.getProgress() + amount);
         boolean completed = newProgress >= quest.getTarget();
         progressStorage.setProgress(player.getUniqueId(), config.getCategory(), quest.getId(),
-                newProgress, completed, progress.getStartTime());
+                newProgress, completed, progress.isClaimed(), progress.getStartTime());
         if (completed) {
-            rewardPlayer(player, quest);
+            String completeMessage = messages.getMessage("messages.quest-complete")
+                    .replace("{quest}", quest.getName());
+            messages.sendMessage(player, completeMessage);
+            String rewardMessage = messages.getMessage("messages.quest-available")
+                    .replace("{quest}", quest.getName());
+            messages.sendMessage(player, rewardMessage);
         }
+    }
+
+    public boolean claimReward(Player player, QuestDefinition quest) {
+        QuestProgress progress = progressStorage.getProgress(player.getUniqueId(), config.getCategory(), quest);
+        if (!progress.isCompleted() || progress.isClaimed()) {
+            return false;
+        }
+        rewardPlayer(player, quest);
+        progressStorage.setProgress(player.getUniqueId(), config.getCategory(), quest.getId(),
+                progress.getProgress(), true, true, progress.getStartTime());
+        return true;
+    }
+
+    public void handleMenuClick(Player player, ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        String questId = meta.getPersistentDataContainer().get(questKey, PersistentDataType.STRING);
+        if (questId == null) {
+            return;
+        }
+        QuestDefinition quest = getQuestById(questId);
+        if (quest == null) {
+            return;
+        }
+        claimReward(player, quest);
+    }
+
+    public ItemStack createQuestSummaryItem(Player player, QuestDefinition quest) {
+        QuestProgress progress = progressStorage.getProgress(player.getUniqueId(), config.getCategory(), quest);
+        ItemStack item = buildQuestItem(quest, progress);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            List<String> lore = meta.getLore() == null ? new ArrayList<>() : new ArrayList<>(meta.getLore());
+            lore.add(messages.colorize("&7Category: &f" + formatCategoryName()));
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     private void rewardPlayer(Player player, QuestDefinition quest) {
@@ -137,7 +213,14 @@ public class QuestService {
         ItemStack item = new ItemStack(quest.getItemMaterial());
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            String status = progress.isCompleted() ? config.getStatusComplete() : config.getStatusIncomplete();
+            String status;
+            if (progress.isClaimed()) {
+                status = config.getStatusClaimed();
+            } else if (progress.isCompleted()) {
+                status = config.getStatusComplete();
+            } else {
+                status = config.getStatusIncomplete();
+            }
             meta.setDisplayName(messages.colorize(applyPlaceholders(quest.getName(), quest, progress, status)));
             List<String> loreTemplate = quest.getLore().isEmpty() ? config.getDefaultLore() : quest.getLore();
             List<String> lore = new ArrayList<>();
@@ -162,6 +245,23 @@ public class QuestService {
                 .replace("{money}", String.format("%.2f", reward.getMoney()))
                 .replace("{diamonds}", String.valueOf(reward.getDiamonds()))
                 .replace("{iron}", String.valueOf(reward.getIron()));
+    }
+
+    private QuestDefinition getQuestById(String questId) {
+        for (QuestDefinition quest : config.getQuests()) {
+            if (quest.getId().equalsIgnoreCase(questId)) {
+                return quest;
+            }
+        }
+        return null;
+    }
+
+    private String formatCategoryName() {
+        String category = config.getCategory();
+        if (category == null || category.isEmpty()) {
+            return "";
+        }
+        return category.substring(0, 1).toUpperCase() + category.substring(1).toLowerCase();
     }
 
     private void fillFiller(Inventory inventory) {

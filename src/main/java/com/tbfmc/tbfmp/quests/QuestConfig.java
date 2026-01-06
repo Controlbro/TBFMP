@@ -58,6 +58,10 @@ public class QuestConfig {
         return data.getString("menu.status-incomplete", "&eIn progress");
     }
 
+    public String getStatusClaimed() {
+        return data.getString("menu.status-claimed", "&7Claimed");
+    }
+
     public List<String> getDefaultLore() {
         return new ArrayList<>(data.getStringList("menu.default-lore"));
     }
