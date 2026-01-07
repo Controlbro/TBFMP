@@ -82,6 +82,7 @@ public class SitListener implements Listener {
         }
         event.setCancelled(true);
         target.addPassenger(player);
+        sitManager.hideSitterFromTarget(player, target);
     }
 
     @EventHandler
@@ -95,6 +96,7 @@ public class SitListener implements Listener {
         }
         Entity vehicle = player.getVehicle();
         player.leaveVehicle();
+        sitManager.showSitterToTarget(player.getUniqueId());
         if (vehicle instanceof ArmorStand stand) {
             sitManager.removeSeat(player.getUniqueId(), stand);
         }
@@ -103,6 +105,7 @@ public class SitListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
+        sitManager.showSitterToTarget(uuid);
         sitManager.removeSeat(uuid);
     }
 }
