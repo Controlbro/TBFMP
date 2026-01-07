@@ -60,11 +60,23 @@ messages:
   fly-enabled: "&aFlight enabled."
   fly-disabled: "&aFlight disabled."
   fly-creative: "&aYou already have flight in this mode."
+  afk-enabled: "&aYou are now AFK."
+  afk-disabled: "&aYou are no longer AFK."
+  players-only: "&aOnly players can use that command."
   join: "&aWelcome back, &f{player}&a!"
   first-join: "&aWelcome to TBFMC, &f{player}&a!"
   leave: "&a{player} left the server."
 chat:
   format: "{prefix}{name}&r %tag% &7>> {message-color}{message}"
+afk:
+  timeout-seconds: 300
+tab-list:
+  header:
+    - "&f&lTBFMC"
+    - ""
+  footer:
+    - ""
+    - "&7Powered by blockbuddy.host"
 rtp:
   world: "world"
   min-radius: 500

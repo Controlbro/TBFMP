@@ -6,6 +6,7 @@ import com.tbfmc.tbfmp.chat.TagConfig;
 import com.tbfmc.tbfmp.chat.TagMenuConfig;
 import com.tbfmc.tbfmp.chat.TagMenuService;
 import com.tbfmc.tbfmp.chat.TagSelectionStorage;
+import com.tbfmc.tbfmp.commands.AfkCommand;
 import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.BankCommand;
@@ -27,9 +28,11 @@ import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.commands.QuestMenuCommand;
 import com.tbfmc.tbfmp.commands.QuestSummaryCommand;
+import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
+import com.tbfmc.tbfmp.listeners.AfkListener;
 import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
@@ -38,6 +41,7 @@ import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.QuestMenuListener;
 import com.tbfmc.tbfmp.listeners.QuestProgressListener;
+import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
@@ -51,12 +55,14 @@ import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
 import com.tbfmc.tbfmp.settings.SettingsMenuService;
 import com.tbfmc.tbfmp.sit.SitManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
+import com.tbfmc.tbfmp.tablist.TabListService;
 import com.tbfmc.tbfmp.util.ConfigUpdater;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -86,6 +92,9 @@ public class TBFMPPlugin extends JavaPlugin {
     private QuestService minerQuestService;
     private QuestSummaryService questSummaryService;
     private Chat vaultChat;
+    private TabListService tabListService;
+    private AfkManager afkManager;
+    private BukkitTask afkTask;
 
     @Override
     public void onEnable() {
@@ -118,6 +127,9 @@ public class TBFMPPlugin extends JavaPlugin {
         this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
                 : null;
+        this.tabListService = new TabListService(this, messageService, vaultChat);
+        long afkTimeoutSeconds = getConfig().getLong("afk.timeout-seconds", 300L);
+        this.afkManager = new AfkManager(afkTimeoutSeconds * 1000L, messageService, tabListService);
 
         NamespacedKey tagKey = new NamespacedKey(this, "tag-id");
         NamespacedKey navigationKey = new NamespacedKey(this, "tag-menu-page");
@@ -144,6 +156,7 @@ public class TBFMPPlugin extends JavaPlugin {
         registerCommands();
         registerListeners();
         startChatNotifications();
+        startAfkTask();
     }
 
     @Override
@@ -171,6 +184,10 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         if (questProgressStorage != null) {
             questProgressStorage.save();
+        }
+        if (afkTask != null) {
+            afkTask.cancel();
+            afkTask = null;
         }
     }
 
@@ -203,11 +220,14 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("mobquest").setExecutor(new QuestMenuCommand(mobQuestService, messageService));
         getCommand("minerquest").setExecutor(new QuestMenuCommand(minerQuestService, messageService));
         getCommand("quests").setExecutor(new QuestSummaryCommand(questSummaryService, messageService));
+        getCommand("afk").setExecutor(new AfkCommand(afkManager, messageService));
     }
 
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService, questAssignmentManager), this);
+        Bukkit.getPluginManager().registerEvents(new AfkListener(afkManager), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
+        Bukkit.getPluginManager().registerEvents(new SitDamageListener(), this);
         Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
         Bukkit.getPluginManager().registerEvents(new OfflineInventoryListener(offlineInventoryStorage), this);
         Bukkit.getPluginManager().registerEvents(new TagMenuListener(tagConfig, tagSelectionStorage, tagMenuService,
@@ -237,6 +257,19 @@ public class TBFMPPlugin extends JavaPlugin {
         }
     }
 
+    private void startAfkTask() {
+        if (afkTask != null) {
+            afkTask.cancel();
+        }
+        for (org.bukkit.entity.Player player : Bukkit.getOnlinePlayers()) {
+            afkManager.initialize(player);
+        }
+        afkTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+            afkManager.checkAfk();
+            tabListService.updateAll(afkManager::isAfk);
+        }, 20L * 60L, 20L * 60L);
+    }
+
     public void reloadPluginConfig() {
         ConfigUpdater.updateConfig(this, "config.yml");
         ConfigUpdater.updateConfig(this, "settings-menu.yml");
@@ -263,6 +296,17 @@ public class TBFMPPlugin extends JavaPlugin {
         this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
                 : null;
+        long afkTimeoutSeconds = getConfig().getLong("afk.timeout-seconds", 300L);
+        if (this.tabListService == null) {
+            this.tabListService = new TabListService(this, messageService, vaultChat);
+        } else {
+            this.tabListService.updateServices(messageService, vaultChat);
+        }
+        if (this.afkManager == null) {
+            this.afkManager = new AfkManager(afkTimeoutSeconds * 1000L, messageService, tabListService);
+        } else {
+            this.afkManager.updateSettings(afkTimeoutSeconds * 1000L, messageService, tabListService);
+        }
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
                 messageService, vaultChat, new NamespacedKey(this, "tag-id"), new NamespacedKey(this, "tag-menu-page"));
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
@@ -281,5 +325,6 @@ public class TBFMPPlugin extends JavaPlugin {
                 java.util.List.of(farmerQuestService, mobQuestService, minerQuestService));
         this.questSummaryService = new QuestSummaryService(this, messageService, questAssignmentManager);
         registerCommands();
+        startAfkTask();
     }
 }
