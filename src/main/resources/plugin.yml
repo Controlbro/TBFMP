@@ -69,18 +69,6 @@ commands:
   settings:
     description: Open the settings menu.
     usage: /<command>
-  farmerquest:
-    description: Open the farmer quest menu.
-    usage: /<command>
-  mobquest:
-    description: Open the mob quest menu.
-    usage: /<command>
-  minerquest:
-    description: Open the miner quest menu.
-    usage: /<command>
-  quests:
-    description: Open the quests summary menu.
-    usage: /<command>
   afk:
     description: Toggle AFK status.
     usage: /<command>

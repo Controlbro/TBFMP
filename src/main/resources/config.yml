@@ -40,11 +40,6 @@ messages:
   sit-player-disabled: "&aSitting on players disabled."
   auto-messages-enabled: "&aAuto messages enabled."
   auto-messages-disabled: "&aAuto messages disabled."
-  quest-complete: "&aQuest complete: &f{quest}"
-  quest-available: "&aUse &f/quests &ato claim your reward."
-  quest-unclaimed: "&aYou have quest rewards ready to claim. Use &f/quests&a."
-  quest-daily: "&aToday's daily quest: &f{quest}"
-  quest-reward: "&aRewards: &f${money}&a, {diamonds} diamonds, {iron} iron"
   durability-warning: "&c{item} durability is at {remaining}/{max}"
   bank-opened: "&aBank opened."
   bank-no-space: "&aYou need inventory space to receive a diamond."
@@ -99,12 +94,6 @@ chat-notifications:
   messages:
     - "&aJoin our Discord: &fdiscord.com"
     - "&aVisit our website: &ftbfmc.com"
-quests-summary:
-  title: "&2Quests"
-  size: 27
-  filler:
-    material: "GRAY_STAINED_GLASS_PANE"
-    name: " "
 starting-balance: 100.0
 hug:
   enabled: true
