@@ -1,6 +1,7 @@
 package com.tbfmc.tbfmp.sit;
 
 import com.tbfmc.tbfmp.util.MessageService;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,6 +12,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +20,13 @@ import java.util.UUID;
 
 public class SitManager {
     private final MessageService messages;
+    private final JavaPlugin plugin;
     private final Map<UUID, ArmorStand> seats = new HashMap<>();
+    private final Map<UUID, UUID> hiddenSitters = new HashMap<>();
 
-    public SitManager(MessageService messages) {
+    public SitManager(MessageService messages, JavaPlugin plugin) {
         this.messages = messages;
+        this.plugin = plugin;
     }
 
     public boolean sitOnGround(Player player) {
@@ -68,6 +73,23 @@ public class SitManager {
         ArmorStand stand = seats.remove(uuid);
         if (stand != null) {
             stand.remove();
+        }
+    }
+
+    public void hideSitterFromTarget(Player sitter, Player target) {
+        target.hidePlayer(plugin, sitter);
+        hiddenSitters.put(sitter.getUniqueId(), target.getUniqueId());
+    }
+
+    public void showSitterToTarget(UUID sitterId) {
+        UUID targetId = hiddenSitters.remove(sitterId);
+        if (targetId == null) {
+            return;
+        }
+        Player target = Bukkit.getPlayer(targetId);
+        Player sitter = Bukkit.getPlayer(sitterId);
+        if (target != null && sitter != null) {
+            target.showPlayer(plugin, sitter);
         }
     }
 

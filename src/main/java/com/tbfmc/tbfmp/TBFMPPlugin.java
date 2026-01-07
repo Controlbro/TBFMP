@@ -103,7 +103,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.paySettingsStorage = new PaySettingsStorage(this);
         this.sitSettingsStorage = new SitSettingsStorage(this);
         this.chatNotificationSettingsStorage = new ChatNotificationSettingsStorage(this);
-        this.sitManager = new SitManager(messageService);
+        this.sitManager = new SitManager(messageService, this);
         this.offlineInventoryStorage = new OfflineInventoryStorage(this);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
