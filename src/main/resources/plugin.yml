@@ -81,6 +81,9 @@ commands:
   quests:
     description: Open the quests summary menu.
     usage: /<command>
+  afk:
+    description: Toggle AFK status.
+    usage: /<command>
   invsee:
     description: View a player's inventory.
     usage: /<command> <player>
