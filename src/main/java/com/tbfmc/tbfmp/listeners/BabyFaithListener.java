@@ -7,7 +7,6 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityAgeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -55,21 +54,6 @@ public class BabyFaithListener implements Listener {
         }
 
         markAsFaithBaby(ageable);
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onAgeChange(EntityAgeChangeEvent event) {
-        if (!(event.getEntity() instanceof Ageable ageable)) {
-            return;
-        }
-
-        if (!isFaithBaby(ageable)) {
-            return;
-        }
-
-        event.setCancelled(true);
-        ageable.setAgeLock(true);
-        ageable.setBaby();
     }
 
     private void markAsFaithBaby(Ageable ageable) {
