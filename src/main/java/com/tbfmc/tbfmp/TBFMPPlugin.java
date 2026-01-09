@@ -31,6 +31,8 @@ import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
 import com.tbfmc.tbfmp.listeners.AfkListener;
+import com.tbfmc.tbfmp.listeners.BabyFaithListener;
+import com.tbfmc.tbfmp.listeners.CritParticleListener;
 import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
@@ -202,6 +204,8 @@ public class TBFMPPlugin extends JavaPlugin {
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new DurabilityWarningListener(messageService), this);
         Bukkit.getPluginManager().registerEvents(new TreeFellerListener(this, getConfig()), this);
+        Bukkit.getPluginManager().registerEvents(new BabyFaithListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CritParticleListener(), this);
     }
 
     private void startChatNotifications() {

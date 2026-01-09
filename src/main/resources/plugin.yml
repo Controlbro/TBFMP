@@ -102,3 +102,12 @@ permissions:
   tbfmp.admin.echestsee:
     description: Allows /echestsee.
     default: op
+  critcolor.gold:
+    description: Use gold critical hit particles.
+    default: false
+  critcolor.red:
+    description: Use red critical hit particles.
+    default: false
+  critcolor.blue:
+    description: Use blue critical hit particles.
+    default: false
