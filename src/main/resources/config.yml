@@ -50,8 +50,9 @@ messages:
   tag-no-permission: "&aYou do not have permission for that tag."
   invsee-usage: "&aUsage: &f/invsee <player>"
   echestsee-usage: "&aUsage: &f/echestsee <player>"
-  tbfmc-usage: "&aUsage: &f/tbfmc reload"
+  tbfmc-usage: "&aUsage: &f/tbfmc <reload|setspawn>"
   reload-complete: "&aConfiguration reloaded."
+  setspawn-success: "&aSpawn location updated."
   fly-enabled: "&aFlight enabled."
   fly-disabled: "&aFlight disabled."
   fly-creative: "&aYou already have flight in this mode."
@@ -102,3 +103,11 @@ hug:
 tree-feller:
   enabled: true
   auto-replant: false
+spawn:
+  enabled: false
+  world: "world"
+  x: 0.5
+  y: 64.0
+  z: 0.5
+  yaw: 0.0
+  pitch: 0.0
