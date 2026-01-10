@@ -41,6 +41,7 @@ import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
+import com.tbfmc.tbfmp.listeners.SpawnListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
 import com.tbfmc.tbfmp.rtp.RtpManager;
@@ -52,6 +53,7 @@ import com.tbfmc.tbfmp.tablist.TabListService;
 import com.tbfmc.tbfmp.util.ConfigUpdater;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
+import com.tbfmc.tbfmp.util.SpawnService;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -82,6 +84,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private TabListService tabListService;
     private AfkManager afkManager;
     private BukkitTask afkTask;
+    private SpawnService spawnService;
 
     @Override
     public void onEnable() {
@@ -119,6 +122,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 messageService, vaultChat, tagKey, navigationKey);
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
                 chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
+        this.spawnService = new SpawnService(this);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -172,7 +176,7 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("discord").setExecutor(new InfoCommand(messageService, "messages.discord"));
         getCommand("shoptut").setExecutor(new InfoCommand(messageService, "messages.shoptut"));
         getCommand("hug").setExecutor(hugCommand);
-        getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService));
+        getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService, spawnService));
         getCommand("fly").setExecutor(new FlyCommand(messageService));
         getCommand("sit").setExecutor(sitCommand);
         getCommand("sitsetting").setExecutor(sitSettingCommand);
@@ -206,6 +210,7 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new TreeFellerListener(this, getConfig()), this);
         Bukkit.getPluginManager().registerEvents(new BabyFaithListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CritParticleListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnService), this);
     }
 
     private void startChatNotifications() {
