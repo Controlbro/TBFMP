@@ -1,7 +1,10 @@
 package com.tbfmc.tbfmp.listeners;
 
+import com.tbfmc.tbfmp.util.CustomConfig;
 import org.bukkit.Color;
 import org.bukkit.Particle;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,10 +12,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.List;
+
 public class CritParticleListener implements Listener {
-    private static final String PERMISSION_GOLD = "critcolor.gold";
-    private static final String PERMISSION_RED = "critcolor.red";
-    private static final String PERMISSION_BLUE = "critcolor.blue";
+    private final CustomConfig customConfig;
+
+    public CritParticleListener(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event) {
@@ -62,15 +69,66 @@ public class CritParticleListener implements Listener {
     }
 
     private Particle.DustOptions resolveDustOptions(Player player) {
-        if (player.hasPermission(PERMISSION_GOLD)) {
-            return new Particle.DustOptions(Color.fromRGB(255, 215, 0), 1.0f);
+        FileConfiguration config = customConfig.getConfig();
+        if (!config.getBoolean("crit-colors.enabled", true)) {
+            return null;
         }
-        if (player.hasPermission(PERMISSION_RED)) {
-            return new Particle.DustOptions(Color.fromRGB(255, 0, 0), 1.0f);
+
+        ConfigurationSection colorsSection = config.getConfigurationSection("crit-colors.colors");
+        String selectedKey = null;
+        if (colorsSection != null) {
+            for (String key : colorsSection.getKeys(false)) {
+                String permission = colorsSection.getString(key + ".permission", "");
+                if (!permission.isEmpty() && player.hasPermission(permission)) {
+                    selectedKey = key;
+                    break;
+                }
+            }
         }
-        if (player.hasPermission(PERMISSION_BLUE)) {
-            return new Particle.DustOptions(Color.fromRGB(0, 255, 255), 1.0f);
+        if (selectedKey == null) {
+            selectedKey = config.getString("crit-colors.default");
         }
-        return null;
+        if (selectedKey == null || colorsSection == null) {
+            return null;
+        }
+
+        if ("rainbow".equalsIgnoreCase(selectedKey)) {
+            Color rainbow = resolveRainbowColor(config, player);
+            return rainbow == null ? null : new Particle.DustOptions(rainbow, 1.0f);
+        }
+
+        String colorValue = colorsSection.getString(selectedKey + ".color");
+        Color color = parseColor(colorValue);
+        if (color == null) {
+            return null;
+        }
+        return new Particle.DustOptions(color, 1.0f);
+    }
+
+    private Color resolveRainbowColor(FileConfiguration config, Player player) {
+        int speedTicks = Math.max(1, config.getInt("crit-colors.rainbow.speed-ticks", 2));
+        List<String> colors = config.getStringList("crit-colors.rainbow.colors");
+        if (colors.isEmpty()) {
+            return null;
+        }
+        long fullTime = player.getWorld().getFullTime();
+        int index = (int) ((fullTime / speedTicks) % colors.size());
+        return parseColor(colors.get(index));
+    }
+
+    private Color parseColor(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        String hex = value.startsWith("#") ? value.substring(1) : value;
+        if (hex.length() != 6) {
+            return null;
+        }
+        try {
+            int rgb = Integer.parseInt(hex, 16);
+            return Color.fromRGB(rgb);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 }

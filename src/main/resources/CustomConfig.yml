@@ -1,0 +1,103 @@
+crit-colors:
+  enabled: true
+  default: grey
+
+  rainbow:
+    speed-ticks: 2
+    colors:
+      - "#FF0000"
+      - "#FFA500"
+      - "#FFFF00"
+      - "#00FF00"
+      - "#00FFFF"
+      - "#0000FF"
+      - "#8A2BE2"
+
+  colors:
+    grey:
+      color: "#B0B0B0"
+      permission: "crit.color.grey"
+
+    yellow:
+      color: "#FFD700"
+      permission: "crit.color.yellow"
+
+    blue:
+      color: "#4DA6FF"
+      permission: "crit.color.blue"
+
+    rainbow:
+      permission: "crit.color.rainbow"
+
+join-messages:
+  enabled: true
+  priority:
+    - staff
+    - vip
+    - default
+
+  messages:
+    default:
+      permission: "join.default"
+      message: "&7{player} joined the server"
+
+    vip:
+      permission: "join.vip"
+      message: "&6✦ &e{player} joined the server"
+
+    staff:
+      permission: "join.staff"
+      message: "&c[Staff] &f{player} joined"
+
+leave-messages:
+  enabled: true
+  priority:
+    - staff
+    - vip
+    - default
+
+  messages:
+    default:
+      permission: "leave.default"
+      message: "&7{player} left the server"
+
+    vip:
+      permission: "leave.vip"
+      message: "&6✦ &e{player} left the server"
+
+    staff:
+      permission: "leave.staff"
+      message: "&c[Staff] &f{player} left"
+
+death-particles:
+  enabled: true
+  default: smoke
+
+  particles:
+    smoke:
+      type: SMOKE
+      count: 30
+      spread: 0.5
+      duration-ticks: 10
+      permission: "death.particle.smoke"
+
+    souls:
+      type: SOUL
+      count: 20
+      spread: 0.3
+      duration-ticks: 15
+      permission: "death.particle.souls"
+
+    crit:
+      type: CRIT
+      count: 25
+      spread: 0.4
+      duration-ticks: 8
+      permission: "death.particle.crit"
+
+    hearts:
+      type: HEART
+      count: 15
+      spread: 0.2
+      duration-ticks: 12
+      permission: "death.particle.hearts"

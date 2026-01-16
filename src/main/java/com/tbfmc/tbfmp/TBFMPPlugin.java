@@ -12,6 +12,7 @@ import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.BankCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
+import com.tbfmc.tbfmp.commands.CustomCommand;
 import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
@@ -33,6 +34,7 @@ import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
 import com.tbfmc.tbfmp.listeners.AfkListener;
 import com.tbfmc.tbfmp.listeners.BabyFaithListener;
 import com.tbfmc.tbfmp.listeners.CritParticleListener;
+import com.tbfmc.tbfmp.listeners.DeathParticleListener;
 import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
@@ -51,6 +53,7 @@ import com.tbfmc.tbfmp.sit.SitManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.tablist.TabListService;
 import com.tbfmc.tbfmp.util.ConfigUpdater;
+import com.tbfmc.tbfmp.util.CustomConfig;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
 import com.tbfmc.tbfmp.util.SpawnService;
@@ -85,6 +88,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private AfkManager afkManager;
     private BukkitTask afkTask;
     private SpawnService spawnService;
+    private CustomConfig customConfig;
 
     @Override
     public void onEnable() {
@@ -94,6 +98,8 @@ public class TBFMPPlugin extends JavaPlugin {
         reloadConfig();
         saveResource("tags.yml", false);
         saveResource("tag-menu.yml", false);
+        saveResource("CustomConfig.yml", false);
+        this.customConfig = new CustomConfig(this);
         this.messageService = new MessageService(this);
         this.balanceStorage = new BalanceStorage(this);
         this.paySettingsStorage = new PaySettingsStorage(this);
@@ -188,10 +194,11 @@ public class TBFMPPlugin extends JavaPlugin {
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")));
         getCommand("settings").setExecutor(new SettingsCommand(settingsMenuService, messageService));
         getCommand("afk").setExecutor(new AfkCommand(afkManager, messageService));
+        getCommand("custom").setExecutor(new CustomCommand(this, messageService));
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new AfkListener(afkManager), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new SitDamageListener(), this);
@@ -209,7 +216,8 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DurabilityWarningListener(messageService), this);
         Bukkit.getPluginManager().registerEvents(new TreeFellerListener(this, getConfig()), this);
         Bukkit.getPluginManager().registerEvents(new BabyFaithListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new CritParticleListener(), this);
+        Bukkit.getPluginManager().registerEvents(new CritParticleListener(customConfig), this);
+        Bukkit.getPluginManager().registerEvents(new DeathParticleListener(this, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnService), this);
     }
 
@@ -273,5 +281,11 @@ public class TBFMPPlugin extends JavaPlugin {
                 chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
         registerCommands();
         startAfkTask();
+    }
+
+    public void reloadCustomConfig() {
+        if (customConfig != null) {
+            customConfig.reload();
+        }
     }
 }

@@ -80,6 +80,9 @@ commands:
     description: View a player's ender chest.
     usage: /<command> <player>
     permission: tbfmp.admin.echestsee
+  custom:
+    description: Reload CustomConfig.yml.
+    usage: /<command> reload
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.
@@ -105,6 +108,9 @@ permissions:
   tbfmp.admin.echestsee:
     description: Allows /echestsee.
     default: op
+  tbfmp.admin.customreload:
+    description: Allows /custom reload.
+    default: op
   critcolor.gold:
     description: Use gold critical hit particles.
     default: false
@@ -113,4 +119,16 @@ permissions:
     default: false
   critcolor.blue:
     description: Use blue critical hit particles.
+    default: false
+  crit.color.grey:
+    description: Use grey critical hit particles.
+    default: false
+  crit.color.yellow:
+    description: Use yellow critical hit particles.
+    default: false
+  crit.color.blue:
+    description: Use blue critical hit particles.
+    default: false
+  crit.color.rainbow:
+    description: Use rainbow critical hit particles.
     default: false
