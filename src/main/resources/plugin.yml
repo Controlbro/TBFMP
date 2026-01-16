@@ -1,6 +1,6 @@
 name: TBFMP
 main: com.tbfmc.tbfmp.TBFMPPlugin
-version: 1.0.0
+version: 2.1.0
 api-version: '1.21'
 load: POSTWORLD
 depend: [Vault]
