@@ -6,11 +6,11 @@ import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class CritParticleListener implements Listener {
             return;
         }
 
-        if (!isTrueCritical(player)) {
+        if (!(event.getEntity() instanceof LivingEntity) || event.getEntity() instanceof Player) {
             return;
         }
 
@@ -47,25 +47,6 @@ public class CritParticleListener implements Listener {
                 0.01,
                 dustOptions
         );
-    }
-
-    private boolean isTrueCritical(Player player) {
-        if (player.isOnGround()) {
-            return false;
-        }
-        if (player.getFallDistance() <= 0.0f) {
-            return false;
-        }
-        if (player.isInWater()) {
-            return false;
-        }
-        if (player.isClimbing()) {
-            return false;
-        }
-        if (player.hasPotionEffect(PotionEffectType.BLINDNESS)) {
-            return false;
-        }
-        return !player.isInsideVehicle();
     }
 
     private Particle.DustOptions resolveDustOptions(Player player) {
