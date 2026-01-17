@@ -13,6 +13,7 @@ import com.tbfmc.tbfmp.commands.BankCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
 import com.tbfmc.tbfmp.commands.CustomCommand;
+import com.tbfmc.tbfmp.commands.EventCommand;
 import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
@@ -31,10 +32,15 @@ import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.economy.VaultEconomyProvider;
+import com.tbfmc.tbfmp.event.EventSettingsStorage;
+import com.tbfmc.tbfmp.event.MiningEventService;
+import com.tbfmc.tbfmp.event.MiningEventStorage;
 import com.tbfmc.tbfmp.listeners.AfkListener;
 import com.tbfmc.tbfmp.listeners.BabyFaithListener;
 import com.tbfmc.tbfmp.listeners.CritParticleListener;
 import com.tbfmc.tbfmp.listeners.DeathParticleListener;
+import com.tbfmc.tbfmp.listeners.MiningEventListener;
+import com.tbfmc.tbfmp.listeners.MiningEventPlayerListener;
 import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
@@ -69,6 +75,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private PaySettingsStorage paySettingsStorage;
     private SitSettingsStorage sitSettingsStorage;
     private ChatNotificationSettingsStorage chatNotificationSettingsStorage;
+    private EventSettingsStorage eventSettingsStorage;
     private SitManager sitManager;
     private RtpManager rtpManager;
     private MessageService messageService;
@@ -89,6 +96,8 @@ public class TBFMPPlugin extends JavaPlugin {
     private BukkitTask afkTask;
     private SpawnService spawnService;
     private CustomConfig customConfig;
+    private MiningEventStorage miningEventStorage;
+    private MiningEventService miningEventService;
 
     @Override
     public void onEnable() {
@@ -105,6 +114,9 @@ public class TBFMPPlugin extends JavaPlugin {
         this.paySettingsStorage = new PaySettingsStorage(this);
         this.sitSettingsStorage = new SitSettingsStorage(this);
         this.chatNotificationSettingsStorage = new ChatNotificationSettingsStorage(this);
+        this.eventSettingsStorage = new EventSettingsStorage(this);
+        this.miningEventStorage = new MiningEventStorage(this);
+        this.miningEventService = new MiningEventService(miningEventStorage, eventSettingsStorage);
         this.sitManager = new SitManager(messageService, this);
         this.offlineInventoryStorage = new OfflineInventoryStorage(this);
         this.tagConfig = new TagConfig(this);
@@ -135,6 +147,7 @@ public class TBFMPPlugin extends JavaPlugin {
 
         registerCommands();
         registerListeners();
+        miningEventService.applyToOnlinePlayers();
         startChatNotifications();
         startAfkTask();
     }
@@ -155,6 +168,12 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         if (chatNotificationSettingsStorage != null) {
             chatNotificationSettingsStorage.save();
+        }
+        if (eventSettingsStorage != null) {
+            eventSettingsStorage.save();
+        }
+        if (miningEventStorage != null) {
+            miningEventStorage.save();
         }
         if (tagSelectionStorage != null) {
             tagSelectionStorage.save();
@@ -195,10 +214,11 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("settings").setExecutor(new SettingsCommand(settingsMenuService, messageService));
         getCommand("afk").setExecutor(new AfkCommand(afkManager, messageService));
         getCommand("custom").setExecutor(new CustomCommand(this, messageService));
+        getCommand("event").setExecutor(new EventCommand(miningEventService, messageService));
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService, customConfig), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
         Bukkit.getPluginManager().registerEvents(new AfkListener(afkManager), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new SitDamageListener(), this);
@@ -219,6 +239,8 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new CritParticleListener(customConfig), this);
         Bukkit.getPluginManager().registerEvents(new DeathParticleListener(this, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnService), this);
+        Bukkit.getPluginManager().registerEvents(new MiningEventListener(miningEventService), this);
+        Bukkit.getPluginManager().registerEvents(new MiningEventPlayerListener(miningEventService), this);
     }
 
     private void startChatNotifications() {

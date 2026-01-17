@@ -29,46 +29,6 @@ crit-colors:
     rainbow:
       permission: "crit.color.rainbow"
 
-join-messages:
-  enabled: true
-  priority:
-    - staff
-    - vip
-    - default
-
-  messages:
-    default:
-      permission: "join.default"
-      message: "&7{player} joined the server"
-
-    vip:
-      permission: "join.vip"
-      message: "&6✦ &e{player} joined the server"
-
-    staff:
-      permission: "join.staff"
-      message: "&c[Staff] &f{player} joined"
-
-leave-messages:
-  enabled: true
-  priority:
-    - staff
-    - vip
-    - default
-
-  messages:
-    default:
-      permission: "leave.default"
-      message: "&7{player} left the server"
-
-    vip:
-      permission: "leave.vip"
-      message: "&6✦ &e{player} left the server"
-
-    staff:
-      permission: "leave.staff"
-      message: "&c[Staff] &f{player} left"
-
 death-particles:
   enabled: true
   default: smoke

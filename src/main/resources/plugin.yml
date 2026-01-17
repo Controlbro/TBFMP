@@ -72,6 +72,9 @@ commands:
   afk:
     description: Toggle AFK status.
     usage: /<command>
+  event:
+    description: Toggle the mining event scoreboard.
+    usage: /<command> <show|hide>
   invsee:
     description: View a player's inventory.
     usage: /<command> <player>
