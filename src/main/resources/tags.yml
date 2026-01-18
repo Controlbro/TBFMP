@@ -1,7 +1,408 @@
 tags:
-  default:
-    display: "&7[Adventurer]"
-    permission: "tbfmp.tag.default"
+  pro:
+    display: "&b[Pro]"
+    permission: "tbfmp.tag.pro"
+
+  master:
+    display: "&6[Master]"
+    permission: "tbfmp.tag.master"
+
+  wizard:
+    display: "&d[Wizard]"
+    permission: "tbfmp.tag.wizard"
+
+  mod:
+    display: "&b[Mod]"
+    permission: "tbfmp.tag.mod"
+
+  goddess:
+    display: "&d[Goddess]"
+    permission: "tbfmp.tag.goddess"
+
+  loser:
+    display: "&9[Loser]"
+    permission: "tbfmp.tag.loser"
+
+  gg:
+    display: "&c[GG]"
+    permission: "tbfmp.tag.gg"
+
+  w:
+    display: "&e[W]"
+    permission: "tbfmp.tag.w"
+
+  l:
+    display: "&d[L]"
+    permission: "tbfmp.tag.l"
+
+  ez:
+    display: "&a[EZ]"
+    permission: "tbfmp.tag.ez"
+
+  gamer:
+    display: "&9[Gamer]"
+    permission: "tbfmp.tag.gamer"
+
+  voter:
+    display: "&a[Voter]"
+    permission: "tbfmp.tag.voter"
+
+  pvper:
+    display: "&c[PvPer]"
+    permission: "tbfmp.tag.pvper"
+
+  winner:
+    display: "&6[Winner]"
+    permission: "tbfmp.tag.winner"
+
+  king:
+    display: "&6[King]"
+    permission: "tbfmp.tag.king"
+
+  queen:
+    display: "&e[Queen]"
+    permission: "tbfmp.tag.queen"
+
+  lord:
+    display: "&b[Lord]"
+    permission: "tbfmp.tag.lord"
+
+  carry:
+    display: "&d[Carry]"
+    permission: "tbfmp.tag.carry"
+
+  healer:
+    display: "&d[Healer]"
+    permission: "tbfmp.tag.healer"
+
+  tank:
+    display: "&2[Tank]"
+    permission: "tbfmp.tag.tank"
+
+  buff:
+    display: "&b[Buff]"
+    permission: "tbfmp.tag.buff"
+
+  nerd:
+    display: "&d[Nerd]"
+    permission: "tbfmp.tag.nerd"
+
+  geek:
+    display: "&6[Geek]"
+    permission: "tbfmp.tag.geek"
+
+  noob:
+    display: "&c[Noob]"
+    permission: "tbfmp.tag.noob"
+
+  owned:
+    display: "&9[Owned]"
+    permission: "tbfmp.tag.owned"
+
+  grinder:
+    display: "&d[Grinder]"
+    permission: "tbfmp.tag.grinder"
+
+  clash:
+    display: "&6[Clash]"
+    permission: "tbfmp.tag.clash"
+
+  duel:
+    display: "&d[Duel]"
+    permission: "tbfmp.tag.duel"
+
+  strike:
+    display: "&e[Strike]"
+    permission: "tbfmp.tag.strike"
+
+  attack:
+    display: "&5[Attack]"
+    permission: "tbfmp.tag.attack"
+
+  lag:
+    display: "&a[Lag]"
+    permission: "tbfmp.tag.lag"
+
+  nolife:
+    display: "&b[NoLife]"
+    permission: "tbfmp.tag.nolife"
+
+  elite:
+    display: "&b[Elite]"
+    permission: "tbfmp.tag.elite"
+
+  legend:
+    display: "&d[Legend]"
+    permission: "tbfmp.tag.legend"
+
   vip:
-    display: "&6[VIP]"
+    display: "&a[VIP]"
     permission: "tbfmp.tag.vip"
+
+  mvp:
+    display: "&b[MVP]"
+    permission: "tbfmp.tag.mvp"
+
+  sigma:
+    display: "&a[Sigma]"
+    permission: "tbfmp.tag.sigma"
+
+  rizz:
+    display: "&e[Rizz]"
+    permission: "tbfmp.tag.rizz"
+
+  bro:
+    display: "&a[Bro]"
+    permission: "tbfmp.tag.bro"
+
+  money:
+    display: "&a[$$$]"
+    permission: "tbfmp.tag.money"
+
+  heart:
+    display: "&d[♥]"
+    permission: "tbfmp.tag.heart"
+
+  brainrot:
+    display: "&b[Brainrot]"
+    permission: "tbfmp.tag.brainrot"
+
+  lol:
+    display: "&d[LOL]"
+    permission: "tbfmp.tag.lol"
+
+  lmao:
+    display: "&d[LMAO]"
+    permission: "tbfmp.tag.lmao"
+
+  lmfao:
+    display: "&b[LMFAO]"
+    permission: "tbfmp.tag.lmfao"
+
+  afk:
+    display: "&c[AFK]"
+    permission: "tbfmp.tag.afk"
+
+  gl:
+    display: "&9[GL]"
+    permission: "tbfmp.tag.gl"
+
+  omg:
+    display: "&a[OMG]"
+    permission: "tbfmp.tag.omg"
+
+  ggwp:
+    display: "&a[GGWP]"
+    permission: "tbfmp.tag.ggwp"
+
+  rip:
+    display: "&c[RIP]"
+    permission: "tbfmp.tag.rip"
+
+  skibidi:
+    display: "&9[Skibidi]"
+    permission: "tbfmp.tag.skibidi"
+
+  pig:
+    display: "&d[Pig]"
+    permission: "tbfmp.tag.pig"
+
+  cow:
+    display: "&6[Cow]"
+    permission: "tbfmp.tag.cow"
+
+  sheep:
+    display: "&f[Sheep]"
+    permission: "tbfmp.tag.sheep"
+
+  chicken:
+    display: "&d[Chicken]"
+    permission: "tbfmp.tag.chicken"
+
+  wolf:
+    display: "&b[Wolf]"
+    permission: "tbfmp.tag.wolf"
+
+  cat:
+    display: "&e[Cat]"
+    permission: "tbfmp.tag.cat"
+
+  dragon:
+    display: "&a[Dragon]"
+    permission: "tbfmp.tag.dragon"
+
+  wither:
+    display: "&5[Wither]"
+    permission: "tbfmp.tag.wither"
+
+  diamond:
+    display: "&b[Diamond]"
+    permission: "tbfmp.tag.diamond"
+
+  gold:
+    display: "&6[Gold]"
+    permission: "tbfmp.tag.gold"
+
+  emerald:
+    display: "&a[Emerald]"
+    permission: "tbfmp.tag.emerald"
+
+  redstone:
+    display: "&c[Redstone]"
+    permission: "tbfmp.tag.redstone"
+
+  copper:
+    display: "&6[Copper]"
+    permission: "tbfmp.tag.copper"
+
+  creeper:
+    display: "&a[Creeper]"
+    permission: "tbfmp.tag.creeper"
+
+  skeleton:
+    display: "&7[Skeleton]"
+    permission: "tbfmp.tag.skeleton"
+
+  zombie:
+    display: "&a[Zombie]"
+    permission: "tbfmp.tag.zombie"
+
+  blaze:
+    display: "&e[Blaze]"
+    permission: "tbfmp.tag.blaze"
+
+  fire:
+    display: "&c[Fire]"
+    permission: "tbfmp.tag.fire"
+
+  witch:
+    display: "&5[Witch]"
+    permission: "tbfmp.tag.witch"
+
+  beacon:
+    display: "&b[Beacon]"
+    permission: "tbfmp.tag.beacon"
+
+  star:
+    display: "&f[Star]"
+    permission: "tbfmp.tag.star"
+
+  bedrock:
+    display: "&7[Bedrock]"
+    permission: "tbfmp.tag.bedrock"
+
+  java:
+    display: "&a[Java]"
+    permission: "tbfmp.tag.java"
+
+  obsidian:
+    display: "&5[Obsidian]"
+    permission: "tbfmp.tag.obsidian"
+
+  farmer:
+    display: "&6[Farmer]"
+    permission: "tbfmp.tag.farmer"
+
+  harvester:
+    display: "&7[Harvester]"
+    permission: "tbfmp.tag.harvester"
+
+  him:
+    display: "&a[Him]"
+    permission: "tbfmp.tag.him"
+
+  idk:
+    display: "&9[IDK]"
+    permission: "tbfmp.tag.idk"
+
+  wtf:
+    display: "&e[WTF]"
+    permission: "tbfmp.tag.wtf"
+
+  miner:
+    display: "&7[Miner]"
+    permission: "tbfmp.tag.miner"
+
+  tnt:
+    display: "&c[TNT]"
+    permission: "tbfmp.tag.tnt"
+
+  boom:
+    display: "&c[Boom!]"
+    permission: "tbfmp.tag.boom"
+
+  wow:
+    display: "&d[Wow]"
+    permission: "tbfmp.tag.wow"
+
+  unknown:
+    display: "&6[???]"
+    permission: "tbfmp.tag.unknown"
+
+  smile:
+    display: "&6[☻]"
+    permission: "tbfmp.tag.smile"
+
+  toxic:
+    display: "&c[Toxic]"
+    permission: "tbfmp.tag.toxic"
+
+  void:
+    display: "&5[Void]"
+    permission: "tbfmp.tag.void"
+
+  cute:
+    display: "&d[Cute]"
+    permission: "tbfmp.tag.cute"
+
+  emperor:
+    display: "&6[Emperor]"
+    permission: "tbfmp.tag.emperor"
+
+  top1:
+    display: "&c[#1]"
+    permission: "tbfmp.tag.top1"
+
+  eternal:
+    display: "&e[Eternal]"
+    permission: "tbfmp.tag.eternal"
+
+  powerful:
+    display: "&5[Powerful]"
+    permission: "tbfmp.tag.powerful"
+
+  titan:
+    display: "&9[Titan]"
+    permission: "tbfmp.tag.titan"
+
+  savvy:
+    display: "&9[Savvy]"
+    permission: "tbfmp.tag.savvy"
+
+  op:
+    display: "&b[OP]"
+    permission: "tbfmp.tag.op"
+
+  netherite:
+    display: "&7[Netherite]"
+    permission: "tbfmp.tag.netherite"
+
+  slime:
+    display: "&a[Slime]"
+    permission: "tbfmp.tag.slime"
+
+  elytra:
+    display: "&d[Elytra]"
+    permission: "tbfmp.tag.elytra"
+
+  player:
+    display: "&d[Player]"
+    permission: "tbfmp.tag.player"
+
+  pog:
+    display: "&a[Pog]"
+    permission: "tbfmp.tag.pog"
+
+  dictator:
+    display: "&0[Dictator]"
+    permission: "tbfmp.tag.dictator"
