@@ -4,7 +4,10 @@ public enum SettingsOption {
     PAY("pay"),
     SIT_CHAIR("sit-chair"),
     SIT_PLAYER("sit-player"),
-    AUTO_MESSAGES("auto-messages");
+    AUTO_MESSAGES("auto-messages"),
+    KEEP_INVENTORY("keep-inventory"),
+    PVP("pvp"),
+    EVENT_LEADERBOARD("toggleleaderboard");
 
     private final String key;
 

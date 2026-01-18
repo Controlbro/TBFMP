@@ -40,9 +40,18 @@ messages:
   sit-player-disabled: "&aSitting on players disabled."
   auto-messages-enabled: "&aAuto messages enabled."
   auto-messages-disabled: "&aAuto messages disabled."
+  keep-inventory-enabled: "&aKeep inventory enabled."
+  keep-inventory-disabled: "&aKeep inventory disabled."
+  pvp-toggle-on: "&aPVP enabled."
+  pvp-toggle-off: "&aPVP disabled."
+  pvp-disabled: "&aPVP is disabled for one of the players."
   event-usage: "&aUsage: &f/event <show|hide>"
   event-show: "&aMining event scoreboard enabled."
   event-hide: "&aMining event scoreboard disabled."
+  event-disabled: "&aThe mining event is currently disabled."
+  event-leaderboard-enabled: "&aMining event leaderboard enabled."
+  event-leaderboard-disabled: "&aMining event leaderboard disabled."
+  event-reset: "&aMining event data reset."
   durability-warning: "&c{item} durability is at {remaining}/{max}"
   bank-opened: "&aBank opened."
   bank-no-space: "&aYou need inventory space to receive a diamond."
@@ -53,9 +62,10 @@ messages:
   tag-no-permission: "&aYou do not have permission for that tag."
   invsee-usage: "&aUsage: &f/invsee <player>"
   echestsee-usage: "&aUsage: &f/echestsee <player>"
-  tbfmc-usage: "&aUsage: &f/tbfmc <reload|setspawn>"
+  tbfmc-usage: "&aUsage: &f/tbfmc <reload|setspawn|convert|keepinvtoggle|pvptoggle|toggleleaderboard|resetevent>"
   reload-complete: "&aConfiguration reloaded."
   setspawn-success: "&aSpawn location updated."
+  convert-complete: "&aConversion Complete! It is now safe to delete old files."
   fly-enabled: "&aFlight enabled."
   fly-disabled: "&aFlight disabled."
   fly-creative: "&aYou already have flight in this mode."
@@ -105,6 +115,13 @@ hug:
   enabled: true
   heart_count: 15
   cooldown: 15 # seconds
+event:
+  enabled: true
+  acceptedblocks:
+    - STONE
+    - COBBLESTONE
+    - DEEPSLATE
+    - COBBLED_DEEPSLATE
 tree-feller:
   enabled: false
   auto-replant: false

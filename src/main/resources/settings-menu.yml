@@ -41,3 +41,30 @@ items:
       - "&7messages just for you."
       - ""
       - "&7Status: {status}"
+  keep-inventory:
+    slot: 19
+    material: "CHEST"
+    name: "&aKeep Inventory"
+    lore:
+      - "&7Toggle keeping your"
+      - "&7inventory on death."
+      - ""
+      - "&7Status: {status}"
+  pvp:
+    slot: 21
+    material: "DIAMOND_SWORD"
+    name: "&aPVP"
+    lore:
+      - "&7Toggle whether other"
+      - "&7players can hurt you."
+      - ""
+      - "&7Status: {status}"
+  toggleleaderboard:
+    slot: 23
+    material: "PAPER"
+    name: "&aEvent Leaderboard"
+    lore:
+      - "&7Toggle the mining event"
+      - "&7leaderboard display."
+      - ""
+      - "&7Status: {status}"

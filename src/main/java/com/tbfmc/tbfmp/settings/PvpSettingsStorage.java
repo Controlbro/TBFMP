@@ -1,28 +1,25 @@
-package com.tbfmc.tbfmp.economy;
+package com.tbfmc.tbfmp.settings;
 
+import com.tbfmc.tbfmp.util.UnifiedDataFile;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.tbfmc.tbfmp.util.UnifiedDataFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class BalanceStorage {
-    private final JavaPlugin plugin;
+public class PvpSettingsStorage {
     private final UnifiedDataFile unifiedDataFile;
     private final File file;
     private final FileConfiguration legacyData;
-    private final Map<UUID, Double> balances = new HashMap<>();
+    private final Map<UUID, Boolean> pvpEnabled = new HashMap<>();
 
-    public BalanceStorage(JavaPlugin plugin, UnifiedDataFile unifiedDataFile) {
-        this.plugin = plugin;
+    public PvpSettingsStorage(JavaPlugin plugin, UnifiedDataFile unifiedDataFile) {
         this.unifiedDataFile = unifiedDataFile;
-        this.file = new File(plugin.getDataFolder(), "balances.yml");
+        this.file = new File(plugin.getDataFolder(), "pvp-settings.yml");
         this.legacyData = YamlConfiguration.loadConfiguration(file);
         load();
     }
@@ -30,15 +27,14 @@ public class BalanceStorage {
     private void load() {
         if (unifiedDataFile.isEnabled()) {
             org.bukkit.configuration.ConfigurationSection section =
-                    unifiedDataFile.getData().getConfigurationSection("balances");
+                    unifiedDataFile.getData().getConfigurationSection("pvp-settings");
             if (section == null) {
                 return;
             }
             for (String key : section.getKeys(false)) {
                 try {
                     UUID uuid = UUID.fromString(key);
-                    balances.put(uuid, section.getDouble(key,
-                            plugin.getConfig().getDouble("starting-balance", 0.0)));
+                    pvpEnabled.put(uuid, section.getBoolean(key, true));
                 } catch (IllegalArgumentException ignored) {
                 }
             }
@@ -47,32 +43,26 @@ public class BalanceStorage {
         for (String key : legacyData.getKeys(false)) {
             try {
                 UUID uuid = UUID.fromString(key);
-                balances.put(uuid, legacyData.getDouble(key, plugin.getConfig().getDouble("starting-balance", 0.0)));
+                pvpEnabled.put(uuid, legacyData.getBoolean(key, true));
             } catch (IllegalArgumentException ignored) {
             }
         }
     }
 
-    public double getBalance(UUID uuid) {
-        return balances.getOrDefault(uuid, plugin.getConfig().getDouble("starting-balance", 0.0));
+    public boolean isEnabled(UUID uuid) {
+        return pvpEnabled.getOrDefault(uuid, true);
     }
 
-    public void setBalance(UUID uuid, double amount) {
-        balances.put(uuid, amount);
-        setValue(uuid.toString(), amount);
+    public boolean toggle(UUID uuid) {
+        boolean enabled = !isEnabled(uuid);
+        setEnabled(uuid, enabled);
+        return enabled;
+    }
+
+    public void setEnabled(UUID uuid, boolean enabled) {
+        pvpEnabled.put(uuid, enabled);
+        setValue(uuid.toString(), enabled);
         save();
-    }
-
-    public void addBalance(UUID uuid, double amount) {
-        setBalance(uuid, getBalance(uuid) + amount);
-    }
-
-    public void subtractBalance(UUID uuid, double amount) {
-        setBalance(uuid, Math.max(0.0, getBalance(uuid) - amount));
-    }
-
-    public Map<UUID, Double> getAllBalances() {
-        return Collections.unmodifiableMap(balances);
     }
 
     public void save() {
@@ -94,14 +84,14 @@ public class BalanceStorage {
             return;
         }
         FileConfiguration data = unifiedDataFile.getData();
-        for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
-            data.set("balances." + entry.getKey(), entry.getValue());
+        for (Map.Entry<UUID, Boolean> entry : pvpEnabled.entrySet()) {
+            data.set("pvp-settings." + entry.getKey(), entry.getValue());
         }
     }
 
-    private void setValue(String key, double value) {
+    private void setValue(String key, boolean value) {
         if (unifiedDataFile.isEnabled()) {
-            unifiedDataFile.getData().set("balances." + key, value);
+            unifiedDataFile.getData().set("pvp-settings." + key, value);
             return;
         }
         legacyData.set(key, value);
