@@ -103,6 +103,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private TabListService tabListService;
     private AfkManager afkManager;
     private BukkitTask afkTask;
+    private BukkitTask offlineInventorySaveTask;
     private SpawnService spawnService;
     private CustomConfig customConfig;
     private MiningEventStorage miningEventStorage;
@@ -163,6 +164,7 @@ public class TBFMPPlugin extends JavaPlugin {
         miningEventService.applyToOnlinePlayers();
         startChatNotifications();
         startAfkTask();
+        startOfflineInventoryAutosave();
     }
 
     @Override
@@ -200,12 +202,19 @@ public class TBFMPPlugin extends JavaPlugin {
         if (rtpManager != null) {
             rtpManager.save();
         }
+        if (offlineInventoryStorage != null) {
+            offlineInventoryStorage.saveWithMessage(getLogger(), "server shutdown");
+        }
         if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
             unifiedDataFile.save();
         }
         if (afkTask != null) {
             afkTask.cancel();
             afkTask = null;
+        }
+        if (offlineInventorySaveTask != null) {
+            offlineInventorySaveTask.cancel();
+            offlineInventorySaveTask = null;
         }
     }
 
@@ -312,6 +321,17 @@ public class TBFMPPlugin extends JavaPlugin {
             afkManager.checkAfk();
             tabListService.updateAll(afkManager::isAfk);
         }, 20L * 60L, 20L * 60L);
+    }
+
+    private void startOfflineInventoryAutosave() {
+        if (offlineInventorySaveTask != null) {
+            offlineInventorySaveTask.cancel();
+        }
+        offlineInventorySaveTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+            if (offlineInventoryStorage != null) {
+                offlineInventoryStorage.saveWithMessage(getLogger(), "autosave");
+            }
+        }, 20L * 5L, 20L * 5L);
     }
 
     public void reloadPluginConfig() {

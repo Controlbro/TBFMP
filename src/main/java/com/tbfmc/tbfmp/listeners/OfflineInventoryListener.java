@@ -55,5 +55,6 @@ public class OfflineInventoryListener implements Listener {
             ItemStack[] stored = storage.getEnderChest(player.getUniqueId(), player.getEnderChest().getContents().length);
             player.getEnderChest().setContents(stored);
         }
+        storage.save();
     }
 }
