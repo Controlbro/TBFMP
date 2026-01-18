@@ -1,6 +1,6 @@
 menu:
   title: "&2Chat Tags"
-  size: 27
+  size: 54
   item-material: "NAME_TAG"
   lore:
     - "&7Preview:"
@@ -10,8 +10,3 @@ menu:
   no-permission-lore:
     - "&cNo permission"
   preview-message: "&fHello!"
-  navigation-material: "ARROW"
-  previous-page-slot: 18
-  next-page-slot: 26
-  previous-page-name: "&aPrevious Page"
-  next-page-name: "&aNext Page"
