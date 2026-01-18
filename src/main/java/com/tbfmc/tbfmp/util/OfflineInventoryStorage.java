@@ -14,6 +14,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -122,6 +123,13 @@ public class OfflineInventoryStorage {
         try {
             legacyData.save(file);
         } catch (IOException ignored) {
+        }
+    }
+
+    public void saveWithMessage(Logger logger, String reason) {
+        save();
+        if (logger != null) {
+            logger.info("Offline inventories saved (" + reason + ").");
         }
     }
 
