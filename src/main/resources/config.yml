@@ -23,10 +23,10 @@ messages:
   pay-target-disabled: "&aThat player is not accepting payments."
   pay-toggle-on: "&aPayments are now &fON&a."
   pay-toggle-off: "&aPayments are now &fOFF&a."
-  vote: "&aVote for the server at &fexample.com/vote"
-  web: "&aVisit our website at &ftbfmc.com"
-  discord: "&aJoin our Discord at &fdiscord.com"
-  shoptut: "&aShop tutorial: &fexample.com/shop"
+  vote: '&aVote for the server at &fhttps://tbfmc.com/vote'
+  web: '&aVisit our website at &fhttps://tbfmc.com'
+  discord: '&aJoin our Discord at &fhttps://discord.com/invite/vSajqg6ChK'
+  shoptut: '&aShop tutorial: &fexample.com/shop'
   hug-usage: "&aUsage: &f/hug <player>"
   hug-disabled: "&aHugs are currently disabled."
   hug-cooldown: "&aYou must wait &f{seconds} &aseconds before hugging again."
@@ -94,23 +94,25 @@ rtp:
     - WARM_OCEAN
 chat-notifications:
   enabled: true
-  interval-seconds: 300
+  interval-seconds: 1200
   messages:
-    - "&aJoin our Discord: &fdiscord.com"
-    - "&aVisit our website: &ftbfmc.com"
+  - '&aJoin our Discord: &fhttps://discord.com/invite/vSajqg6ChK'
+  - '&aVisit our website: &fhttps://tbfmc.com'
+  - '&aStuck in someones claim? You can do &f/stuck &ato get out!'
+  - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
 starting-balance: 100.0
 hug:
   enabled: true
   heart_count: 15
   cooldown: 15 # seconds
 tree-feller:
-  enabled: true
+  enabled: false
   auto-replant: false
 spawn:
-  enabled: false
-  world: "world"
-  x: 0.5
-  y: 64.0
-  z: 0.5
-  yaw: 0.0
-  pitch: 0.0
+  enabled: true
+  world: world
+  x: 638.4964369377686
+  y: 85.0
+  z: 581.5107662546019
+  yaw: 0.4650885
+  pitch: 4.1999288
