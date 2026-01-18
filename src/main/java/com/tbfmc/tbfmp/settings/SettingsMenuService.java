@@ -2,6 +2,7 @@ package com.tbfmc.tbfmp.settings;
 
 import com.tbfmc.tbfmp.chat.ChatNotificationSettingsStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
+import com.tbfmc.tbfmp.event.EventSettingsStorage;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.Bukkit;
@@ -21,17 +22,26 @@ public class SettingsMenuService {
     private final PaySettingsStorage paySettingsStorage;
     private final SitSettingsStorage sitSettingsStorage;
     private final ChatNotificationSettingsStorage chatNotificationSettingsStorage;
+    private final KeepInventorySettingsStorage keepInventorySettingsStorage;
+    private final PvpSettingsStorage pvpSettingsStorage;
+    private final EventSettingsStorage eventSettingsStorage;
     private final MessageService messages;
     private final NamespacedKey settingKey;
 
     public SettingsMenuService(SettingsMenuConfig config, PaySettingsStorage paySettingsStorage,
                                SitSettingsStorage sitSettingsStorage,
                                ChatNotificationSettingsStorage chatNotificationSettingsStorage,
+                               KeepInventorySettingsStorage keepInventorySettingsStorage,
+                               PvpSettingsStorage pvpSettingsStorage,
+                               EventSettingsStorage eventSettingsStorage,
                                MessageService messages, NamespacedKey settingKey) {
         this.config = config;
         this.paySettingsStorage = paySettingsStorage;
         this.sitSettingsStorage = sitSettingsStorage;
         this.chatNotificationSettingsStorage = chatNotificationSettingsStorage;
+        this.keepInventorySettingsStorage = keepInventorySettingsStorage;
+        this.pvpSettingsStorage = pvpSettingsStorage;
+        this.eventSettingsStorage = eventSettingsStorage;
         this.messages = messages;
         this.settingKey = settingKey;
     }
@@ -101,6 +111,9 @@ public class SettingsMenuService {
             case SIT_CHAIR -> sitSettingsStorage.isChairEnabled(player.getUniqueId());
             case SIT_PLAYER -> sitSettingsStorage.isPlayerEnabled(player.getUniqueId());
             case AUTO_MESSAGES -> chatNotificationSettingsStorage.isEnabled(player.getUniqueId());
+            case KEEP_INVENTORY -> keepInventorySettingsStorage.isEnabled(player.getUniqueId());
+            case PVP -> pvpSettingsStorage.isEnabled(player.getUniqueId());
+            case EVENT_LEADERBOARD -> eventSettingsStorage.isEnabled(player.getUniqueId());
         };
     }
 }

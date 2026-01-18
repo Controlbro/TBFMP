@@ -28,6 +28,10 @@ public class EventCommand implements CommandExecutor {
             messages.sendMessage(player, messages.getMessage("messages.event-usage"));
             return true;
         }
+        if (!eventService.isEventEnabled()) {
+            messages.sendMessage(player, messages.getMessage("messages.event-disabled"));
+            return true;
+        }
         String action = args[0].toLowerCase(Locale.ROOT);
         switch (action) {
             case "show" -> {

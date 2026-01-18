@@ -2,9 +2,12 @@ package com.tbfmc.tbfmp.listeners;
 
 import com.tbfmc.tbfmp.chat.ChatNotificationSettingsStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
+import com.tbfmc.tbfmp.event.MiningEventService;
 import com.tbfmc.tbfmp.settings.SettingsMenuHolder;
 import com.tbfmc.tbfmp.settings.SettingsMenuService;
 import com.tbfmc.tbfmp.settings.SettingsOption;
+import com.tbfmc.tbfmp.settings.KeepInventorySettingsStorage;
+import com.tbfmc.tbfmp.settings.PvpSettingsStorage;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.NamespacedKey;
@@ -21,17 +24,26 @@ public class SettingsMenuListener implements Listener {
     private final PaySettingsStorage paySettingsStorage;
     private final SitSettingsStorage sitSettingsStorage;
     private final ChatNotificationSettingsStorage chatNotificationSettingsStorage;
+    private final KeepInventorySettingsStorage keepInventorySettingsStorage;
+    private final PvpSettingsStorage pvpSettingsStorage;
+    private final MiningEventService miningEventService;
     private final MessageService messages;
     private final NamespacedKey settingKey;
 
     public SettingsMenuListener(SettingsMenuService menuService, PaySettingsStorage paySettingsStorage,
                                 SitSettingsStorage sitSettingsStorage,
                                 ChatNotificationSettingsStorage chatNotificationSettingsStorage,
+                                KeepInventorySettingsStorage keepInventorySettingsStorage,
+                                PvpSettingsStorage pvpSettingsStorage,
+                                MiningEventService miningEventService,
                                 MessageService messages, NamespacedKey settingKey) {
         this.menuService = menuService;
         this.paySettingsStorage = paySettingsStorage;
         this.sitSettingsStorage = sitSettingsStorage;
         this.chatNotificationSettingsStorage = chatNotificationSettingsStorage;
+        this.keepInventorySettingsStorage = keepInventorySettingsStorage;
+        this.pvpSettingsStorage = pvpSettingsStorage;
+        this.miningEventService = miningEventService;
         this.messages = messages;
         this.settingKey = settingKey;
     }
@@ -89,6 +101,21 @@ public class SettingsMenuListener implements Listener {
                 boolean enabled = chatNotificationSettingsStorage.toggle(player.getUniqueId());
                 messages.sendMessage(player, messages.getMessage(
                         enabled ? "messages.auto-messages-enabled" : "messages.auto-messages-disabled"));
+            }
+            case KEEP_INVENTORY -> {
+                boolean enabled = keepInventorySettingsStorage.toggle(player.getUniqueId());
+                messages.sendMessage(player, messages.getMessage(
+                        enabled ? "messages.keep-inventory-enabled" : "messages.keep-inventory-disabled"));
+            }
+            case PVP -> {
+                boolean enabled = pvpSettingsStorage.toggle(player.getUniqueId());
+                messages.sendMessage(player, messages.getMessage(
+                        enabled ? "messages.pvp-toggle-on" : "messages.pvp-toggle-off"));
+            }
+            case EVENT_LEADERBOARD -> {
+                boolean enabled = miningEventService.toggleLeaderboard(player);
+                messages.sendMessage(player, messages.getMessage(
+                        enabled ? "messages.event-leaderboard-enabled" : "messages.event-leaderboard-disabled"));
             }
         }
         player.openInventory(menuService.createMenu(player));

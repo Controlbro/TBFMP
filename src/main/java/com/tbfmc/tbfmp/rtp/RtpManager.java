@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.tbfmc.tbfmp.util.UnifiedDataFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,21 +25,37 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RtpManager {
     private final JavaPlugin plugin;
     private final MessageService messages;
+    private final UnifiedDataFile unifiedDataFile;
     private final File file;
-    private final FileConfiguration data;
+    private final FileConfiguration legacyData;
     private final Set<UUID> usedRtp = new HashSet<>();
     private final Map<UUID, Long> pendingConfirmations = new HashMap<>();
 
-    public RtpManager(JavaPlugin plugin, MessageService messages) {
+    public RtpManager(JavaPlugin plugin, MessageService messages, UnifiedDataFile unifiedDataFile) {
         this.plugin = plugin;
         this.messages = messages;
+        this.unifiedDataFile = unifiedDataFile;
         this.file = new File(plugin.getDataFolder(), "rtp-used.yml");
-        this.data = YamlConfiguration.loadConfiguration(file);
+        this.legacyData = YamlConfiguration.loadConfiguration(file);
         load();
     }
 
     private void load() {
-        for (String key : data.getKeys(false)) {
+        if (unifiedDataFile.isEnabled()) {
+            org.bukkit.configuration.ConfigurationSection section =
+                    unifiedDataFile.getData().getConfigurationSection("rtp-used");
+            if (section == null) {
+                return;
+            }
+            for (String key : section.getKeys(false)) {
+                try {
+                    usedRtp.add(UUID.fromString(key));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            return;
+        }
+        for (String key : legacyData.getKeys(false)) {
             try {
                 usedRtp.add(UUID.fromString(key));
             } catch (IllegalArgumentException ignored) {
@@ -82,7 +99,7 @@ public class RtpManager {
 
         pendingConfirmations.remove(uuid);
         usedRtp.add(uuid);
-        data.set(uuid.toString(), true);
+        setValue(uuid.toString(), true);
         save();
         messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-success"));
         player.teleportAsync(location);
@@ -91,18 +108,40 @@ public class RtpManager {
     public void resetRtp(UUID uuid) {
         usedRtp.remove(uuid);
         pendingConfirmations.remove(uuid);
-        data.set(uuid.toString(), null);
+        setValue(uuid.toString(), null);
         save();
     }
 
     public void save() {
+        if (unifiedDataFile.isEnabled()) {
+            unifiedDataFile.save();
+            return;
+        }
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
         try {
-            data.save(file);
+            legacyData.save(file);
         } catch (IOException ignored) {
         }
+    }
+
+    public void writeToUnifiedData() {
+        if (!unifiedDataFile.isEnabled()) {
+            return;
+        }
+        FileConfiguration data = unifiedDataFile.getData();
+        for (UUID uuid : usedRtp) {
+            data.set("rtp-used." + uuid, true);
+        }
+    }
+
+    private void setValue(String key, Object value) {
+        if (unifiedDataFile.isEnabled()) {
+            unifiedDataFile.getData().set("rtp-used." + key, value);
+            return;
+        }
+        legacyData.set(key, value);
     }
 
     private Location findSafeLocation() {

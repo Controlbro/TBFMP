@@ -50,7 +50,7 @@ commands:
     usage: /<command> <player>
   tbfmc:
     description: TBFMC administration command.
-    usage: /<command> <reload|setspawn>
+    usage: /<command> <reload|setspawn|convert|keepinvtoggle|pvptoggle|toggleleaderboard|resetevent>
   fly:
     description: Toggle flight in survival.
     usage: /<command>
@@ -101,6 +101,12 @@ permissions:
     default: op
   tbfmp.admin.setspawn:
     description: Allows /tbfmc setspawn.
+    default: op
+  tbfmp.admin.convert:
+    description: Allows /tbfmc convert.
+    default: op
+  tbfmp.admin.resetevent:
+    description: Allows /tbfmc resetevent.
     default: op
   tbfmp.fly:
     description: Allows /fly in survival.

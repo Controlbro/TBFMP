@@ -4,6 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.tbfmc.tbfmp.util.UnifiedDataFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,23 +19,47 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 public class OfflineInventoryStorage {
+    private final UnifiedDataFile unifiedDataFile;
     private final File file;
-    private final FileConfiguration data;
+    private final FileConfiguration legacyData;
     private final Map<UUID, ItemStack[]> inventories = new HashMap<>();
     private final Map<UUID, ItemStack[]> enderChests = new HashMap<>();
 
-    public OfflineInventoryStorage(JavaPlugin plugin) {
+    public OfflineInventoryStorage(JavaPlugin plugin, UnifiedDataFile unifiedDataFile) {
+        this.unifiedDataFile = unifiedDataFile;
         this.file = new File(plugin.getDataFolder(), "offline-inventories.yml");
-        this.data = YamlConfiguration.loadConfiguration(file);
+        this.legacyData = YamlConfiguration.loadConfiguration(file);
         load();
     }
 
     private void load() {
-        for (String key : data.getKeys(false)) {
+        if (unifiedDataFile.isEnabled()) {
+            org.bukkit.configuration.ConfigurationSection section =
+                    unifiedDataFile.getData().getConfigurationSection("offline-inventories");
+            if (section == null) {
+                return;
+            }
+            for (String key : section.getKeys(false)) {
+                try {
+                    UUID uuid = UUID.fromString(key);
+                    String inventoryData = section.getString(key + ".inventory", "");
+                    String enderData = section.getString(key + ".enderchest", "");
+                    if (!inventoryData.isEmpty()) {
+                        inventories.put(uuid, decode(inventoryData));
+                    }
+                    if (!enderData.isEmpty()) {
+                        enderChests.put(uuid, decode(enderData));
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            return;
+        }
+        for (String key : legacyData.getKeys(false)) {
             try {
                 UUID uuid = UUID.fromString(key);
-                String inventoryData = data.getString(key + ".inventory", "");
-                String enderData = data.getString(key + ".enderchest", "");
+                String inventoryData = legacyData.getString(key + ".inventory", "");
+                String enderData = legacyData.getString(key + ".enderchest", "");
                 if (!inventoryData.isEmpty()) {
                     inventories.put(uuid, decode(inventoryData));
                 }
@@ -76,24 +101,49 @@ public class OfflineInventoryStorage {
 
     public void setInventory(UUID uuid, ItemStack[] items) {
         inventories.put(uuid, items.clone());
-        data.set(uuid + ".inventory", encode(items));
+        setValue(uuid + ".inventory", encode(items));
         save();
     }
 
     public void setEnderChest(UUID uuid, ItemStack[] items) {
         enderChests.put(uuid, items.clone());
-        data.set(uuid + ".enderchest", encode(items));
+        setValue(uuid + ".enderchest", encode(items));
         save();
     }
 
     public void save() {
+        if (unifiedDataFile.isEnabled()) {
+            unifiedDataFile.save();
+            return;
+        }
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
         try {
-            data.save(file);
+            legacyData.save(file);
         } catch (IOException ignored) {
         }
+    }
+
+    public void writeToUnifiedData() {
+        if (!unifiedDataFile.isEnabled()) {
+            return;
+        }
+        FileConfiguration data = unifiedDataFile.getData();
+        for (UUID uuid : inventories.keySet()) {
+            data.set("offline-inventories." + uuid + ".inventory", encode(inventories.get(uuid)));
+        }
+        for (UUID uuid : enderChests.keySet()) {
+            data.set("offline-inventories." + uuid + ".enderchest", encode(enderChests.get(uuid)));
+        }
+    }
+
+    private void setValue(String key, String value) {
+        if (unifiedDataFile.isEnabled()) {
+            unifiedDataFile.getData().set("offline-inventories." + key, value);
+            return;
+        }
+        legacyData.set(key, value);
     }
 
     private String encode(ItemStack[] items) {

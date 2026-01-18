@@ -28,6 +28,7 @@ import com.tbfmc.tbfmp.commands.SitCommand;
 import com.tbfmc.tbfmp.commands.SitSettingCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
+import com.tbfmc.tbfmp.commands.TbfmpTabCompleter;
 import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
@@ -45,7 +46,9 @@ import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
 import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
 import com.tbfmc.tbfmp.listeners.DurabilityWarningListener;
+import com.tbfmc.tbfmp.listeners.KeepInventoryListener;
 import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
+import com.tbfmc.tbfmp.listeners.PvpToggleListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
@@ -55,6 +58,8 @@ import com.tbfmc.tbfmp.listeners.TreeFellerListener;
 import com.tbfmc.tbfmp.rtp.RtpManager;
 import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
 import com.tbfmc.tbfmp.settings.SettingsMenuService;
+import com.tbfmc.tbfmp.settings.KeepInventorySettingsStorage;
+import com.tbfmc.tbfmp.settings.PvpSettingsStorage;
 import com.tbfmc.tbfmp.sit.SitManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.tablist.TabListService;
@@ -63,6 +68,7 @@ import com.tbfmc.tbfmp.util.CustomConfig;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
 import com.tbfmc.tbfmp.util.SpawnService;
+import com.tbfmc.tbfmp.util.UnifiedDataFile;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -71,11 +77,14 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TBFMPPlugin extends JavaPlugin {
+    private UnifiedDataFile unifiedDataFile;
     private BalanceStorage balanceStorage;
     private PaySettingsStorage paySettingsStorage;
     private SitSettingsStorage sitSettingsStorage;
     private ChatNotificationSettingsStorage chatNotificationSettingsStorage;
     private EventSettingsStorage eventSettingsStorage;
+    private KeepInventorySettingsStorage keepInventorySettingsStorage;
+    private PvpSettingsStorage pvpSettingsStorage;
     private SitManager sitManager;
     private RtpManager rtpManager;
     private MessageService messageService;
@@ -110,20 +119,23 @@ public class TBFMPPlugin extends JavaPlugin {
         saveResource("CustomConfig.yml", false);
         this.customConfig = new CustomConfig(this);
         this.messageService = new MessageService(this);
-        this.balanceStorage = new BalanceStorage(this);
-        this.paySettingsStorage = new PaySettingsStorage(this);
-        this.sitSettingsStorage = new SitSettingsStorage(this);
-        this.chatNotificationSettingsStorage = new ChatNotificationSettingsStorage(this);
-        this.eventSettingsStorage = new EventSettingsStorage(this);
-        this.miningEventStorage = new MiningEventStorage(this);
-        this.miningEventService = new MiningEventService(miningEventStorage, eventSettingsStorage);
+        this.unifiedDataFile = new UnifiedDataFile(this);
+        this.balanceStorage = new BalanceStorage(this, unifiedDataFile);
+        this.paySettingsStorage = new PaySettingsStorage(this, unifiedDataFile);
+        this.sitSettingsStorage = new SitSettingsStorage(this, unifiedDataFile);
+        this.chatNotificationSettingsStorage = new ChatNotificationSettingsStorage(this, unifiedDataFile);
+        this.eventSettingsStorage = new EventSettingsStorage(this, unifiedDataFile);
+        this.keepInventorySettingsStorage = new KeepInventorySettingsStorage(this, unifiedDataFile);
+        this.pvpSettingsStorage = new PvpSettingsStorage(this, unifiedDataFile);
+        this.miningEventStorage = new MiningEventStorage(this, unifiedDataFile);
+        this.miningEventService = new MiningEventService(this, miningEventStorage, eventSettingsStorage);
         this.sitManager = new SitManager(messageService, this);
-        this.offlineInventoryStorage = new OfflineInventoryStorage(this);
+        this.offlineInventoryStorage = new OfflineInventoryStorage(this, unifiedDataFile);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
-        this.tagSelectionStorage = new TagSelectionStorage(this);
+        this.tagSelectionStorage = new TagSelectionStorage(this, unifiedDataFile);
         this.settingsMenuConfig = new SettingsMenuConfig(this);
-        this.rtpManager = new RtpManager(this, messageService);
+        this.rtpManager = new RtpManager(this, messageService, unifiedDataFile);
         this.hugCommand = new HugCommand(this, messageService);
         this.sitCommand = new SitCommand(sitManager, messageService);
         this.sitSettingCommand = new SitSettingCommand(sitSettingsStorage, messageService);
@@ -139,7 +151,8 @@ public class TBFMPPlugin extends JavaPlugin {
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
                 messageService, vaultChat, tagKey, navigationKey);
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
-                chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
+                chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage, eventSettingsStorage,
+                messageService, new NamespacedKey(this, "settings-option"));
         this.spawnService = new SpawnService(this);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
@@ -172,6 +185,12 @@ public class TBFMPPlugin extends JavaPlugin {
         if (eventSettingsStorage != null) {
             eventSettingsStorage.save();
         }
+        if (keepInventorySettingsStorage != null) {
+            keepInventorySettingsStorage.save();
+        }
+        if (pvpSettingsStorage != null) {
+            pvpSettingsStorage.save();
+        }
         if (miningEventStorage != null) {
             miningEventStorage.save();
         }
@@ -181,6 +200,9 @@ public class TBFMPPlugin extends JavaPlugin {
         if (rtpManager != null) {
             rtpManager.save();
         }
+        if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
+            unifiedDataFile.save();
+        }
         if (afkTask != null) {
             afkTask.cancel();
             afkTask = null;
@@ -188,33 +210,59 @@ public class TBFMPPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
+        TbfmpTabCompleter tabCompleter = new TbfmpTabCompleter();
         getCommand("balance").setExecutor(new BalanceCommand(balanceStorage, messageService));
+        getCommand("balance").setTabCompleter(tabCompleter);
         getCommand("balancetop").setExecutor(new BalanceTopCommand(balanceStorage, messageService));
+        getCommand("balancetop").setTabCompleter(tabCompleter);
         getCommand("eco").setExecutor(new EcoCommand(balanceStorage, messageService));
+        getCommand("eco").setTabCompleter(tabCompleter);
         getCommand("rtp").setExecutor(new RtpCommand(rtpManager, messageService));
+        getCommand("rtp").setTabCompleter(tabCompleter);
         getCommand("confirm").setExecutor(new ConfirmCommand(rtpManager, messageService));
+        getCommand("confirm").setTabCompleter(tabCompleter);
         getCommand("resetrtp").setExecutor(new ResetRtpCommand(rtpManager, messageService));
+        getCommand("resetrtp").setTabCompleter(tabCompleter);
         getCommand("pay").setExecutor(new PayCommand(balanceStorage, paySettingsStorage, messageService));
+        getCommand("pay").setTabCompleter(tabCompleter);
         getCommand("paytoggle").setExecutor(new PayToggleCommand(paySettingsStorage, messageService));
+        getCommand("paytoggle").setTabCompleter(tabCompleter);
         getCommand("vote").setExecutor(new InfoCommand(messageService, "messages.vote"));
+        getCommand("vote").setTabCompleter(tabCompleter);
         getCommand("web").setExecutor(new InfoCommand(messageService, "messages.web"));
+        getCommand("web").setTabCompleter(tabCompleter);
         getCommand("discord").setExecutor(new InfoCommand(messageService, "messages.discord"));
+        getCommand("discord").setTabCompleter(tabCompleter);
         getCommand("shoptut").setExecutor(new InfoCommand(messageService, "messages.shoptut"));
+        getCommand("shoptut").setTabCompleter(tabCompleter);
         getCommand("hug").setExecutor(hugCommand);
-        getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService, spawnService));
+        getCommand("hug").setTabCompleter(tabCompleter);
+        getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService, spawnService,
+                keepInventorySettingsStorage, pvpSettingsStorage, miningEventService));
+        getCommand("tbfmc").setTabCompleter(tabCompleter);
         getCommand("fly").setExecutor(new FlyCommand(messageService));
+        getCommand("fly").setTabCompleter(tabCompleter);
         getCommand("sit").setExecutor(sitCommand);
+        getCommand("sit").setTabCompleter(tabCompleter);
         getCommand("sitsetting").setExecutor(sitSettingCommand);
         getCommand("sitsetting").setTabCompleter(sitSettingCommand);
         getCommand("bank").setExecutor(new BankCommand(balanceStorage, messageService));
+        getCommand("bank").setTabCompleter(tabCompleter);
         getCommand("invsee").setExecutor(new InvseeCommand(offlineInventoryStorage, messageService));
+        getCommand("invsee").setTabCompleter(tabCompleter);
         getCommand("echestsee").setExecutor(new EchestseeCommand(offlineInventoryStorage, messageService));
+        getCommand("echestsee").setTabCompleter(tabCompleter);
         getCommand("tags").setExecutor(new TagMenuCommand(tagMenuService, messageService,
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")));
+        getCommand("tags").setTabCompleter(tabCompleter);
         getCommand("settings").setExecutor(new SettingsCommand(settingsMenuService, messageService));
+        getCommand("settings").setTabCompleter(tabCompleter);
         getCommand("afk").setExecutor(new AfkCommand(afkManager, messageService));
+        getCommand("afk").setTabCompleter(tabCompleter);
         getCommand("custom").setExecutor(new CustomCommand(this, messageService));
+        getCommand("custom").setTabCompleter(tabCompleter);
         getCommand("event").setExecutor(new EventCommand(miningEventService, messageService));
+        getCommand("event").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {
@@ -229,7 +277,8 @@ public class TBFMPPlugin extends JavaPlugin {
                 new NamespacedKey(this, "tag-menu-page"), messageService.colorize(tagMenuConfig.getTitle()),
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new SettingsMenuListener(settingsMenuService, paySettingsStorage,
-                sitSettingsStorage, chatNotificationSettingsStorage, messageService,
+                sitSettingsStorage, chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage,
+                miningEventService, messageService,
                 new NamespacedKey(this, "settings-option")), this);
         Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
@@ -241,6 +290,8 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnService), this);
         Bukkit.getPluginManager().registerEvents(new MiningEventListener(miningEventService), this);
         Bukkit.getPluginManager().registerEvents(new MiningEventPlayerListener(miningEventService), this);
+        Bukkit.getPluginManager().registerEvents(new KeepInventoryListener(keepInventorySettingsStorage), this);
+        Bukkit.getPluginManager().registerEvents(new PvpToggleListener(pvpSettingsStorage, messageService), this);
     }
 
     private void startChatNotifications() {
@@ -281,7 +332,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.sitSettingCommand = new SitSettingCommand(sitSettingsStorage, messageService);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
-        this.tagSelectionStorage = new TagSelectionStorage(this);
+        this.tagSelectionStorage = new TagSelectionStorage(this, unifiedDataFile);
         this.settingsMenuConfig = new SettingsMenuConfig(this);
         this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
@@ -300,8 +351,11 @@ public class TBFMPPlugin extends JavaPlugin {
         this.tagMenuService = new TagMenuService(tagConfig, tagMenuConfig, tagSelectionStorage,
                 messageService, vaultChat, new NamespacedKey(this, "tag-id"), new NamespacedKey(this, "tag-menu-page"));
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
-                chatNotificationSettingsStorage, messageService, new NamespacedKey(this, "settings-option"));
+                chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage, eventSettingsStorage,
+                messageService, new NamespacedKey(this, "settings-option"));
         registerCommands();
+        miningEventService.reloadSettings();
+        miningEventService.applyToOnlinePlayers();
         startAfkTask();
     }
 
@@ -309,5 +363,25 @@ public class TBFMPPlugin extends JavaPlugin {
         if (customConfig != null) {
             customConfig.reload();
         }
+    }
+
+    public boolean convertLegacyData() {
+        if (unifiedDataFile == null) {
+            return false;
+        }
+        unifiedDataFile.enable();
+        balanceStorage.writeToUnifiedData();
+        paySettingsStorage.writeToUnifiedData();
+        sitSettingsStorage.writeToUnifiedData();
+        chatNotificationSettingsStorage.writeToUnifiedData();
+        eventSettingsStorage.writeToUnifiedData();
+        keepInventorySettingsStorage.writeToUnifiedData();
+        pvpSettingsStorage.writeToUnifiedData();
+        miningEventStorage.writeToUnifiedData();
+        tagSelectionStorage.writeToUnifiedData();
+        offlineInventoryStorage.writeToUnifiedData();
+        rtpManager.writeToUnifiedData();
+        unifiedDataFile.save();
+        return true;
     }
 }
