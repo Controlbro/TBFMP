@@ -1,6 +1,6 @@
 name: TBFMP
 main: com.tbfmc.tbfmp.TBFMPPlugin
-version: 1.3.2
+version: 1.3.4
 api-version: '1.21'
 load: POSTWORLD
 depend: [Vault]
@@ -86,6 +86,20 @@ commands:
   custom:
     description: Reload CustomConfig.yml.
     usage: /<command> reload
+  mallwarp:
+    description: Warp to the mall.
+    usage: /<command>
+  setmallwarp:
+    description: Set the mall warp location.
+    usage: /<command>
+    permission: tbfmp.admin.mallwarp
+  setmallwarprg:
+    description: Set the mall warp region.
+    usage: /<command>
+    permission: tbfmp.admin.mallwarp
+  backwarp:
+    description: Return to your previous location before mall warp.
+    usage: /<command>
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.
@@ -119,6 +133,9 @@ permissions:
     default: op
   tbfmp.admin.customreload:
     description: Allows /custom reload.
+    default: op
+  tbfmp.admin.mallwarp:
+    description: Allows setting the mall warp and region.
     default: op
   critcolor.gold:
     description: Use gold critical hit particles.

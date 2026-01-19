@@ -75,6 +75,19 @@ messages:
   join: "&aWelcome back, &f{player}&a!"
   first-join: "&aWelcome to TBFMC, &f{player}&a!"
   leave: "&a{player} left the server."
+  mallwarp-not-set: "&aMall warp has not been set yet."
+  mallwarp-region-not-set: "&aMall warp region has not been set yet."
+  mallwarp-set: "&aMall warp location updated."
+  mallwarp-region-missing: "&aSelect two corners with a golden hoe before setting the region."
+  mallwarp-region-world: "&aBoth region corners must be in the same world."
+  mallwarp-region-set: "&aMall warp region updated."
+  mallwarp-region-first: "&aMall warp region first corner selected."
+  mallwarp-region-second: "&aMall warp region second corner selected."
+  mallwarp-success: "&aWarped to the mall."
+  mallwarp-warning: "&aYou cannot leave the mall region. Use &f/backwarp &ato return home."
+  mallwarp-leave-blocked: "&aYou cannot leave the mall region after teleporting there."
+  backwarp-missing: "&aYou do not have a mall warp return location."
+  backwarp-success: "&aReturned to your previous location."
 chat:
   format: "{prefix}{name}&r %tag% &7>> {message-color}{message}"
 afk:
@@ -110,6 +123,10 @@ chat-notifications:
   - '&aVisit our website: &fhttps://tbfmc.com'
   - '&aStuck in someones claim? You can do &f/stuck &ato get out!'
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
+auto-save:
+  enabled: true
+  interval-seconds: 300
+  log-to-console: true
 starting-balance: 100.0
 hug:
   enabled: true
@@ -133,3 +150,21 @@ spawn:
   z: 581.5107662546019
   yaw: 0.4650885
   pitch: 4.1999288
+mallwarp:
+  warp:
+    enabled: false
+    world: world
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  region:
+    enabled: false
+    world: world
+    min-x: 0.0
+    min-y: 0.0
+    min-z: 0.0
+    max-x: 0.0
+    max-y: 0.0
+    max-z: 0.0
