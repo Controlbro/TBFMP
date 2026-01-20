@@ -10,6 +10,7 @@ import com.tbfmc.tbfmp.commands.AfkCommand;
 import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.BankCommand;
+import com.tbfmc.tbfmp.commands.BackWarpCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
 import com.tbfmc.tbfmp.commands.CustomCommand;
@@ -18,11 +19,14 @@ import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
 import com.tbfmc.tbfmp.commands.InvseeCommand;
+import com.tbfmc.tbfmp.commands.MallWarpCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.EchestseeCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
+import com.tbfmc.tbfmp.commands.SetMallWarpCommand;
+import com.tbfmc.tbfmp.commands.SetMallWarpRegionCommand;
 import com.tbfmc.tbfmp.commands.SettingsCommand;
 import com.tbfmc.tbfmp.commands.SitCommand;
 import com.tbfmc.tbfmp.commands.SitSettingCommand;
@@ -40,6 +44,8 @@ import com.tbfmc.tbfmp.listeners.AfkListener;
 import com.tbfmc.tbfmp.listeners.BabyFaithListener;
 import com.tbfmc.tbfmp.listeners.CritParticleListener;
 import com.tbfmc.tbfmp.listeners.DeathParticleListener;
+import com.tbfmc.tbfmp.listeners.MallWarpRestrictionListener;
+import com.tbfmc.tbfmp.listeners.MallWarpSelectionListener;
 import com.tbfmc.tbfmp.listeners.MiningEventListener;
 import com.tbfmc.tbfmp.listeners.MiningEventPlayerListener;
 import com.tbfmc.tbfmp.listeners.SettingsMenuListener;
@@ -55,6 +61,9 @@ import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.SpawnListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
+import com.tbfmc.tbfmp.mallwarp.MallWarpManager;
+import com.tbfmc.tbfmp.mallwarp.MallWarpSelectionManager;
+import com.tbfmc.tbfmp.mallwarp.MallWarpService;
 import com.tbfmc.tbfmp.rtp.RtpManager;
 import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
 import com.tbfmc.tbfmp.settings.SettingsMenuService;
@@ -108,6 +117,8 @@ public class TBFMPPlugin extends JavaPlugin {
     private CustomConfig customConfig;
     private MiningEventStorage miningEventStorage;
     private MiningEventService miningEventService;
+    private MallWarpManager mallWarpManager;
+    private MallWarpSelectionManager mallWarpSelectionManager;
 
     @Override
     public void onEnable() {
@@ -155,6 +166,9 @@ public class TBFMPPlugin extends JavaPlugin {
                 chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage, eventSettingsStorage,
                 messageService, new NamespacedKey(this, "settings-option"));
         this.spawnService = new SpawnService(this);
+        MallWarpService mallWarpService = new MallWarpService(this);
+        this.mallWarpManager = new MallWarpManager(mallWarpService);
+        this.mallWarpSelectionManager = new MallWarpSelectionManager();
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -272,6 +286,15 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("custom").setTabCompleter(tabCompleter);
         getCommand("event").setExecutor(new EventCommand(miningEventService, messageService));
         getCommand("event").setTabCompleter(tabCompleter);
+        getCommand("mallwarp").setExecutor(new MallWarpCommand(mallWarpManager, messageService));
+        getCommand("mallwarp").setTabCompleter(tabCompleter);
+        getCommand("setmallwarp").setExecutor(new SetMallWarpCommand(mallWarpManager, messageService));
+        getCommand("setmallwarp").setTabCompleter(tabCompleter);
+        getCommand("setmallwarprg").setExecutor(new SetMallWarpRegionCommand(
+                mallWarpManager, mallWarpSelectionManager, messageService));
+        getCommand("setmallwarprg").setTabCompleter(tabCompleter);
+        getCommand("backwarp").setExecutor(new BackWarpCommand(mallWarpManager, messageService));
+        getCommand("backwarp").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {
@@ -301,6 +324,8 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MiningEventPlayerListener(miningEventService), this);
         Bukkit.getPluginManager().registerEvents(new KeepInventoryListener(keepInventorySettingsStorage), this);
         Bukkit.getPluginManager().registerEvents(new PvpToggleListener(pvpSettingsStorage, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new MallWarpSelectionListener(mallWarpSelectionManager, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new MallWarpRestrictionListener(mallWarpManager, messageService), this);
     }
 
     private void startChatNotifications() {
@@ -327,11 +352,21 @@ public class TBFMPPlugin extends JavaPlugin {
         if (offlineInventorySaveTask != null) {
             offlineInventorySaveTask.cancel();
         }
+        if (!getConfig().getBoolean("auto-save.enabled", true)) {
+            offlineInventorySaveTask = null;
+            return;
+        }
+        long intervalSeconds = Math.max(1L, getConfig().getLong("auto-save.interval-seconds", 300L));
+        boolean logToConsole = getConfig().getBoolean("auto-save.log-to-console", true);
         offlineInventorySaveTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             if (offlineInventoryStorage != null) {
-                offlineInventoryStorage.saveWithMessage(getLogger(), "autosave");
+                if (logToConsole) {
+                    offlineInventoryStorage.saveWithMessage(getLogger(), "autosave");
+                } else {
+                    offlineInventoryStorage.save();
+                }
             }
-        }, 20L * 5L, 20L * 5L);
+        }, intervalSeconds * 20L, intervalSeconds * 20L);
     }
 
     public void reloadPluginConfig() {
