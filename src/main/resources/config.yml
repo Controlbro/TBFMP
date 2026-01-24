@@ -88,6 +88,14 @@ messages:
   mallwarp-leave-blocked: "&aYou cannot leave the mall region after teleporting there."
   backwarp-missing: "&aYou do not have a mall warp return location."
   backwarp-success: "&aReturned to your previous location."
+  staffchat-usage: "&aUsage: &f/mc <message>"
+  staffchat-format: "&7[Staff] &f{player}&7: {message}"
+  socialspy-enabled: "&aSocial spy enabled."
+  socialspy-disabled: "&aSocial spy disabled."
+  socialspy-format: "&8[Spy] &f{sender} &7-> &f{target}&7: {message}"
+  tphere-usage: "&aUsage: &f/tphere <player>"
+  tphere-success: "&aTeleported &f{player} &ato you."
+  tphere-target: "&aYou were teleported to &f{player}&a."
 chat:
   format: "{prefix}{name}&r %tag% &7>> {message-color}{message}"
 afk:

@@ -100,6 +100,19 @@ commands:
   backwarp:
     description: Return to your previous location before mall warp.
     usage: /<command>
+  mc:
+    description: Send a staff chat message.
+    usage: /<command> <message>
+    permission: tbfmp.staffchat
+  socialspy:
+    aliases: [sspy]
+    description: Toggle social spy.
+    usage: /<command>
+    permission: tbfmp.admin.socialspy
+  tphere:
+    description: Teleport a player to you.
+    usage: /<command> <player>
+    permission: tbfmp.admin.tphere
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.
@@ -136,6 +149,15 @@ permissions:
     default: op
   tbfmp.admin.mallwarp:
     description: Allows setting the mall warp and region.
+    default: op
+  tbfmp.staffchat:
+    description: Allows using staff chat and viewing staff chat.
+    default: op
+  tbfmp.admin.socialspy:
+    description: Allows toggling social spy.
+    default: op
+  tbfmp.admin.tphere:
+    description: Allows using /tphere.
     default: op
   critcolor.gold:
     description: Use gold critical hit particles.

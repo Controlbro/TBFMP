@@ -9,7 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 public class MallWarpRestrictionListener implements Listener {
     private final MallWarpManager mallWarpManager;
@@ -43,11 +42,6 @@ public class MallWarpRestrictionListener implements Listener {
         }
         messages.sendMessage(player, messages.getMessage("messages.mallwarp-leave-blocked"));
         player.teleportAsync(warpLocation);
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        mallWarpManager.clearPlayer(event.getPlayer());
     }
 
     @EventHandler
