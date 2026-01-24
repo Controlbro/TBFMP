@@ -35,7 +35,7 @@ public class TbfmcCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("tbfmp.admin.reload")) {
+            if (!sender.hasPermission("oakglowutil.admin.reload")) {
                 messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
                 return true;
             }
@@ -45,7 +45,7 @@ public class TbfmcCommand implements CommandExecutor {
         }
 
         if (args.length > 0 && args[0].equalsIgnoreCase("setspawn")) {
-            if (!sender.hasPermission("tbfmp.admin.setspawn")) {
+            if (!sender.hasPermission("oakglowutil.admin.setspawn")) {
                 messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
                 return true;
             }
@@ -114,7 +114,7 @@ public class TbfmcCommand implements CommandExecutor {
             return true;
         }
 
-        messages.sendMessage(sender, messages.getMessage("messages.tbfmc-usage"));
+        messages.sendMessage(sender, messages.getMessage("messages.oakglow-usage"));
         return true;
     }
 }

@@ -1,4 +1,4 @@
-name: TBFMP
+name: OakGlowUtil
 main: com.tbfmc.tbfmp.TBFMPPlugin
 version: 1.3.4
 api-version: '1.21'
@@ -16,7 +16,7 @@ commands:
   eco:
     description: Manage player balances.
     usage: /<command> <give|take|set> <player> <amount>
-    permission: tbfmp.admin.eco
+    permission: oakglowutil.admin.eco
   rtp:
     description: Start a one-time random teleport.
     usage: /<command>
@@ -26,7 +26,7 @@ commands:
   resetrtp:
     description: Reset a player's one-time RTP.
     usage: /<command> <player>
-    permission: tbfmp.admin.rtp
+    permission: oakglowutil.admin.rtp
   pay:
     description: Pay another player.
     usage: /<command> <player> <amount>
@@ -48,8 +48,8 @@ commands:
   hug:
     description: Send a hug to another player.
     usage: /<command> <player>
-  tbfmc:
-    description: TBFMC administration command.
+  oakglow:
+    description: OakGlow administration command.
     usage: /<command> <reload|setspawn|convert|keepinvtoggle|pvptoggle|toggleleaderboard|resetevent>
   fly:
     description: Toggle flight in survival.
@@ -78,11 +78,11 @@ commands:
   invsee:
     description: View a player's inventory.
     usage: /<command> <player>
-    permission: tbfmp.admin.invsee
+    permission: oakglowutil.admin.invsee
   echestsee:
     description: View a player's ender chest.
     usage: /<command> <player>
-    permission: tbfmp.admin.echestsee
+    permission: oakglowutil.admin.echestsee
   custom:
     description: Reload CustomConfig.yml.
     usage: /<command> reload
@@ -92,23 +92,23 @@ commands:
   setmallwarp:
     description: Set the mall warp location.
     usage: /<command>
-    permission: tbfmp.admin.mallwarp
+    permission: oakglowutil.admin.mallwarp
   setmallwarprg:
     description: Set the mall warp region.
     usage: /<command>
-    permission: tbfmp.admin.mallwarp
+    permission: oakglowutil.admin.mallwarp
   backwarp:
     description: Return to your previous location before mall warp.
     usage: /<command>
   mc:
     description: Send a staff chat message.
     usage: /<command> <message>
-    permission: tbfmp.staffchat
+    permission: oakglowutil.staffchat
   socialspy:
     aliases: [sspy]
     description: Toggle social spy.
     usage: /<command>
-    permission: tbfmp.admin.socialspy
+    permission: oakglowutil.admin.socialspy
   msg:
     aliases: [message]
     description: Send a private message.
@@ -116,74 +116,74 @@ commands:
   tp:
     description: Teleport to a player or coordinates.
     usage: /<command> <player|x y z>
-    permission: tbfmp.admin.tp
+    permission: oakglowutil.admin.tp
   tphere:
     description: Teleport a player to you.
     usage: /<command> <player>
-    permission: tbfmp.admin.tphere
+    permission: oakglowutil.admin.tphere
   gamemode:
     aliases: [gm]
     description: Change your gamemode.
     usage: /<command> <survival|creative|spectator> [player]
 permissions:
-  tbfmp.admin.eco:
+  oakglowutil.admin.eco:
     description: Allows use of /eco commands.
     default: op
-  tbfmp.admin.rtp:
+  oakglowutil.admin.rtp:
     description: Allows use of /resetrtp.
     default: op
-  tbfmp.balance.others:
+  oakglowutil.balance.others:
     description: Allows viewing other players' balances.
     default: op
-  tbfmp.admin.reload:
-    description: Allows /tbfmc reload.
+  oakglowutil.admin.reload:
+    description: Allows /oakglow reload.
     default: op
-  tbfmp.admin.setspawn:
-    description: Allows /tbfmc setspawn.
+  oakglowutil.admin.setspawn:
+    description: Allows /oakglow setspawn.
     default: op
-  tbfmp.admin.convert:
-    description: Allows /tbfmc convert.
+  oakglowutil.admin.convert:
+    description: Allows /oakglow convert.
     default: op
-  tbfmp.admin.resetevent:
-    description: Allows /tbfmc resetevent.
+  oakglowutil.admin.resetevent:
+    description: Allows /oakglow resetevent.
     default: op
-  tbfmp.fly:
+  oakglowutil.fly:
     description: Allows /fly in survival.
     default: op
-  tbfmp.admin.invsee:
+  oakglowutil.admin.invsee:
     description: Allows /invsee.
     default: op
-  tbfmp.admin.echestsee:
+  oakglowutil.admin.echestsee:
     description: Allows /echestsee.
     default: op
-  tbfmp.admin.customreload:
+  oakglowutil.admin.customreload:
     description: Allows /custom reload.
     default: op
-  tbfmp.admin.mallwarp:
+  oakglowutil.admin.mallwarp:
     description: Allows setting the mall warp and region.
     default: op
-  tbfmp.staffchat:
+  oakglowutil.staffchat:
     description: Allows using staff chat and viewing staff chat.
     default: op
-  tbfmp.admin.socialspy:
+  oakglowutil.admin.socialspy:
     description: Allows toggling social spy.
     default: op
-  tbfmp.admin.tp:
+  oakglowutil.admin.tp:
     description: Allows using /tp.
     default: op
-  tbfmp.admin.tphere:
+  oakglowutil.admin.tphere:
     description: Allows using /tphere.
     default: op
-  tbfmp.gamemode.survival:
+  oakglowutil.gamemode.survival:
     description: Allows switching to survival mode.
     default: op
-  tbfmp.gamemode.creative:
+  oakglowutil.gamemode.creative:
     description: Allows switching to creative mode.
     default: op
-  tbfmp.gamemode.spectator:
+  oakglowutil.gamemode.spectator:
     description: Allows switching to spectator mode.
     default: op
-  tbfmp.gamemode.others:
+  oakglowutil.gamemode.others:
     description: Allows changing other players' gamemodes.
     default: op
   critcolor.gold:

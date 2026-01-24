@@ -276,9 +276,9 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("shoptut").setTabCompleter(tabCompleter);
         getCommand("hug").setExecutor(hugCommand);
         getCommand("hug").setTabCompleter(tabCompleter);
-        getCommand("tbfmc").setExecutor(new TbfmcCommand(this, messageService, spawnService,
+        getCommand("oakglow").setExecutor(new TbfmcCommand(this, messageService, spawnService,
                 keepInventorySettingsStorage, pvpSettingsStorage, miningEventService));
-        getCommand("tbfmc").setTabCompleter(tabCompleter);
+        getCommand("oakglow").setTabCompleter(tabCompleter);
         getCommand("fly").setExecutor(new FlyCommand(messageService));
         getCommand("fly").setTabCompleter(tabCompleter);
         getCommand("sit").setExecutor(sitCommand);

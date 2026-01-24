@@ -1,408 +1,408 @@
 tags:
   pro:
     display: "&b[Pro]"
-    permission: "tbfmp.tag.pro"
+    permission: "oakglowutil.tag.pro"
 
   master:
     display: "&6[Master]"
-    permission: "tbfmp.tag.master"
+    permission: "oakglowutil.tag.master"
 
   wizard:
     display: "&d[Wizard]"
-    permission: "tbfmp.tag.wizard"
+    permission: "oakglowutil.tag.wizard"
 
   mod:
     display: "&b[Mod]"
-    permission: "tbfmp.tag.mod"
+    permission: "oakglowutil.tag.mod"
 
   goddess:
     display: "&d[Goddess]"
-    permission: "tbfmp.tag.goddess"
+    permission: "oakglowutil.tag.goddess"
 
   loser:
     display: "&9[Loser]"
-    permission: "tbfmp.tag.loser"
+    permission: "oakglowutil.tag.loser"
 
   gg:
     display: "&c[GG]"
-    permission: "tbfmp.tag.gg"
+    permission: "oakglowutil.tag.gg"
 
   w:
     display: "&e[W]"
-    permission: "tbfmp.tag.w"
+    permission: "oakglowutil.tag.w"
 
   l:
     display: "&d[L]"
-    permission: "tbfmp.tag.l"
+    permission: "oakglowutil.tag.l"
 
   ez:
     display: "&a[EZ]"
-    permission: "tbfmp.tag.ez"
+    permission: "oakglowutil.tag.ez"
 
   gamer:
     display: "&9[Gamer]"
-    permission: "tbfmp.tag.gamer"
+    permission: "oakglowutil.tag.gamer"
 
   voter:
     display: "&a[Voter]"
-    permission: "tbfmp.tag.voter"
+    permission: "oakglowutil.tag.voter"
 
   pvper:
     display: "&c[PvPer]"
-    permission: "tbfmp.tag.pvper"
+    permission: "oakglowutil.tag.pvper"
 
   winner:
     display: "&6[Winner]"
-    permission: "tbfmp.tag.winner"
+    permission: "oakglowutil.tag.winner"
 
   king:
     display: "&6[King]"
-    permission: "tbfmp.tag.king"
+    permission: "oakglowutil.tag.king"
 
   queen:
     display: "&e[Queen]"
-    permission: "tbfmp.tag.queen"
+    permission: "oakglowutil.tag.queen"
 
   lord:
     display: "&b[Lord]"
-    permission: "tbfmp.tag.lord"
+    permission: "oakglowutil.tag.lord"
 
   carry:
     display: "&d[Carry]"
-    permission: "tbfmp.tag.carry"
+    permission: "oakglowutil.tag.carry"
 
   healer:
     display: "&d[Healer]"
-    permission: "tbfmp.tag.healer"
+    permission: "oakglowutil.tag.healer"
 
   tank:
     display: "&2[Tank]"
-    permission: "tbfmp.tag.tank"
+    permission: "oakglowutil.tag.tank"
 
   buff:
     display: "&b[Buff]"
-    permission: "tbfmp.tag.buff"
+    permission: "oakglowutil.tag.buff"
 
   nerd:
     display: "&d[Nerd]"
-    permission: "tbfmp.tag.nerd"
+    permission: "oakglowutil.tag.nerd"
 
   geek:
     display: "&6[Geek]"
-    permission: "tbfmp.tag.geek"
+    permission: "oakglowutil.tag.geek"
 
   noob:
     display: "&c[Noob]"
-    permission: "tbfmp.tag.noob"
+    permission: "oakglowutil.tag.noob"
 
   owned:
     display: "&9[Owned]"
-    permission: "tbfmp.tag.owned"
+    permission: "oakglowutil.tag.owned"
 
   grinder:
     display: "&d[Grinder]"
-    permission: "tbfmp.tag.grinder"
+    permission: "oakglowutil.tag.grinder"
 
   clash:
     display: "&6[Clash]"
-    permission: "tbfmp.tag.clash"
+    permission: "oakglowutil.tag.clash"
 
   duel:
     display: "&d[Duel]"
-    permission: "tbfmp.tag.duel"
+    permission: "oakglowutil.tag.duel"
 
   strike:
     display: "&e[Strike]"
-    permission: "tbfmp.tag.strike"
+    permission: "oakglowutil.tag.strike"
 
   attack:
     display: "&5[Attack]"
-    permission: "tbfmp.tag.attack"
+    permission: "oakglowutil.tag.attack"
 
   lag:
     display: "&a[Lag]"
-    permission: "tbfmp.tag.lag"
+    permission: "oakglowutil.tag.lag"
 
   nolife:
     display: "&b[NoLife]"
-    permission: "tbfmp.tag.nolife"
+    permission: "oakglowutil.tag.nolife"
 
   elite:
     display: "&b[Elite]"
-    permission: "tbfmp.tag.elite"
+    permission: "oakglowutil.tag.elite"
 
   legend:
     display: "&d[Legend]"
-    permission: "tbfmp.tag.legend"
+    permission: "oakglowutil.tag.legend"
 
   vip:
     display: "&a[VIP]"
-    permission: "tbfmp.tag.vip"
+    permission: "oakglowutil.tag.vip"
 
   mvp:
     display: "&b[MVP]"
-    permission: "tbfmp.tag.mvp"
+    permission: "oakglowutil.tag.mvp"
 
   sigma:
     display: "&a[Sigma]"
-    permission: "tbfmp.tag.sigma"
+    permission: "oakglowutil.tag.sigma"
 
   rizz:
     display: "&e[Rizz]"
-    permission: "tbfmp.tag.rizz"
+    permission: "oakglowutil.tag.rizz"
 
   bro:
     display: "&a[Bro]"
-    permission: "tbfmp.tag.bro"
+    permission: "oakglowutil.tag.bro"
 
   money:
     display: "&a[$$$]"
-    permission: "tbfmp.tag.money"
+    permission: "oakglowutil.tag.money"
 
   heart:
     display: "&d[♥]"
-    permission: "tbfmp.tag.heart"
+    permission: "oakglowutil.tag.heart"
 
   brainrot:
     display: "&b[Brainrot]"
-    permission: "tbfmp.tag.brainrot"
+    permission: "oakglowutil.tag.brainrot"
 
   lol:
     display: "&d[LOL]"
-    permission: "tbfmp.tag.lol"
+    permission: "oakglowutil.tag.lol"
 
   lmao:
     display: "&d[LMAO]"
-    permission: "tbfmp.tag.lmao"
+    permission: "oakglowutil.tag.lmao"
 
   lmfao:
     display: "&b[LMFAO]"
-    permission: "tbfmp.tag.lmfao"
+    permission: "oakglowutil.tag.lmfao"
 
   afk:
     display: "&c[AFK]"
-    permission: "tbfmp.tag.afk"
+    permission: "oakglowutil.tag.afk"
 
   gl:
     display: "&9[GL]"
-    permission: "tbfmp.tag.gl"
+    permission: "oakglowutil.tag.gl"
 
   omg:
     display: "&a[OMG]"
-    permission: "tbfmp.tag.omg"
+    permission: "oakglowutil.tag.omg"
 
   ggwp:
     display: "&a[GGWP]"
-    permission: "tbfmp.tag.ggwp"
+    permission: "oakglowutil.tag.ggwp"
 
   rip:
     display: "&c[RIP]"
-    permission: "tbfmp.tag.rip"
+    permission: "oakglowutil.tag.rip"
 
   skibidi:
     display: "&9[Skibidi]"
-    permission: "tbfmp.tag.skibidi"
+    permission: "oakglowutil.tag.skibidi"
 
   pig:
     display: "&d[Pig]"
-    permission: "tbfmp.tag.pig"
+    permission: "oakglowutil.tag.pig"
 
   cow:
     display: "&6[Cow]"
-    permission: "tbfmp.tag.cow"
+    permission: "oakglowutil.tag.cow"
 
   sheep:
     display: "&f[Sheep]"
-    permission: "tbfmp.tag.sheep"
+    permission: "oakglowutil.tag.sheep"
 
   chicken:
     display: "&d[Chicken]"
-    permission: "tbfmp.tag.chicken"
+    permission: "oakglowutil.tag.chicken"
 
   wolf:
     display: "&b[Wolf]"
-    permission: "tbfmp.tag.wolf"
+    permission: "oakglowutil.tag.wolf"
 
   cat:
     display: "&e[Cat]"
-    permission: "tbfmp.tag.cat"
+    permission: "oakglowutil.tag.cat"
 
   dragon:
     display: "&a[Dragon]"
-    permission: "tbfmp.tag.dragon"
+    permission: "oakglowutil.tag.dragon"
 
   wither:
     display: "&5[Wither]"
-    permission: "tbfmp.tag.wither"
+    permission: "oakglowutil.tag.wither"
 
   diamond:
     display: "&b[Diamond]"
-    permission: "tbfmp.tag.diamond"
+    permission: "oakglowutil.tag.diamond"
 
   gold:
     display: "&6[Gold]"
-    permission: "tbfmp.tag.gold"
+    permission: "oakglowutil.tag.gold"
 
   emerald:
     display: "&a[Emerald]"
-    permission: "tbfmp.tag.emerald"
+    permission: "oakglowutil.tag.emerald"
 
   redstone:
     display: "&c[Redstone]"
-    permission: "tbfmp.tag.redstone"
+    permission: "oakglowutil.tag.redstone"
 
   copper:
     display: "&6[Copper]"
-    permission: "tbfmp.tag.copper"
+    permission: "oakglowutil.tag.copper"
 
   creeper:
     display: "&a[Creeper]"
-    permission: "tbfmp.tag.creeper"
+    permission: "oakglowutil.tag.creeper"
 
   skeleton:
     display: "&7[Skeleton]"
-    permission: "tbfmp.tag.skeleton"
+    permission: "oakglowutil.tag.skeleton"
 
   zombie:
     display: "&a[Zombie]"
-    permission: "tbfmp.tag.zombie"
+    permission: "oakglowutil.tag.zombie"
 
   blaze:
     display: "&e[Blaze]"
-    permission: "tbfmp.tag.blaze"
+    permission: "oakglowutil.tag.blaze"
 
   fire:
     display: "&c[Fire]"
-    permission: "tbfmp.tag.fire"
+    permission: "oakglowutil.tag.fire"
 
   witch:
     display: "&5[Witch]"
-    permission: "tbfmp.tag.witch"
+    permission: "oakglowutil.tag.witch"
 
   beacon:
     display: "&b[Beacon]"
-    permission: "tbfmp.tag.beacon"
+    permission: "oakglowutil.tag.beacon"
 
   star:
     display: "&f[Star]"
-    permission: "tbfmp.tag.star"
+    permission: "oakglowutil.tag.star"
 
   bedrock:
     display: "&7[Bedrock]"
-    permission: "tbfmp.tag.bedrock"
+    permission: "oakglowutil.tag.bedrock"
 
   java:
     display: "&a[Java]"
-    permission: "tbfmp.tag.java"
+    permission: "oakglowutil.tag.java"
 
   obsidian:
     display: "&5[Obsidian]"
-    permission: "tbfmp.tag.obsidian"
+    permission: "oakglowutil.tag.obsidian"
 
   farmer:
     display: "&6[Farmer]"
-    permission: "tbfmp.tag.farmer"
+    permission: "oakglowutil.tag.farmer"
 
   harvester:
     display: "&7[Harvester]"
-    permission: "tbfmp.tag.harvester"
+    permission: "oakglowutil.tag.harvester"
 
   him:
     display: "&a[Him]"
-    permission: "tbfmp.tag.him"
+    permission: "oakglowutil.tag.him"
 
   idk:
     display: "&9[IDK]"
-    permission: "tbfmp.tag.idk"
+    permission: "oakglowutil.tag.idk"
 
   wtf:
     display: "&e[WTF]"
-    permission: "tbfmp.tag.wtf"
+    permission: "oakglowutil.tag.wtf"
 
   miner:
     display: "&7[Miner]"
-    permission: "tbfmp.tag.miner"
+    permission: "oakglowutil.tag.miner"
 
   tnt:
     display: "&c[TNT]"
-    permission: "tbfmp.tag.tnt"
+    permission: "oakglowutil.tag.tnt"
 
   boom:
     display: "&c[Boom!]"
-    permission: "tbfmp.tag.boom"
+    permission: "oakglowutil.tag.boom"
 
   wow:
     display: "&d[Wow]"
-    permission: "tbfmp.tag.wow"
+    permission: "oakglowutil.tag.wow"
 
   unknown:
     display: "&6[???]"
-    permission: "tbfmp.tag.unknown"
+    permission: "oakglowutil.tag.unknown"
 
   smile:
     display: "&6[☻]"
-    permission: "tbfmp.tag.smile"
+    permission: "oakglowutil.tag.smile"
 
   toxic:
     display: "&c[Toxic]"
-    permission: "tbfmp.tag.toxic"
+    permission: "oakglowutil.tag.toxic"
 
   void:
     display: "&5[Void]"
-    permission: "tbfmp.tag.void"
+    permission: "oakglowutil.tag.void"
 
   cute:
     display: "&d[Cute]"
-    permission: "tbfmp.tag.cute"
+    permission: "oakglowutil.tag.cute"
 
   emperor:
     display: "&6[Emperor]"
-    permission: "tbfmp.tag.emperor"
+    permission: "oakglowutil.tag.emperor"
 
   top1:
     display: "&c[#1]"
-    permission: "tbfmp.tag.top1"
+    permission: "oakglowutil.tag.top1"
 
   eternal:
     display: "&e[Eternal]"
-    permission: "tbfmp.tag.eternal"
+    permission: "oakglowutil.tag.eternal"
 
   powerful:
     display: "&5[Powerful]"
-    permission: "tbfmp.tag.powerful"
+    permission: "oakglowutil.tag.powerful"
 
   titan:
     display: "&9[Titan]"
-    permission: "tbfmp.tag.titan"
+    permission: "oakglowutil.tag.titan"
 
   savvy:
     display: "&9[Savvy]"
-    permission: "tbfmp.tag.savvy"
+    permission: "oakglowutil.tag.savvy"
 
   op:
     display: "&b[OP]"
-    permission: "tbfmp.tag.op"
+    permission: "oakglowutil.tag.op"
 
   netherite:
     display: "&7[Netherite]"
-    permission: "tbfmp.tag.netherite"
+    permission: "oakglowutil.tag.netherite"
 
   slime:
     display: "&a[Slime]"
-    permission: "tbfmp.tag.slime"
+    permission: "oakglowutil.tag.slime"
 
   elytra:
     display: "&d[Elytra]"
-    permission: "tbfmp.tag.elytra"
+    permission: "oakglowutil.tag.elytra"
 
   player:
     display: "&d[Player]"
-    permission: "tbfmp.tag.player"
+    permission: "oakglowutil.tag.player"
 
   pog:
     display: "&a[Pog]"
-    permission: "tbfmp.tag.pog"
+    permission: "oakglowutil.tag.pog"
 
   dictator:
     display: "&0[Dictator]"
-    permission: "tbfmp.tag.dictator"
+    permission: "oakglowutil.tag.dictator"

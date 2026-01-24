@@ -19,7 +19,7 @@ public class ResetRtpCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("tbfmp.admin.rtp")) {
+        if (!sender.hasPermission("oakglowutil.admin.rtp")) {
             messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }

@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tbfmc</groupId>
-    <artifactId>tbfmp</artifactId>
+    <artifactId>oakglowutil</artifactId>
     <version>1.0.0</version>
-    <name>TBFMP</name>
-    <description>The best Minecraft plugin for TBFMC.</description>
+    <name>OakGlowUtil</name>
+    <description>The OakGlowUtil plugin for OakGlow.net.</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

@@ -22,7 +22,7 @@ public class SocialSpyCommand implements CommandExecutor {
             messages.sendMessage(sender, messages.getMessage("messages.players-only"));
             return true;
         }
-        if (!player.hasPermission("tbfmp.admin.socialspy")) {
+        if (!player.hasPermission("oakglowutil.admin.socialspy")) {
             messages.sendMessage(player, messages.getMessage("messages.no-permission"));
             return true;
         }

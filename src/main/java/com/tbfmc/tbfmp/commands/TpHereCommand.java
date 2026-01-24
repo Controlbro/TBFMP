@@ -21,7 +21,7 @@ public class TpHereCommand implements CommandExecutor {
             messages.sendMessage(sender, messages.getMessage("messages.players-only"));
             return true;
         }
-        if (!player.hasPermission("tbfmp.admin.tphere")) {
+        if (!player.hasPermission("oakglowutil.admin.tphere")) {
             messages.sendMessage(player, messages.getMessage("messages.no-permission"));
             return true;
         }

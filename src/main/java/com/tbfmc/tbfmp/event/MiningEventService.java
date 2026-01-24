@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class MiningEventService {
-    private static final String OBJECTIVE_NAME = "tbfmp_event";
+    private static final String OBJECTIVE_NAME = "oakglowutil_event";
     private static final String TITLE = ChatColor.GOLD + "Mining Event";
     private static final int MAX_ENTRIES = 15;
     private final MiningEventStorage storage;

@@ -32,7 +32,7 @@ public class BalanceCommand implements CommandExecutor {
             return true;
         }
 
-        if (!sender.hasPermission("tbfmp.balance.others")) {
+        if (!sender.hasPermission("oakglowutil.balance.others")) {
             messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }

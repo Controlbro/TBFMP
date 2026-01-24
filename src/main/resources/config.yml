@@ -1,6 +1,6 @@
-prefix: "&f[TBFMP]"
+prefix: "&f[&6OGN&f]"
 messages:
-  motd: "&aWelcome to TBFMC!"
+  motd: "&aWelcome to OakGlow!"
   rtp-pending: "&aRTP is one-time only. Type &f/confirm &ato use it."
   rtp-used: "&aYou already used your one-time RTP."
   rtp-success: "&aTeleporting you now. This was your only RTP."
@@ -23,8 +23,8 @@ messages:
   pay-target-disabled: "&aThat player is not accepting payments."
   pay-toggle-on: "&aPayments are now &fON&a."
   pay-toggle-off: "&aPayments are now &fOFF&a."
-  vote: '&aVote for the server at &fhttps://tbfmc.com/vote'
-  web: '&aVisit our website at &fhttps://tbfmc.com'
+  vote: '&aVote for the server at &fhttps://OakGlow.net/vote'
+  web: '&aVisit our website at &fhttps://OakGlow.net'
   discord: '&aJoin our Discord at &fhttps://discord.com/invite/vSajqg6ChK'
   shoptut: '&aShop tutorial: &fexample.com/shop'
   hug-usage: "&aUsage: &f/hug <player>"
@@ -62,7 +62,7 @@ messages:
   tag-no-permission: "&aYou do not have permission for that tag."
   invsee-usage: "&aUsage: &f/invsee <player>"
   echestsee-usage: "&aUsage: &f/echestsee <player>"
-  tbfmc-usage: "&aUsage: &f/tbfmc <reload|setspawn|convert|keepinvtoggle|pvptoggle|toggleleaderboard|resetevent>"
+  oakglow-usage: "&aUsage: &f/oakglow <reload|setspawn|convert|keepinvtoggle|pvptoggle|toggleleaderboard|resetevent>"
   reload-complete: "&aConfiguration reloaded."
   setspawn-success: "&aSpawn location updated."
   convert-complete: "&aConversion Complete! It is now safe to delete old files."
@@ -73,7 +73,7 @@ messages:
   afk-disabled: "&aYou are no longer AFK."
   players-only: "&aOnly players can use that command."
   join: "&aWelcome back, &f{player}&a!"
-  first-join: "&aWelcome to TBFMC, &f{player}&a!"
+  first-join: "&aWelcome to OakGlow, &f{player}&a!"
   leave: "&a{player} left the server."
   mallwarp-not-set: "&aMall warp has not been set yet."
   mallwarp-region-not-set: "&aMall warp region has not been set yet."
@@ -115,7 +115,7 @@ afk:
   timeout-seconds: 300
 tab-list:
   header:
-    - "&f&lTBFMC"
+    - "&f&lOakGlow"
     - ""
   footer:
     - ""
@@ -141,7 +141,7 @@ chat-notifications:
   interval-seconds: 1200
   messages:
   - '&aJoin our Discord: &fhttps://discord.com/invite/vSajqg6ChK'
-  - '&aVisit our website: &fhttps://tbfmc.com'
+  - '&aVisit our website: &fhttps://OakGlow.net'
   - '&aStuck in someones claim? You can do &f/stuck &ato get out!'
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
 auto-save:

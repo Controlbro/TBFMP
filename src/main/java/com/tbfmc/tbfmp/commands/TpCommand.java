@@ -21,7 +21,7 @@ public class TpCommand implements CommandExecutor {
             messages.sendMessage(sender, messages.getMessage("messages.players-only"));
             return true;
         }
-        if (!player.hasPermission("tbfmp.admin.tp")) {
+        if (!player.hasPermission("oakglowutil.admin.tp")) {
             messages.sendMessage(player, messages.getMessage("messages.no-permission"));
             return true;
         }

@@ -27,7 +27,7 @@ public class MallWarpSelectionListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        if (!player.hasPermission("tbfmp.admin.mallwarp")) {
+        if (!player.hasPermission("oakglowutil.admin.mallwarp")) {
             return;
         }
         ItemStack item = player.getInventory().getItemInMainHand();

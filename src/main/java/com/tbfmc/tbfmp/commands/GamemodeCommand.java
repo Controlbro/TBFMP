@@ -52,7 +52,7 @@ public class GamemodeCommand implements CommandExecutor {
             }
             target = player;
         } else if (sender instanceof Player player && !target.equals(player)) {
-            if (!player.hasPermission("tbfmp.gamemode.others")) {
+            if (!player.hasPermission("oakglowutil.gamemode.others")) {
                 messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
                 return true;
             }
@@ -85,9 +85,9 @@ public class GamemodeCommand implements CommandExecutor {
 
     private String permissionFor(GameMode mode) {
         return switch (mode) {
-            case SURVIVAL -> "tbfmp.gamemode.survival";
-            case CREATIVE -> "tbfmp.gamemode.creative";
-            case SPECTATOR -> "tbfmp.gamemode.spectator";
+            case SURVIVAL -> "oakglowutil.gamemode.survival";
+            case CREATIVE -> "oakglowutil.gamemode.creative";
+            case SPECTATOR -> "oakglowutil.gamemode.spectator";
             default -> null;
         };
     }

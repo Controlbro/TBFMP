@@ -28,7 +28,7 @@ public class EchestseeCommand implements CommandExecutor {
             messages.sendMessage(sender, "This command can only be used in-game.");
             return true;
         }
-        if (!player.hasPermission("tbfmp.admin.echestsee")) {
+        if (!player.hasPermission("oakglowutil.admin.echestsee")) {
             messages.sendMessage(player, messages.getMessage("messages.no-permission"));
             return true;
         }

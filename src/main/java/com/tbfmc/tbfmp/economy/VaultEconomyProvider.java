@@ -21,7 +21,7 @@ public class VaultEconomyProvider implements Economy {
 
     @Override
     public String getName() {
-        return "TBFMP";
+        return "OakGlowUtil";
     }
 
     @Override

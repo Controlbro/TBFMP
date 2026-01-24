@@ -17,7 +17,7 @@ public class MessageService {
     public MessageService(JavaPlugin plugin) {
         this.plugin = plugin;
         FileConfiguration config = plugin.getConfig();
-        this.prefix = colorize(config.getString("prefix", "&f[TBFMP]"));
+        this.prefix = colorize(config.getString("prefix", "&f[&6OGN&f]"));
     }
 
     public String getMessage(String path) {

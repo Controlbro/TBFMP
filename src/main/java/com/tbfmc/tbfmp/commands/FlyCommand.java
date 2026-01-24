@@ -21,7 +21,7 @@ public class FlyCommand implements CommandExecutor {
             return true;
         }
 
-        if (!player.hasPermission("tbfmp.fly")) {
+        if (!player.hasPermission("oakglowutil.fly")) {
             messages.sendMessage(player, messages.getMessage("messages.no-permission"));
             return true;
         }
