@@ -30,9 +30,12 @@ import com.tbfmc.tbfmp.commands.SetMallWarpRegionCommand;
 import com.tbfmc.tbfmp.commands.SettingsCommand;
 import com.tbfmc.tbfmp.commands.SitCommand;
 import com.tbfmc.tbfmp.commands.SitSettingCommand;
+import com.tbfmc.tbfmp.commands.SocialSpyCommand;
+import com.tbfmc.tbfmp.commands.StaffChatCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.commands.TbfmpTabCompleter;
+import com.tbfmc.tbfmp.commands.TpHereCommand;
 import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
@@ -58,6 +61,7 @@ import com.tbfmc.tbfmp.listeners.PvpToggleListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
+import com.tbfmc.tbfmp.listeners.SocialSpyListener;
 import com.tbfmc.tbfmp.listeners.SpawnListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
@@ -65,6 +69,7 @@ import com.tbfmc.tbfmp.mallwarp.MallWarpManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpSelectionManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpService;
 import com.tbfmc.tbfmp.rtp.RtpManager;
+import com.tbfmc.tbfmp.staff.SocialSpyManager;
 import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
 import com.tbfmc.tbfmp.settings.SettingsMenuService;
 import com.tbfmc.tbfmp.settings.KeepInventorySettingsStorage;
@@ -119,6 +124,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private MiningEventService miningEventService;
     private MallWarpManager mallWarpManager;
     private MallWarpSelectionManager mallWarpSelectionManager;
+    private SocialSpyManager socialSpyManager;
 
     @Override
     public void onEnable() {
@@ -167,8 +173,9 @@ public class TBFMPPlugin extends JavaPlugin {
                 messageService, new NamespacedKey(this, "settings-option"));
         this.spawnService = new SpawnService(this);
         MallWarpService mallWarpService = new MallWarpService(this);
-        this.mallWarpManager = new MallWarpManager(mallWarpService);
+        this.mallWarpManager = new MallWarpManager(this, mallWarpService, unifiedDataFile);
         this.mallWarpSelectionManager = new MallWarpSelectionManager();
+        this.socialSpyManager = new SocialSpyManager(this, unifiedDataFile);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -215,6 +222,12 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         if (rtpManager != null) {
             rtpManager.save();
+        }
+        if (mallWarpManager != null) {
+            mallWarpManager.save();
+        }
+        if (socialSpyManager != null) {
+            socialSpyManager.save();
         }
         if (offlineInventoryStorage != null) {
             offlineInventoryStorage.saveWithMessage(getLogger(), "server shutdown");
@@ -295,6 +308,12 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("setmallwarprg").setTabCompleter(tabCompleter);
         getCommand("backwarp").setExecutor(new BackWarpCommand(mallWarpManager, messageService));
         getCommand("backwarp").setTabCompleter(tabCompleter);
+        getCommand("mc").setExecutor(new StaffChatCommand(messageService));
+        getCommand("mc").setTabCompleter(tabCompleter);
+        getCommand("socialspy").setExecutor(new SocialSpyCommand(socialSpyManager, messageService));
+        getCommand("socialspy").setTabCompleter(tabCompleter);
+        getCommand("tphere").setExecutor(new TpHereCommand(messageService));
+        getCommand("tphere").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {
@@ -326,6 +345,7 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PvpToggleListener(pvpSettingsStorage, messageService), this);
         Bukkit.getPluginManager().registerEvents(new MallWarpSelectionListener(mallWarpSelectionManager, messageService), this);
         Bukkit.getPluginManager().registerEvents(new MallWarpRestrictionListener(mallWarpManager, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new SocialSpyListener(socialSpyManager, messageService), this);
     }
 
     private void startChatNotifications() {
@@ -436,6 +456,8 @@ public class TBFMPPlugin extends JavaPlugin {
         tagSelectionStorage.writeToUnifiedData();
         offlineInventoryStorage.writeToUnifiedData();
         rtpManager.writeToUnifiedData();
+        mallWarpManager.writeToUnifiedData();
+        socialSpyManager.writeToUnifiedData();
         unifiedDataFile.save();
         return true;
     }

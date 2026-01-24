@@ -36,7 +36,7 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "event" -> filter(EVENT_ACTIONS, args[0]);
                 case "custom" -> filter(CUSTOM_ACTIONS, args[0]);
                 case "tbfmc" -> filter(TBFMC_ACTIONS, args[0]);
-                case "balance", "pay", "hug", "resetrtp", "invsee", "echestsee" -> onlinePlayers(args[0]);
+                case "balance", "pay", "hug", "resetrtp", "invsee", "echestsee", "tphere" -> onlinePlayers(args[0]);
                 default -> Collections.emptyList();
             };
         }
