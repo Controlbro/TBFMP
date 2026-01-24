@@ -109,10 +109,22 @@ commands:
     description: Toggle social spy.
     usage: /<command>
     permission: tbfmp.admin.socialspy
+  msg:
+    aliases: [message]
+    description: Send a private message.
+    usage: /<command> <player> <message>
+  tp:
+    description: Teleport to a player or coordinates.
+    usage: /<command> <player|x y z>
+    permission: tbfmp.admin.tp
   tphere:
     description: Teleport a player to you.
     usage: /<command> <player>
     permission: tbfmp.admin.tphere
+  gamemode:
+    aliases: [gm]
+    description: Change your gamemode.
+    usage: /<command> <survival|creative|spectator> [player]
 permissions:
   tbfmp.admin.eco:
     description: Allows use of /eco commands.
@@ -156,8 +168,23 @@ permissions:
   tbfmp.admin.socialspy:
     description: Allows toggling social spy.
     default: op
+  tbfmp.admin.tp:
+    description: Allows using /tp.
+    default: op
   tbfmp.admin.tphere:
     description: Allows using /tphere.
+    default: op
+  tbfmp.gamemode.survival:
+    description: Allows switching to survival mode.
+    default: op
+  tbfmp.gamemode.creative:
+    description: Allows switching to creative mode.
+    default: op
+  tbfmp.gamemode.spectator:
+    description: Allows switching to spectator mode.
+    default: op
+  tbfmp.gamemode.others:
+    description: Allows changing other players' gamemodes.
     default: op
   critcolor.gold:
     description: Use gold critical hit particles.

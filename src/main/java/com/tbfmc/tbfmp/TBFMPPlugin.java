@@ -16,10 +16,12 @@ import com.tbfmc.tbfmp.commands.EcoCommand;
 import com.tbfmc.tbfmp.commands.CustomCommand;
 import com.tbfmc.tbfmp.commands.EventCommand;
 import com.tbfmc.tbfmp.commands.FlyCommand;
+import com.tbfmc.tbfmp.commands.GamemodeCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
 import com.tbfmc.tbfmp.commands.InvseeCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
+import com.tbfmc.tbfmp.commands.MsgCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.EchestseeCommand;
@@ -35,6 +37,7 @@ import com.tbfmc.tbfmp.commands.StaffChatCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.commands.TbfmpTabCompleter;
+import com.tbfmc.tbfmp.commands.TpCommand;
 import com.tbfmc.tbfmp.commands.TpHereCommand;
 import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
@@ -312,8 +315,14 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("mc").setTabCompleter(tabCompleter);
         getCommand("socialspy").setExecutor(new SocialSpyCommand(socialSpyManager, messageService));
         getCommand("socialspy").setTabCompleter(tabCompleter);
+        getCommand("msg").setExecutor(new MsgCommand(messageService));
+        getCommand("msg").setTabCompleter(tabCompleter);
+        getCommand("tp").setExecutor(new TpCommand(messageService));
+        getCommand("tp").setTabCompleter(tabCompleter);
         getCommand("tphere").setExecutor(new TpHereCommand(messageService));
         getCommand("tphere").setTabCompleter(tabCompleter);
+        getCommand("gamemode").setExecutor(new GamemodeCommand(messageService));
+        getCommand("gamemode").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {

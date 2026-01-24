@@ -14,6 +14,7 @@ public class TbfmpTabCompleter implements TabCompleter {
     private static final List<String> ECO_ACTIONS = List.of("give", "take", "set");
     private static final List<String> EVENT_ACTIONS = List.of("show", "hide");
     private static final List<String> CUSTOM_ACTIONS = List.of("reload");
+    private static final List<String> GAMEMODE_ACTIONS = List.of("survival", "creative", "spectator");
     private static final List<String> TBFMC_ACTIONS = List.of(
             "reload",
             "setspawn",
@@ -36,7 +37,9 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "event" -> filter(EVENT_ACTIONS, args[0]);
                 case "custom" -> filter(CUSTOM_ACTIONS, args[0]);
                 case "tbfmc" -> filter(TBFMC_ACTIONS, args[0]);
-                case "balance", "pay", "hug", "resetrtp", "invsee", "echestsee", "tphere" -> onlinePlayers(args[0]);
+                case "gamemode", "gm" -> filter(GAMEMODE_ACTIONS, args[0]);
+                case "balance", "pay", "hug", "resetrtp", "invsee", "echestsee", "tphere", "msg", "tp" ->
+                        onlinePlayers(args[0]);
                 default -> Collections.emptyList();
             };
         }
@@ -44,6 +47,7 @@ public class TbfmpTabCompleter implements TabCompleter {
             return switch (name) {
                 case "eco" -> onlinePlayers(args[1]);
                 case "pay" -> Collections.emptyList();
+                case "gamemode", "gm", "msg" -> onlinePlayers(args[1]);
                 default -> Collections.emptyList();
             };
         }
