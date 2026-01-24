@@ -14,7 +14,7 @@ public class UnifiedDataFile {
     private boolean enabled;
 
     public UnifiedDataFile(JavaPlugin plugin) {
-        this.file = new File(plugin.getDataFolder(), "tbfmp-data.yml");
+        this.file = new File(plugin.getDataFolder(), "oakglowutil-data.yml");
         reload();
     }
 

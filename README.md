@@ -1,2 +1,2 @@
-# TBFMP
-Plugin for TBFMC, This includes Economy management, RTP, and MOTD.
+# OakGlowUtil
+Plugin for OakGlow.net with economy management, RTP, and MOTD.

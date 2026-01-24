@@ -15,7 +15,7 @@ public class TbfmpTabCompleter implements TabCompleter {
     private static final List<String> EVENT_ACTIONS = List.of("show", "hide");
     private static final List<String> CUSTOM_ACTIONS = List.of("reload");
     private static final List<String> GAMEMODE_ACTIONS = List.of("survival", "creative", "spectator");
-    private static final List<String> TBFMC_ACTIONS = List.of(
+    private static final List<String> OAKGLOW_ACTIONS = List.of(
             "reload",
             "setspawn",
             "convert",
@@ -36,7 +36,7 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "eco" -> filter(ECO_ACTIONS, args[0]);
                 case "event" -> filter(EVENT_ACTIONS, args[0]);
                 case "custom" -> filter(CUSTOM_ACTIONS, args[0]);
-                case "tbfmc" -> filter(TBFMC_ACTIONS, args[0]);
+                case "oakglow" -> filter(OAKGLOW_ACTIONS, args[0]);
                 case "gamemode", "gm" -> filter(GAMEMODE_ACTIONS, args[0]);
                 case "balance", "pay", "hug", "resetrtp", "invsee", "echestsee", "tphere", "msg", "tp" ->
                         onlinePlayers(args[0]);

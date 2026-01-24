@@ -19,7 +19,7 @@ public class EcoCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("tbfmp.admin.eco")) {
+        if (!sender.hasPermission("oakglowutil.admin.eco")) {
             messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }

@@ -16,7 +16,7 @@ public class StaffChatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("tbfmp.staffchat")) {
+        if (!sender.hasPermission("oakglowutil.staffchat")) {
             messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }
@@ -30,7 +30,7 @@ public class StaffChatCommand implements CommandExecutor {
                 .replace("{message}", message);
         String formatted = messages.colorize(format);
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission("tbfmp.staffchat")) {
+            if (player.hasPermission("oakglowutil.staffchat")) {
                 player.sendMessage(formatted);
             }
         }

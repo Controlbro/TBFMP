@@ -52,7 +52,7 @@ public class SocialSpyListener implements Listener {
             if (player.equals(sender)) {
                 continue;
             }
-            if (!player.hasPermission("tbfmp.admin.socialspy")) {
+            if (!player.hasPermission("oakglowutil.admin.socialspy")) {
                 continue;
             }
             if (!socialSpyManager.isEnabled(player.getUniqueId())) {

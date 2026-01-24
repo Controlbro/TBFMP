@@ -18,7 +18,7 @@ public class CustomCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("tbfmp.admin.customreload")) {
+            if (!sender.hasPermission("oakglowutil.admin.customreload")) {
                 messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
                 return true;
             }

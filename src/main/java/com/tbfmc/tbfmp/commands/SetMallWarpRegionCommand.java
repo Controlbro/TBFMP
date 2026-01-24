@@ -28,7 +28,7 @@ public class SetMallWarpRegionCommand implements CommandExecutor {
             messages.sendMessage(sender, messages.getMessage("messages.players-only"));
             return true;
         }
-        if (!sender.hasPermission("tbfmp.admin.mallwarp")) {
+        if (!sender.hasPermission("oakglowutil.admin.mallwarp")) {
             messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
             return true;
         }
