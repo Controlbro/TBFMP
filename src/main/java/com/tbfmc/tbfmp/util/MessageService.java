@@ -12,16 +12,18 @@ import java.util.regex.Pattern;
 public class MessageService {
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private final JavaPlugin plugin;
+    private final FileConfiguration messagesConfig;
     private final String prefix;
 
-    public MessageService(JavaPlugin plugin) {
+    public MessageService(JavaPlugin plugin, FileConfiguration messagesConfig) {
         this.plugin = plugin;
+        this.messagesConfig = messagesConfig;
         FileConfiguration config = plugin.getConfig();
         this.prefix = colorize(config.getString("prefix", "&f[&6OGN&f]"));
     }
 
     public String getMessage(String path) {
-        String value = plugin.getConfig().getString(path, "");
+        String value = messagesConfig.getString(path, "");
         return colorize(value);
     }
 

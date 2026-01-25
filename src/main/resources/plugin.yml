@@ -1,6 +1,6 @@
 name: OakGlowUtil
 main: com.tbfmc.tbfmp.TBFMPPlugin
-version: 1.3.5
+version: 1.3.6
 api-version: '1.21'
 load: POSTWORLD
 depend: [Vault]
@@ -44,6 +44,12 @@ commands:
     usage: /<command>
   shoptut:
     description: Show the shop tutorial link.
+    usage: /<command>
+  rules:
+    description: Show the rules link.
+    usage: /<command>
+  mallrules:
+    description: Show the mall rules link.
     usage: /<command>
   hug:
     description: Send a hug to another player.

@@ -69,17 +69,17 @@ public class RtpManager {
 
     public void requestRtp(Player player) {
         if (hasUsedRtp(player.getUniqueId())) {
-            messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-used"));
+            messages.sendMessage(player, messages.getMessage("messages.rtp-used"));
             return;
         }
         pendingConfirmations.put(player.getUniqueId(), System.currentTimeMillis());
-        messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-pending"));
+        messages.sendMessage(player, messages.getMessage("messages.rtp-pending"));
     }
 
     public void confirmRtp(Player player) {
         UUID uuid = player.getUniqueId();
         if (!pendingConfirmations.containsKey(uuid)) {
-            messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-expired"));
+            messages.sendMessage(player, messages.getMessage("messages.rtp-expired"));
             return;
         }
 
@@ -87,13 +87,13 @@ public class RtpManager {
         long timeoutMillis = plugin.getConfig().getLong("rtp.confirm-timeout-seconds", 60) * 1000L;
         if (System.currentTimeMillis() - requestedAt > timeoutMillis) {
             pendingConfirmations.remove(uuid);
-            messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-expired"));
+            messages.sendMessage(player, messages.getMessage("messages.rtp-expired"));
             return;
         }
 
         Location location = findSafeLocation();
         if (location == null) {
-            messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-failed"));
+            messages.sendMessage(player, messages.getMessage("messages.rtp-failed"));
             return;
         }
 
@@ -101,7 +101,7 @@ public class RtpManager {
         usedRtp.add(uuid);
         setValue(uuid.toString(), true);
         save();
-        messages.sendMessage(player, plugin.getConfig().getString("messages.rtp-success"));
+        messages.sendMessage(player, messages.getMessage("messages.rtp-success"));
         player.teleportAsync(location);
     }
 

@@ -6,6 +6,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class UnifiedDataFile {
     private static final int DATA_VERSION = 1;
@@ -14,7 +16,17 @@ public class UnifiedDataFile {
     private boolean enabled;
 
     public UnifiedDataFile(JavaPlugin plugin) {
-        this.file = new File(plugin.getDataFolder(), "oakglowutil-data.yml");
+        this.file = new File(plugin.getDataFolder(), "data/data.yml");
+        File legacyFile = new File(plugin.getDataFolder(), "oakglowutil-data.yml");
+        if (!file.exists() && legacyFile.exists()) {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            try {
+                Files.move(legacyFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ignored) {
+            }
+        }
         reload();
     }
 
