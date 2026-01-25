@@ -61,3 +61,42 @@ death-particles:
       spread: 0.2
       duration-ticks: 12
       permission: "death.particle.hearts"
+
+trails:
+  enabled: true
+  interval-ticks: 5
+  disabled-worlds: []
+  default: sparkle
+
+  particles:
+    sparkle:
+      type: FIREWORK
+      count: 2
+      offset:
+        x: 0.2
+        y: 0.1
+        z: 0.2
+      extra: 0.01
+      permission: "trail.sparkle"
+
+    flame:
+      type: FLAME
+      count: 4
+      offset:
+        x: 0.2
+        y: 0.2
+        z: 0.2
+      extra: 0.01
+      permission: "trail.flame"
+
+    redstone:
+      type: REDSTONE
+      count: 1
+      offset:
+        x: 0.1
+        y: 0.1
+        z: 0.1
+      extra: 0.0
+      color: "#FF0000"
+      size: 1.0
+      permission: "trail.red"

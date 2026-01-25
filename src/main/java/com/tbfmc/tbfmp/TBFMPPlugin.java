@@ -62,6 +62,7 @@ import com.tbfmc.tbfmp.listeners.KeepInventoryListener;
 import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PvpToggleListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
+import com.tbfmc.tbfmp.listeners.PlayerTrailListener;
 import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.SocialSpyListener;
@@ -83,6 +84,7 @@ import com.tbfmc.tbfmp.tablist.TabListService;
 import com.tbfmc.tbfmp.util.ConfigUpdater;
 import com.tbfmc.tbfmp.util.CustomConfig;
 import com.tbfmc.tbfmp.util.MessageService;
+import com.tbfmc.tbfmp.util.MessagesConfig;
 import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
 import com.tbfmc.tbfmp.util.SpawnService;
 import com.tbfmc.tbfmp.util.UnifiedDataFile;
@@ -92,6 +94,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.io.File;
 
 public class TBFMPPlugin extends JavaPlugin {
     private UnifiedDataFile unifiedDataFile;
@@ -105,6 +110,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private SitManager sitManager;
     private RtpManager rtpManager;
     private MessageService messageService;
+    private MessagesConfig messagesConfig;
     private ChatNotificationTask chatNotificationTask;
     private HugCommand hugCommand;
     private SitCommand sitCommand;
@@ -135,11 +141,14 @@ public class TBFMPPlugin extends JavaPlugin {
         ConfigUpdater.updateConfig(this, "config.yml");
         ConfigUpdater.updateConfig(this, "settings-menu.yml");
         reloadConfig();
+        migrateMessagesConfig();
+        ConfigUpdater.updateConfig(this, "messages.yml");
         saveResource("tags.yml", false);
         saveResource("tag-menu.yml", false);
         saveResource("CustomConfig.yml", false);
         this.customConfig = new CustomConfig(this);
-        this.messageService = new MessageService(this);
+        this.messagesConfig = new MessagesConfig(this);
+        this.messageService = new MessageService(this, messagesConfig.getConfig());
         this.unifiedDataFile = new UnifiedDataFile(this);
         this.balanceStorage = new BalanceStorage(this, unifiedDataFile);
         this.paySettingsStorage = new PaySettingsStorage(this, unifiedDataFile);
@@ -274,6 +283,10 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("discord").setTabCompleter(tabCompleter);
         getCommand("shoptut").setExecutor(new InfoCommand(messageService, "messages.shoptut"));
         getCommand("shoptut").setTabCompleter(tabCompleter);
+        getCommand("rules").setExecutor(new InfoCommand(messageService, "messages.rules"));
+        getCommand("rules").setTabCompleter(tabCompleter);
+        getCommand("mallrules").setExecutor(new InfoCommand(messageService, "messages.mallrules"));
+        getCommand("mallrules").setTabCompleter(tabCompleter);
         getCommand("hug").setExecutor(hugCommand);
         getCommand("hug").setTabCompleter(tabCompleter);
         getCommand("oakglow").setExecutor(new TbfmcCommand(this, messageService, spawnService,
@@ -326,7 +339,7 @@ public class TBFMPPlugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(messageService), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this, messageService, mallWarpManager), this);
         Bukkit.getPluginManager().registerEvents(new AfkListener(afkManager), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new SitDamageListener(), this);
@@ -347,6 +360,7 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BabyFaithListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CritParticleListener(customConfig), this);
         Bukkit.getPluginManager().registerEvents(new DeathParticleListener(this, customConfig), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerTrailListener(this, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnService), this);
         Bukkit.getPluginManager().registerEvents(new MiningEventListener(miningEventService), this);
         Bukkit.getPluginManager().registerEvents(new MiningEventPlayerListener(miningEventService), this);
@@ -402,7 +416,14 @@ public class TBFMPPlugin extends JavaPlugin {
         ConfigUpdater.updateConfig(this, "config.yml");
         ConfigUpdater.updateConfig(this, "settings-menu.yml");
         reloadConfig();
-        this.messageService = new MessageService(this);
+        migrateMessagesConfig();
+        ConfigUpdater.updateConfig(this, "messages.yml");
+        if (this.messagesConfig == null) {
+            this.messagesConfig = new MessagesConfig(this);
+        } else {
+            this.messagesConfig.reload();
+        }
+        this.messageService = new MessageService(this, messagesConfig.getConfig());
         if (chatNotificationTask != null) {
             chatNotificationTask.stop();
             chatNotificationTask = null;
@@ -468,6 +489,63 @@ public class TBFMPPlugin extends JavaPlugin {
         mallWarpManager.writeToUnifiedData();
         socialSpyManager.writeToUnifiedData();
         unifiedDataFile.save();
+        moveLegacyDataFiles();
         return true;
+    }
+
+    private void migrateMessagesConfig() {
+        if (getConfig().getConfigurationSection("messages") == null) {
+            return;
+        }
+        File messagesFile = new File(getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            saveResource("messages.yml", false);
+        }
+        FileConfiguration messages = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(messagesFile);
+        for (String key : getConfig().getConfigurationSection("messages").getKeys(true)) {
+            String path = "messages." + key;
+            messages.set(path, getConfig().get("messages." + key));
+        }
+        try {
+            messages.save(messagesFile);
+        } catch (java.io.IOException ignored) {
+        }
+        getConfig().set("messages", null);
+        saveConfig();
+    }
+
+    private void moveLegacyDataFiles() {
+        File dataFolder = new File(getDataFolder(), "data");
+        if (!dataFolder.exists() && !dataFolder.mkdirs()) {
+            return;
+        }
+        String[] files = {
+                "balances.yml",
+                "pay-settings.yml",
+                "sit-settings.yml",
+                "chat-notification-settings.yml",
+                "event-settings.yml",
+                "keep-inventory-settings.yml",
+                "pvp-settings.yml",
+                "mining-event.yml",
+                "tag-selections.yml",
+                "offline-inventories.yml",
+                "rtp-used.yml",
+                "mallwarp-state.yml",
+                "socialspy.yml",
+                "oakglowutil-data.yml"
+        };
+        for (String name : files) {
+            File source = new File(getDataFolder(), name);
+            if (!source.exists()) {
+                continue;
+            }
+            File target = new File(dataFolder, name);
+            try {
+                java.nio.file.Files.move(source.toPath(), target.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (java.io.IOException ignored) {
+            }
+        }
     }
 }
