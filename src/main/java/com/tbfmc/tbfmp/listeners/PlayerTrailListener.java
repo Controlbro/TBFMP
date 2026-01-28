@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class PlayerTrailListener implements Listener {
+
     private final JavaPlugin plugin;
     private final CustomConfig customConfig;
     private final Map<UUID, Long> lastTrail = new HashMap<>();
@@ -28,65 +29,75 @@ public class PlayerTrailListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if (event.getTo() == null) {
-            return;
-        }
+        if (event.getTo() == null) return;
+
         Player player = event.getPlayer();
-        if (!hasMoved(event)) {
-            return;
-        }
+        if (!hasMoved(event)) return;
+
         ConfigurationSection trails = customConfig.getConfig().getConfigurationSection("trails");
-        if (trails == null || !trails.getBoolean("enabled", true)) {
-            return;
-        }
+        if (trails == null || !trails.getBoolean("enabled", true)) return;
+
         List<String> disabledWorlds = trails.getStringList("disabled-worlds");
-        if (disabledWorlds != null && disabledWorlds.contains(player.getWorld().getName())) {
-            return;
-        }
+        if (disabledWorlds != null && disabledWorlds.contains(player.getWorld().getName())) return;
+
         long intervalTicks = Math.max(1L, trails.getLong("interval-ticks", 5L));
         long now = System.currentTimeMillis();
         long last = lastTrail.getOrDefault(player.getUniqueId(), 0L);
-        if (now - last < intervalTicks * 50L) {
-            return;
-        }
+        if (now - last < intervalTicks * 50L) return;
+
         ConfigurationSection particleSection = trails.getConfigurationSection("particles");
-        if (particleSection == null) {
-            return;
-        }
+        if (particleSection == null) return;
+
         String selectedKey = selectTrailKey(player, particleSection, trails.getString("default"));
-        if (selectedKey == null || !particleSection.contains(selectedKey)) {
-            return;
-        }
+        if (selectedKey == null || !particleSection.contains(selectedKey)) return;
+
         ConfigurationSection selected = particleSection.getConfigurationSection(selectedKey);
-        if (selected == null) {
-            return;
-        }
+        if (selected == null) return;
+
         Particle particle = resolveParticle(selected.getString("type"));
-        if (particle == null) {
-            return;
-        }
+        if (particle == null) return;
+
         int count = Math.max(1, selected.getInt("count", 2));
         double offsetX = selected.getDouble("offset.x", 0.2);
         double offsetY = selected.getDouble("offset.y", 0.1);
         double offsetZ = selected.getDouble("offset.z", 0.2);
         double extra = selected.getDouble("extra", 0.01);
+
         Location location = player.getLocation().add(0.0, 0.1, 0.0);
-        if (particle == Particle.REDSTONE) {
+
+        // VERSION SAFE REDSTONE CHECK
+        if ("REDSTONE".equalsIgnoreCase(particle.name())) {
             Particle.DustOptions dustOptions = buildDustOptions(selected);
-            if (dustOptions == null) {
-                return;
-            }
-            player.getWorld().spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra, dustOptions);
+            if (dustOptions == null) return;
+
+            player.getWorld().spawnParticle(
+                    particle,
+                    location,
+                    count,
+                    offsetX,
+                    offsetY,
+                    offsetZ,
+                    extra,
+                    dustOptions
+            );
         } else {
-            player.getWorld().spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra);
+            player.getWorld().spawnParticle(
+                    particle,
+                    location,
+                    count,
+                    offsetX,
+                    offsetY,
+                    offsetZ,
+                    extra
+            );
         }
+
         lastTrail.put(player.getUniqueId(), now);
     }
 
     private boolean hasMoved(PlayerMoveEvent event) {
-        if (event.getFrom() == null || event.getTo() == null) {
-            return false;
-        }
+        if (event.getFrom() == null || event.getTo() == null) return false;
+
         return event.getFrom().getBlockX() != event.getTo().getBlockX()
                 || event.getFrom().getBlockY() != event.getTo().getBlockY()
                 || event.getFrom().getBlockZ() != event.getTo().getBlockZ();
@@ -103,12 +114,12 @@ public class PlayerTrailListener implements Listener {
     }
 
     private Particle resolveParticle(String typeName) {
-        if (typeName == null || typeName.isBlank()) {
-            return null;
-        }
+        if (typeName == null || typeName.isBlank()) return null;
+
         try {
             return Particle.valueOf(typeName.toUpperCase());
         } catch (IllegalArgumentException ex) {
+            plugin.getLogger().warning("Invalid particle type: " + typeName);
             return null;
         }
     }
@@ -116,21 +127,19 @@ public class PlayerTrailListener implements Listener {
     private Particle.DustOptions buildDustOptions(ConfigurationSection section) {
         String colorValue = section.getString("color", "#FFFFFF");
         float size = (float) section.getDouble("size", 1.0);
+
         Color color = parseColor(colorValue);
-        if (color == null) {
-            return null;
-        }
+        if (color == null) return null;
+
         return new Particle.DustOptions(color, Math.max(0.1f, size));
     }
 
     private Color parseColor(String input) {
-        if (input == null) {
-            return null;
-        }
+        if (input == null) return null;
+
         String normalized = input.startsWith("#") ? input.substring(1) : input;
-        if (normalized.length() != 6) {
-            return null;
-        }
+        if (normalized.length() != 6) return null;
+
         try {
             int rgb = Integer.parseInt(normalized, 16);
             return Color.fromRGB(rgb);
