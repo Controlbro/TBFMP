@@ -24,6 +24,10 @@ public class MessageService {
 
     public String getMessage(String path) {
         String value = messagesConfig.getString(path, "");
+        if ((value == null || value.isEmpty()) && path.startsWith("messages.")) {
+            String legacyPath = path.substring("messages.".length());
+            value = messagesConfig.getString(legacyPath, "");
+        }
         return colorize(value);
     }
 
