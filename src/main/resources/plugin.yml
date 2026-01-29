@@ -135,6 +135,13 @@ commands:
     description: Set your nickname.
     usage: /<command> <nickname|off>
     permission: oakglowutil.nick
+  realname:
+    description: Look up a player's real username from their nickname.
+    usage: /<command> <nickname>
+  unnick:
+    description: Clear your nickname.
+    usage: /<command>
+    permission: oakglowutil.nick
   workbench:
     aliases: [wb]
     description: Open a crafting table.

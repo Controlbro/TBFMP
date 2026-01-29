@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 public class MessageService {
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
+    private static final Pattern PAREN_HEX_PATTERN = Pattern.compile("\\(#([A-Fa-f0-9]{6})\\)");
     private final JavaPlugin plugin;
     private final FileConfiguration messagesConfig;
     private final String prefix;
@@ -50,13 +51,19 @@ public class MessageService {
         if (input == null) {
             return "";
         }
-        Matcher matcher = HEX_PATTERN.matcher(input);
+        String withHex = applyHexPattern(input, HEX_PATTERN);
+        withHex = applyHexPattern(withHex, PAREN_HEX_PATTERN);
+        return ChatColor.translateAlternateColorCodes('&', withHex);
+    }
+
+    private String applyHexPattern(String input, Pattern pattern) {
+        Matcher matcher = pattern.matcher(input);
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
             String color = matcher.group(1);
             matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + color).toString());
         }
         matcher.appendTail(buffer);
-        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
+        return buffer.toString();
     }
 }
