@@ -61,8 +61,6 @@ messages:
   bank-sell-success: "&aYou sold a diamond for &f$2000&a."
   tag-selected: "&aTag selected: &f{tag}"
   tag-no-permission: "&aYou do not have permission for that tag."
-  invsee-usage: "&aUsage: &f/invsee <player>"
-  echestsee-usage: "&aUsage: &f/echestsee <player>"
   oakglow-usage: "&aUsage: &f/oakglow <reload|setspawn|convert|keepinvtoggle|pvptoggle|toggleleaderboard|resetevent>"
   reload-complete: "&aConfiguration reloaded."
   setspawn-success: "&aSpawn location updated."

@@ -43,10 +43,6 @@ chat-notifications:
   - '&aVisit our website: &fhttps://OakGlow.net'
   - '&aStuck in someones claim? You can do &f/stuck &ato get out!'
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
-auto-save:
-  enabled: true
-  interval-seconds: 300
-  log-to-console: true
 starting-balance: 100.0
 hug:
   enabled: true

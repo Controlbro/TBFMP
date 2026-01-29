@@ -81,14 +81,6 @@ commands:
   event:
     description: Toggle the mining event scoreboard.
     usage: /<command> <show|hide>
-  invsee:
-    description: View a player's inventory.
-    usage: /<command> <player>
-    permission: oakglowutil.admin.invsee
-  echestsee:
-    description: View a player's ender chest.
-    usage: /<command> <player>
-    permission: oakglowutil.admin.echestsee
   custom:
     description: Reload CustomConfig.yml.
     usage: /<command> reload
@@ -171,12 +163,6 @@ permissions:
     default: op
   oakglowutil.fly:
     description: Allows /fly in survival.
-    default: op
-  oakglowutil.admin.invsee:
-    description: Allows /invsee.
-    default: op
-  oakglowutil.admin.echestsee:
-    description: Allows /echestsee.
     default: op
   oakglowutil.admin.customreload:
     description: Allows /custom reload.

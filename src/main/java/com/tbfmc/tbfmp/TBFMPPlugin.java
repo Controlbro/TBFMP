@@ -19,7 +19,6 @@ import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.GamemodeCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
-import com.tbfmc.tbfmp.commands.InvseeCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
 import com.tbfmc.tbfmp.commands.MsgCommand;
 import com.tbfmc.tbfmp.commands.NickCommand;
@@ -27,7 +26,6 @@ import com.tbfmc.tbfmp.commands.RealnameCommand;
 import com.tbfmc.tbfmp.commands.UnnickCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
-import com.tbfmc.tbfmp.commands.EchestseeCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
 import com.tbfmc.tbfmp.commands.SetMallWarpCommand;
@@ -63,7 +61,6 @@ import com.tbfmc.tbfmp.listeners.BankListener;
 import com.tbfmc.tbfmp.listeners.ChatFormatListener;
 import com.tbfmc.tbfmp.listeners.DurabilityWarningListener;
 import com.tbfmc.tbfmp.listeners.KeepInventoryListener;
-import com.tbfmc.tbfmp.listeners.OfflineInventoryListener;
 import com.tbfmc.tbfmp.listeners.PvpToggleListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.PlayerTrailListener;
@@ -90,7 +87,6 @@ import com.tbfmc.tbfmp.util.ConfigUpdater;
 import com.tbfmc.tbfmp.util.CustomConfig;
 import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.MessagesConfig;
-import com.tbfmc.tbfmp.util.OfflineInventoryStorage;
 import com.tbfmc.tbfmp.util.SpawnService;
 import com.tbfmc.tbfmp.util.UnifiedDataFile;
 import net.milkbowl.vault.chat.Chat;
@@ -120,7 +116,6 @@ public class TBFMPPlugin extends JavaPlugin {
     private HugCommand hugCommand;
     private SitCommand sitCommand;
     private SitSettingCommand sitSettingCommand;
-    private OfflineInventoryStorage offlineInventoryStorage;
     private TagConfig tagConfig;
     private TagMenuConfig tagMenuConfig;
     private TagSelectionStorage tagSelectionStorage;
@@ -131,7 +126,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private TabListService tabListService;
     private AfkManager afkManager;
     private BukkitTask afkTask;
-    private BukkitTask offlineInventorySaveTask;
+    private BukkitTask tabListTask;
     private SpawnService spawnService;
     private CustomConfig customConfig;
     private MiningEventStorage miningEventStorage;
@@ -165,7 +160,6 @@ public class TBFMPPlugin extends JavaPlugin {
         this.miningEventStorage = new MiningEventStorage(this, unifiedDataFile);
         this.miningEventService = new MiningEventService(this, miningEventStorage, eventSettingsStorage);
         this.sitManager = new SitManager(messageService, this);
-        this.offlineInventoryStorage = new OfflineInventoryStorage(this, unifiedDataFile);
         this.tagConfig = new TagConfig(this);
         this.tagMenuConfig = new TagMenuConfig(this);
         this.tagSelectionStorage = new TagSelectionStorage(this, unifiedDataFile);
@@ -202,7 +196,7 @@ public class TBFMPPlugin extends JavaPlugin {
         miningEventService.applyToOnlinePlayers();
         startChatNotifications();
         startAfkTask();
-        startOfflineInventoryAutosave();
+        startTabListTask();
     }
 
     @Override
@@ -246,9 +240,6 @@ public class TBFMPPlugin extends JavaPlugin {
         if (socialSpyManager != null) {
             socialSpyManager.save();
         }
-        if (offlineInventoryStorage != null) {
-            offlineInventoryStorage.saveWithMessage(getLogger(), "server shutdown");
-        }
         if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
             unifiedDataFile.save();
         }
@@ -256,9 +247,9 @@ public class TBFMPPlugin extends JavaPlugin {
             afkTask.cancel();
             afkTask = null;
         }
-        if (offlineInventorySaveTask != null) {
-            offlineInventorySaveTask.cancel();
-            offlineInventorySaveTask = null;
+        if (tabListTask != null) {
+            tabListTask.cancel();
+            tabListTask = null;
         }
     }
 
@@ -305,10 +296,6 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("sitsetting").setTabCompleter(sitSettingCommand);
         getCommand("bank").setExecutor(new BankCommand(balanceStorage, messageService));
         getCommand("bank").setTabCompleter(tabCompleter);
-        getCommand("invsee").setExecutor(new InvseeCommand(offlineInventoryStorage, messageService));
-        getCommand("invsee").setTabCompleter(tabCompleter);
-        getCommand("echestsee").setExecutor(new EchestseeCommand(offlineInventoryStorage, messageService));
-        getCommand("echestsee").setTabCompleter(tabCompleter);
         getCommand("tags").setExecutor(new TagMenuCommand(tagMenuService, messageService,
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")));
         getCommand("tags").setTabCompleter(tabCompleter);
@@ -358,7 +345,6 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new SitDamageListener(), this);
         Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
-        Bukkit.getPluginManager().registerEvents(new OfflineInventoryListener(offlineInventoryStorage), this);
         Bukkit.getPluginManager().registerEvents(new TagMenuListener(tagConfig, tagSelectionStorage, tagMenuService,
                 messageService, new NamespacedKey(this, "tag-id"),
                 new NamespacedKey(this, "tag-menu-page"), messageService.colorize(tagMenuConfig.getTitle()),
@@ -401,29 +387,16 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         afkTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             afkManager.checkAfk();
-            tabListService.updateAll(afkManager::isAfk);
         }, 20L * 60L, 20L * 60L);
     }
 
-    private void startOfflineInventoryAutosave() {
-        if (offlineInventorySaveTask != null) {
-            offlineInventorySaveTask.cancel();
+    private void startTabListTask() {
+        if (tabListTask != null) {
+            tabListTask.cancel();
         }
-        if (!getConfig().getBoolean("auto-save.enabled", true)) {
-            offlineInventorySaveTask = null;
-            return;
-        }
-        long intervalSeconds = Math.max(1L, getConfig().getLong("auto-save.interval-seconds", 300L));
-        boolean logToConsole = getConfig().getBoolean("auto-save.log-to-console", true);
-        offlineInventorySaveTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
-            if (offlineInventoryStorage != null) {
-                if (logToConsole) {
-                    offlineInventoryStorage.saveWithMessage(getLogger(), "autosave");
-                } else {
-                    offlineInventoryStorage.save();
-                }
-            }
-        }, intervalSeconds * 20L, intervalSeconds * 20L);
+        tabListTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+            tabListService.updateAll(afkManager::isAfk);
+        }, 20L, 20L);
     }
 
     public void reloadPluginConfig() {
@@ -476,6 +449,7 @@ public class TBFMPPlugin extends JavaPlugin {
         miningEventService.reloadSettings();
         miningEventService.applyToOnlinePlayers();
         startAfkTask();
+        startTabListTask();
     }
 
     public void reloadCustomConfig() {
@@ -498,7 +472,6 @@ public class TBFMPPlugin extends JavaPlugin {
         pvpSettingsStorage.writeToUnifiedData();
         miningEventStorage.writeToUnifiedData();
         tagSelectionStorage.writeToUnifiedData();
-        offlineInventoryStorage.writeToUnifiedData();
         rtpManager.writeToUnifiedData();
         mallWarpManager.writeToUnifiedData();
         socialSpyManager.writeToUnifiedData();
@@ -543,7 +516,6 @@ public class TBFMPPlugin extends JavaPlugin {
                 "pvp-settings.yml",
                 "mining-event.yml",
                 "tag-selections.yml",
-                "offline-inventories.yml",
                 "rtp-used.yml",
                 "mallwarp-state.yml",
                 "socialspy.yml",
