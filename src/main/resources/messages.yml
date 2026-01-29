@@ -111,3 +111,7 @@ messages:
   gamemode-self: "&aYour gamemode is now &f{mode}&a."
   gamemode-other: "&aSet &f{player}&a's gamemode to &f{mode}&a."
   gamemode-changed: "&aYour gamemode was set to &f{mode}&a."
+  nick-usage: "&aUsage: &f/nick <nickname|off>"
+  nick-set: "&aYour nickname is now &f{nickname}&a."
+  nick-cleared: "&aYour nickname has been cleared."
+  workbench-opened: "&aOpened a crafting table."

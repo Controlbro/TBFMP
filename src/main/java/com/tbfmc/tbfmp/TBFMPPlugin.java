@@ -22,6 +22,7 @@ import com.tbfmc.tbfmp.commands.InfoCommand;
 import com.tbfmc.tbfmp.commands.InvseeCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
 import com.tbfmc.tbfmp.commands.MsgCommand;
+import com.tbfmc.tbfmp.commands.NickCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.EchestseeCommand;
@@ -39,6 +40,7 @@ import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.commands.TbfmpTabCompleter;
 import com.tbfmc.tbfmp.commands.TpCommand;
 import com.tbfmc.tbfmp.commands.TpHereCommand;
+import com.tbfmc.tbfmp.commands.WorkbenchCommand;
 import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
@@ -336,6 +338,10 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("tphere").setTabCompleter(tabCompleter);
         getCommand("gamemode").setExecutor(new GamemodeCommand(messageService));
         getCommand("gamemode").setTabCompleter(tabCompleter);
+        getCommand("nick").setExecutor(new NickCommand(messageService));
+        getCommand("nick").setTabCompleter(tabCompleter);
+        getCommand("workbench").setExecutor(new WorkbenchCommand(messageService));
+        getCommand("workbench").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {

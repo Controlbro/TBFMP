@@ -131,6 +131,15 @@ commands:
     aliases: [gm]
     description: Change your gamemode.
     usage: /<command> <survival|creative|spectator> [player]
+  nick:
+    description: Set your nickname.
+    usage: /<command> <nickname|off>
+    permission: oakglowutil.nick
+  workbench:
+    aliases: [wb]
+    description: Open a crafting table.
+    usage: /<command>
+    permission: oakglowutil.workbench
 permissions:
   oakglowutil.admin.eco:
     description: Allows use of /eco commands.
@@ -191,6 +200,12 @@ permissions:
     default: op
   oakglowutil.gamemode.others:
     description: Allows changing other players' gamemodes.
+    default: op
+  oakglowutil.nick:
+    description: Allows use of /nick.
+    default: op
+  oakglowutil.workbench:
+    description: Allows use of /workbench.
     default: op
   critcolor.gold:
     description: Use gold critical hit particles.
