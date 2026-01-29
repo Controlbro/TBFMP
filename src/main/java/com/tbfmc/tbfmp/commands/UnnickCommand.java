@@ -8,12 +8,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class NickCommand implements CommandExecutor {
+public class UnnickCommand implements CommandExecutor {
     private final MessageService messages;
     private final TabListService tabListService;
     private final AfkManager afkManager;
 
-    public NickCommand(MessageService messages, TabListService tabListService, AfkManager afkManager) {
+    public UnnickCommand(MessageService messages, TabListService tabListService, AfkManager afkManager) {
         this.messages = messages;
         this.tabListService = tabListService;
         this.afkManager = afkManager;
@@ -31,25 +31,14 @@ public class NickCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length == 0) {
-            messages.sendMessage(player, messages.getMessage("messages.nick-usage"));
+        if (args.length > 0) {
+            messages.sendMessage(player, messages.getMessage("messages.unnick-usage"));
             return true;
         }
 
-        String rawNickname = String.join(" ", args).trim();
-        if (rawNickname.equalsIgnoreCase("off") || rawNickname.equalsIgnoreCase("clear")
-                || rawNickname.equalsIgnoreCase("reset")) {
-            player.setDisplayName(player.getName());
-            tabListService.updatePlayer(player, afkManager.isAfk(player.getUniqueId()));
-            messages.sendMessage(player, messages.getMessage("messages.nick-cleared"));
-            return true;
-        }
-
-        String nickname = messages.colorize(rawNickname);
-        player.setDisplayName(nickname);
+        player.setDisplayName(player.getName());
         tabListService.updatePlayer(player, afkManager.isAfk(player.getUniqueId()));
-        messages.sendMessage(player, messages.getMessage("messages.nick-set")
-                .replace("{nickname}", nickname));
+        messages.sendMessage(player, messages.getMessage("messages.nick-cleared"));
         return true;
     }
 }

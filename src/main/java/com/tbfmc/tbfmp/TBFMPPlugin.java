@@ -23,6 +23,8 @@ import com.tbfmc.tbfmp.commands.InvseeCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
 import com.tbfmc.tbfmp.commands.MsgCommand;
 import com.tbfmc.tbfmp.commands.NickCommand;
+import com.tbfmc.tbfmp.commands.RealnameCommand;
+import com.tbfmc.tbfmp.commands.UnnickCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.EchestseeCommand;
@@ -68,6 +70,7 @@ import com.tbfmc.tbfmp.listeners.PlayerTrailListener;
 import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.SocialSpyListener;
+import com.tbfmc.tbfmp.listeners.TabListSessionListener;
 import com.tbfmc.tbfmp.listeners.SpawnListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
 import com.tbfmc.tbfmp.listeners.TreeFellerListener;
@@ -338,8 +341,12 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("tphere").setTabCompleter(tabCompleter);
         getCommand("gamemode").setExecutor(new GamemodeCommand(messageService));
         getCommand("gamemode").setTabCompleter(tabCompleter);
-        getCommand("nick").setExecutor(new NickCommand(messageService));
+        getCommand("nick").setExecutor(new NickCommand(messageService, tabListService, afkManager));
         getCommand("nick").setTabCompleter(tabCompleter);
+        getCommand("realname").setExecutor(new RealnameCommand(messageService));
+        getCommand("realname").setTabCompleter(tabCompleter);
+        getCommand("unnick").setExecutor(new UnnickCommand(messageService, tabListService, afkManager));
+        getCommand("unnick").setTabCompleter(tabCompleter);
         getCommand("workbench").setExecutor(new WorkbenchCommand(messageService));
         getCommand("workbench").setTabCompleter(tabCompleter);
     }
@@ -347,6 +354,7 @@ public class TBFMPPlugin extends JavaPlugin {
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this, messageService, mallWarpManager), this);
         Bukkit.getPluginManager().registerEvents(new AfkListener(afkManager), this);
+        Bukkit.getPluginManager().registerEvents(new TabListSessionListener(tabListService), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
         Bukkit.getPluginManager().registerEvents(new SitDamageListener(), this);
         Bukkit.getPluginManager().registerEvents(new BankListener(balanceStorage, messageService), this);
