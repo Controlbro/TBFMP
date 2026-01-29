@@ -31,10 +31,11 @@ public class ChatFormatListener implements Listener {
         Player player = event.getPlayer();
         String tagDisplay = getTagDisplay(player);
         String prefix = chat != null ? chat.getPlayerPrefix(player) : "";
+        String displayName = player.getDisplayName();
         String messageColor = resolveMessageColor(player);
         String format = formatTemplate
                 .replace("{prefix}", prefix)
-                .replace("{name}", player.getName())
+                .replace("{name}", displayName)
                 .replace("%tag%", tagDisplay)
                 .replace("{message-color}", messageColor)
                 .replace("{message}", "%2$s");
