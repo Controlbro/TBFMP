@@ -95,6 +95,14 @@ public class PaySettingsStorage {
         legacyData.set(key, value);
     }
 
+    public boolean refreshFromMysqlIfEnabled() {
+        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
+            return false;
+        }
+        reloadFromUnifiedData();
+        return true;
+    }
+
     public void reloadFromUnifiedData() {
         payEnabled.clear();
         load();

@@ -106,6 +106,14 @@ public class BalanceStorage {
         legacyData.set(key, value);
     }
 
+    public boolean refreshFromMysqlIfEnabled() {
+        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
+            return false;
+        }
+        reloadFromUnifiedData();
+        return true;
+    }
+
     public void reloadFromUnifiedData() {
         balances.clear();
         load();
