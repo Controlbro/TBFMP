@@ -54,7 +54,6 @@ public class ChatNotificationSettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
-        refreshFromMysqlIfEnabled();
         boolean value = !isEnabled(uuid);
         enabled.put(uuid, value);
         setValue(uuid.toString(), value);
@@ -92,14 +91,6 @@ public class ChatNotificationSettingsStorage {
             return;
         }
         legacyData.set(key, value);
-    }
-
-    public boolean refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return false;
-        }
-        reloadFromUnifiedData();
-        return true;
     }
 
     public void reloadFromUnifiedData() {

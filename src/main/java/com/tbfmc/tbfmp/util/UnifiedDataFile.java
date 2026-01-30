@@ -12,13 +12,11 @@ import java.nio.file.StandardCopyOption;
 public class UnifiedDataFile {
     private static final int DATA_VERSION = 1;
     private final File file;
-    private final com.tbfmc.tbfmp.storage.MySqlStorageService mysqlStorageService;
     private FileConfiguration data;
     private boolean enabled;
 
-    public UnifiedDataFile(JavaPlugin plugin, com.tbfmc.tbfmp.storage.MySqlStorageService mysqlStorageService) {
+    public UnifiedDataFile(JavaPlugin plugin) {
         this.file = new File(plugin.getDataFolder(), "data/data.yml");
-        this.mysqlStorageService = mysqlStorageService;
         File legacyFile = new File(plugin.getDataFolder(), "oakglowutil-data.yml");
         if (!file.exists() && legacyFile.exists()) {
             if (!file.getParentFile().exists()) {
@@ -40,10 +38,6 @@ public class UnifiedDataFile {
             this.data = new YamlConfiguration();
             this.enabled = false;
         }
-    }
-
-    public boolean refreshFromMysqlIfEnabled() {
-        return false;
     }
 
     public boolean isEnabled() {

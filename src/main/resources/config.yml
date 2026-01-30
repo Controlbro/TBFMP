@@ -70,9 +70,6 @@ event:
     - COBBLESTONE
     - DEEPSLATE
     - COBBLED_DEEPSLATE
-tree-feller:
-  enabled: false
-  auto-replant: false
 spawn:
   enabled: true
   world: world

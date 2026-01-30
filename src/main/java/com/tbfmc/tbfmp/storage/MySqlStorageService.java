@@ -9,7 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -18,8 +17,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class MySqlStorageService {
-    private static final int DATA_VERSION = 1;
-
     private final JavaPlugin plugin;
     private final boolean enabled;
     private final boolean uploadBalances;
@@ -30,7 +27,6 @@ public class MySqlStorageService {
     private final String password;
     private final List<SectionTable> tables = new ArrayList<>();
     private boolean connectionValid;
-    private String lastErrorMessage;
 
     public MySqlStorageService(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -73,21 +69,13 @@ public class MySqlStorageService {
         return java.util.Collections.unmodifiableSet(sections);
     }
 
-    public boolean isConnectionValid() {
-        return connectionValid;
-    }
-
-    public String getLastErrorMessage() {
-        return lastErrorMessage;
-    }
-
     public boolean initialize() {
         if (!enabled) {
             return false;
         }
         connectionValid = testConnection();
         if (connectionValid) {
-            ensureTables();
+            ensureTables(getUploadSections());
         }
         return connectionValid;
     }
@@ -99,7 +87,7 @@ public class MySqlStorageService {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             connectionValid = testConnection();
             if (connectionValid) {
-                ensureTables();
+                ensureTables(getUploadSections());
             }
         });
     }
@@ -110,26 +98,7 @@ public class MySqlStorageService {
         }
         boolean valid = testConnection();
         if (valid) {
-            ensureTables();
-        }
-    }
-
-    public void loadTo(FileConfiguration data) {
-        if (!enabled || !connectionValid) {
-            return;
-        }
-        for (SectionTable table : tables) {
-            loadSection(data, table);
-        }
-        data.set("data-version", DATA_VERSION);
-    }
-
-    public void saveFrom(FileConfiguration data) {
-        if (!enabled || !connectionValid) {
-            return;
-        }
-        for (SectionTable table : tables) {
-            saveSection(data, table);
+            ensureTables(getUploadSections());
         }
     }
 
@@ -142,26 +111,6 @@ public class MySqlStorageService {
                 continue;
             }
             saveSection(data, table);
-        }
-    }
-
-    private void loadSection(FileConfiguration data, SectionTable table) {
-        String sql = "SELECT entry_key, entry_value FROM " + table.tableName;
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                String key = resultSet.getString("entry_key");
-                String serialized = resultSet.getString("entry_value");
-                Object value = deserializeValue(serialized);
-                if (value != null) {
-                    data.set(table.sectionPath + "." + key, value);
-                }
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.WARNING, "Failed to load MySQL data for " + table.tableName, ex);
-            connectionValid = false;
-            lastErrorMessage = ex.getMessage();
         }
     }
 
@@ -188,7 +137,6 @@ public class MySqlStorageService {
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.WARNING, "Failed to save MySQL data for " + table.tableName, ex);
             connectionValid = false;
-            lastErrorMessage = ex.getMessage();
         }
     }
 
@@ -196,38 +144,16 @@ public class MySqlStorageService {
         try (Connection connection = getConnection()) {
             boolean valid = connection != null && connection.isValid(2);
             connectionValid = valid;
-            if (valid) {
-                lastErrorMessage = null;
-            }
             if (logConnectionTests) {
                 plugin.getLogger().info(valid ? "MySQL connection test succeeded." : "MySQL connection test failed.");
             }
             return valid;
         } catch (SQLException ex) {
             connectionValid = false;
-            lastErrorMessage = ex.getMessage();
             if (logConnectionTests) {
                 plugin.getLogger().log(Level.WARNING, "MySQL connection test failed.", ex);
             }
             return false;
-        }
-    }
-
-    private void ensureTables() {
-        for (SectionTable table : tables) {
-            String sql = "CREATE TABLE IF NOT EXISTS " + table.tableName + " ("
-                    + "entry_key VARCHAR(64) NOT NULL,"
-                    + "entry_value LONGTEXT NOT NULL,"
-                    + "PRIMARY KEY (entry_key)"
-                    + ")";
-            try (Connection connection = getConnection();
-                 Statement statement = connection.createStatement()) {
-                statement.execute(sql);
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.WARNING, "Failed to ensure MySQL table " + table.tableName, ex);
-                connectionValid = false;
-                lastErrorMessage = ex.getMessage();
-            }
         }
     }
 
@@ -247,7 +173,6 @@ public class MySqlStorageService {
             } catch (SQLException ex) {
                 plugin.getLogger().log(Level.WARNING, "Failed to ensure MySQL table " + table.tableName, ex);
                 connectionValid = false;
-                lastErrorMessage = ex.getMessage();
             }
         }
     }
@@ -259,31 +184,6 @@ public class MySqlStorageService {
         return testConnection();
     }
 
-    public TableCheckResult checkTables() {
-        if (!enabled) {
-            return new TableCheckResult(false, List.of(), "MySQL storage is not enabled.");
-        }
-        if (!refreshConnection()) {
-            String error = lastErrorMessage == null ? "MySQL connection failed." : lastErrorMessage;
-            return new TableCheckResult(false, List.of(), error);
-        }
-        List<String> missing = new ArrayList<>();
-        try (Connection connection = getConnection()) {
-            for (SectionTable table : tables) {
-                try (ResultSet resultSet = connection.getMetaData().getTables(
-                        connection.getCatalog(), null, table.tableName, new String[]{"TABLE"})) {
-                    if (!resultSet.next()) {
-                        missing.add(table.tableName);
-                    }
-                }
-            }
-        } catch (SQLException ex) {
-            connectionValid = false;
-            lastErrorMessage = ex.getMessage();
-            return new TableCheckResult(false, List.of(), ex.getMessage());
-        }
-        return new TableCheckResult(missing.isEmpty(), missing, null);
-    }
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl, username, password);
@@ -295,19 +195,6 @@ public class MySqlStorageService {
         return temp.saveToString();
     }
 
-    private Object deserializeValue(String serialized) {
-        if (serialized == null) {
-            return null;
-        }
-        YamlConfiguration temp = new YamlConfiguration();
-        try {
-            temp.loadFromString(serialized);
-        } catch (Exception ex) {
-            plugin.getLogger().log(Level.WARNING, "Failed to parse MySQL data entry.", ex);
-            return null;
-        }
-        return temp.get("value");
-    }
 
     private void registerTables() {
         if (uploadBalances) {
@@ -321,6 +208,4 @@ public class MySqlStorageService {
     private record SectionTable(String sectionPath, String tableName) {
     }
 
-    public record TableCheckResult(boolean success, List<String> missingTables, String errorMessage) {
-    }
 }

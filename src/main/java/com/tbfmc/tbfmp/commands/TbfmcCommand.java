@@ -86,86 +86,10 @@ public class TbfmcCommand implements CommandExecutor {
                 messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
                 return true;
             }
-            if (args.length > 1 && args[1].equalsIgnoreCase("mysql")) {
-                if (!plugin.isMysqlEnabled()) {
-                    messages.sendMessage(sender, messages.getMessage("messages.mysql-convert-disabled"));
-                    return true;
-                }
-                if (!plugin.isMysqlConnected()) {
-                    messages.sendMessage(sender, messages.getMessage("messages.mysql-connection-failed"));
-                    return true;
-                }
-                org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    boolean converted = plugin.convertLegacyDataToMysql();
-                    if (converted) {
-                        org.bukkit.Bukkit.getScheduler().runTask(plugin, () ->
-                                messages.sendMessage(sender, messages.getMessage("messages.convert-complete")));
-                    }
-                });
-                return true;
-            }
             boolean converted = plugin.convertLegacyData();
             if (converted) {
                 messages.sendMessage(sender, messages.getMessage("messages.convert-complete"));
             }
-            return true;
-        }
-
-        if (args.length > 0 && args[0].equalsIgnoreCase("checkmysql")) {
-            if (!sender.isOp()) {
-                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
-                return true;
-            }
-            if (!plugin.isMysqlEnabled()) {
-                messages.sendMessage(sender, messages.getMessage("messages.mysql-check-disabled"));
-                return true;
-            }
-            org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                boolean connected = plugin.getMysqlStorageService().refreshConnection();
-                org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (connected) {
-                        plugin.flushMysqlAsync();
-                        messages.sendMessage(sender, messages.getMessage("messages.mysql-check-success"));
-                        return;
-                    }
-                    String error = plugin.getMysqlStorageService().getLastErrorMessage();
-                    String message = messages.getMessage("messages.mysql-check-failed")
-                            .replace("{error}", error == null ? "Unknown error" : error);
-                    messages.sendMessage(sender, message);
-                });
-            });
-            return true;
-        }
-
-        if (args.length > 0 && args[0].equalsIgnoreCase("checktables")) {
-            if (!sender.isOp()) {
-                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
-                return true;
-            }
-            if (!plugin.isMysqlEnabled()) {
-                messages.sendMessage(sender, messages.getMessage("messages.mysql-check-disabled"));
-                return true;
-            }
-            org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                com.tbfmc.tbfmp.storage.MySqlStorageService.TableCheckResult result =
-                        plugin.getMysqlStorageService().checkTables();
-                org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (result.errorMessage() != null && !result.errorMessage().isBlank()) {
-                        String message = messages.getMessage("messages.mysql-tables-error")
-                                .replace("{error}", result.errorMessage());
-                        messages.sendMessage(sender, message);
-                        return;
-                    }
-                    if (result.missingTables().isEmpty()) {
-                        messages.sendMessage(sender, messages.getMessage("messages.mysql-tables-ok"));
-                        return;
-                    }
-                    String missing = String.join(", ", result.missingTables());
-                    String message = messages.getMessage("messages.mysql-tables-missing")
-                            .replace("{tables}", missing);
-                    messages.sendMessage(sender, message);
-                });
-            });
             return true;
         }
 
