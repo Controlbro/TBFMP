@@ -61,12 +61,14 @@ public class SitSettingsStorage {
     }
 
     public void setChairEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         chairEnabled.put(uuid, enabled);
         setValue(uuid + ".chair", enabled);
         save();
     }
 
     public void setPlayerEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         playerEnabled.put(uuid, enabled);
         setValue(uuid + ".player", enabled);
         save();

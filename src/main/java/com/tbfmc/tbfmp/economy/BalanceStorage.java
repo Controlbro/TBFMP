@@ -70,6 +70,7 @@ public class BalanceStorage {
     }
 
     public Map<UUID, Double> getAllBalances() {
+        refreshFromMysqlIfEnabled();
         return Collections.unmodifiableMap(balances);
     }
 

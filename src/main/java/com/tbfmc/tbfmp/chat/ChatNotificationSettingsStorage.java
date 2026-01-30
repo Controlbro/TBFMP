@@ -54,6 +54,7 @@ public class ChatNotificationSettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
+        refreshFromMysqlIfEnabled();
         boolean value = !isEnabled(uuid);
         enabled.put(uuid, value);
         setValue(uuid.toString(), value);

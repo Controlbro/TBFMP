@@ -54,6 +54,7 @@ public class PvpSettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
+        refreshFromMysqlIfEnabled();
         boolean enabled = !isEnabled(uuid);
         pvpEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
@@ -62,6 +63,7 @@ public class PvpSettingsStorage {
     }
 
     public void setEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         pvpEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
         save();

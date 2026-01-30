@@ -54,6 +54,7 @@ public class KeepInventorySettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
+        refreshFromMysqlIfEnabled();
         boolean enabled = !isEnabled(uuid);
         keepInventory.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
@@ -62,6 +63,7 @@ public class KeepInventorySettingsStorage {
     }
 
     public void setEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         keepInventory.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
         save();

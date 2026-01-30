@@ -54,6 +54,7 @@ public class EventSettingsStorage {
     }
 
     public void setEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         eventEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
         save();
@@ -74,6 +75,7 @@ public class EventSettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
+        refreshFromMysqlIfEnabled();
         boolean enabled = !isEnabled(uuid);
         eventEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);

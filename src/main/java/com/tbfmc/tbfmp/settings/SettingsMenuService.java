@@ -47,6 +47,7 @@ public class SettingsMenuService {
     }
 
     public Inventory createMenu(Player player) {
+        refreshSettingsFromMysql();
         int size = config.getSize();
         Inventory inventory = Bukkit.createInventory(new SettingsMenuHolder(), size,
                 messages.colorize(config.getTitle()));
@@ -64,6 +65,15 @@ public class SettingsMenuService {
             inventory.setItem(slot, buildItem(itemDefinition, option, enabled));
         }
         return inventory;
+    }
+
+    private void refreshSettingsFromMysql() {
+        paySettingsStorage.refreshFromMysqlIfEnabled();
+        sitSettingsStorage.refreshFromMysqlIfEnabled();
+        chatNotificationSettingsStorage.refreshFromMysqlIfEnabled();
+        keepInventorySettingsStorage.refreshFromMysqlIfEnabled();
+        pvpSettingsStorage.refreshFromMysqlIfEnabled();
+        eventSettingsStorage.refreshFromMysqlIfEnabled();
     }
 
     private void fillFiller(Inventory inventory) {
