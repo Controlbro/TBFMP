@@ -43,20 +43,7 @@ public class UnifiedDataFile {
     }
 
     public boolean refreshFromMysqlIfEnabled() {
-        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
-            return false;
-        }
-        if (!mysqlStorageService.refreshConnection()) {
-            return false;
-        }
-        FileConfiguration fresh = new YamlConfiguration();
-        mysqlStorageService.loadTo(fresh);
-        if (!mysqlStorageService.isConnectionValid()) {
-            return false;
-        }
-        this.data = fresh;
-        this.enabled = true;
-        return true;
+        return false;
     }
 
     public boolean isEnabled() {

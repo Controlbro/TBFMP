@@ -22,6 +22,8 @@ public class MySqlStorageService {
 
     private final JavaPlugin plugin;
     private final boolean enabled;
+    private final boolean uploadBalances;
+    private final boolean uploadMiningEvent;
     private final boolean logConnectionTests;
     private final String jdbcUrl;
     private final String username;
@@ -32,8 +34,9 @@ public class MySqlStorageService {
 
     public MySqlStorageService(JavaPlugin plugin) {
         this.plugin = plugin;
-        String type = plugin.getConfig().getString("storage.type", "txt");
-        this.enabled = "mysql".equalsIgnoreCase(type);
+        this.enabled = plugin.getConfig().getBoolean("storage.mysql.enabled", false);
+        this.uploadBalances = plugin.getConfig().getBoolean("storage.mysql.upload-balances", true);
+        this.uploadMiningEvent = plugin.getConfig().getBoolean("storage.mysql.upload-event", true);
         this.logConnectionTests = plugin.getConfig().getBoolean("storage.mysql.log-connection-tests", true);
         String host = plugin.getConfig().getString("storage.mysql.host", "localhost");
         int port = plugin.getConfig().getInt("storage.mysql.port", 3306);
@@ -54,6 +57,20 @@ public class MySqlStorageService {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public java.util.Set<String> getUploadSections() {
+        if (!enabled) {
+            return java.util.Set.of();
+        }
+        java.util.Set<String> sections = new java.util.HashSet<>();
+        if (uploadBalances) {
+            sections.add("balances");
+        }
+        if (uploadMiningEvent) {
+            sections.add("mining-event");
+        }
+        return java.util.Collections.unmodifiableSet(sections);
     }
 
     public boolean isConnectionValid() {
@@ -293,20 +310,12 @@ public class MySqlStorageService {
     }
 
     private void registerTables() {
-        tables.add(new SectionTable("balances", "balances"));
-        tables.add(new SectionTable("pay-settings", "pay_settings"));
-        tables.add(new SectionTable("sit-settings", "sit_settings"));
-        tables.add(new SectionTable("chat-notifications", "chat_notifications"));
-        tables.add(new SectionTable("event-settings", "event_settings"));
-        tables.add(new SectionTable("keep-inventory", "keep_inventory"));
-        tables.add(new SectionTable("pvp-settings", "pvp_settings"));
-        tables.add(new SectionTable("mining-event", "mining_event"));
-        tables.add(new SectionTable("tag-selections", "tag_selections"));
-        tables.add(new SectionTable("rtp-used", "rtp_used"));
-        tables.add(new SectionTable("mallwarp.players", "mallwarp_players"));
-        tables.add(new SectionTable("socialspy", "socialspy"));
-        tables.add(new SectionTable("mail", "mail"));
-        tables.add(new SectionTable("nicknames", "nicknames"));
+        if (uploadBalances) {
+            tables.add(new SectionTable("balances", "balances"));
+        }
+        if (uploadMiningEvent) {
+            tables.add(new SectionTable("mining-event", "mining_event"));
+        }
     }
 
     private record SectionTable(String sectionPath, String tableName) {
