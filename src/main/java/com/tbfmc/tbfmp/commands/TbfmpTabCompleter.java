@@ -21,8 +21,6 @@ public class TbfmpTabCompleter implements TabCompleter {
             "setspawn",
             "dragondropset",
             "convert",
-            "checkmysql",
-            "checktables",
             "keepinvtoggle",
             "pvptoggle",
             "resetevent",
@@ -54,8 +52,7 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "pay" -> Collections.emptyList();
                 case "gamemode", "gm", "msg" -> onlinePlayers(args[1]);
                 case "mail" -> "send".equalsIgnoreCase(args[0]) ? onlinePlayers(args[1]) : Collections.emptyList();
-                case "oakglow" -> "convert".equalsIgnoreCase(args[0]) ? filter(List.of("mysql"), args[1])
-                        : Collections.emptyList();
+                case "oakglow" -> Collections.emptyList();
                 default -> Collections.emptyList();
             };
         }

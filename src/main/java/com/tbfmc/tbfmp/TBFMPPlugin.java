@@ -72,7 +72,6 @@ import com.tbfmc.tbfmp.listeners.SocialSpyListener;
 import com.tbfmc.tbfmp.listeners.TabListSessionListener;
 import com.tbfmc.tbfmp.listeners.SpawnListener;
 import com.tbfmc.tbfmp.listeners.TagMenuListener;
-import com.tbfmc.tbfmp.listeners.TreeFellerListener;
 import com.tbfmc.tbfmp.mallwarp.MallWarpManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpSelectionManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpService;
@@ -152,15 +151,15 @@ public class TBFMPPlugin extends JavaPlugin {
         reloadConfig();
         migrateMessagesConfig();
         ConfigUpdater.updateConfig(this, "messages.yml");
-        saveResource("tags.yml", false);
-        saveResource("tag-menu.yml", false);
-        saveResource("CustomConfig.yml", false);
+        saveResourceIfMissing("tags.yml");
+        saveResourceIfMissing("tag-menu.yml");
+        saveResourceIfMissing("CustomConfig.yml");
         this.customConfig = new CustomConfig(this);
         this.messagesConfig = new MessagesConfig(this);
         this.messageService = new MessageService(this, messagesConfig.getConfig());
         this.mysqlStorageService = new MySqlStorageService(this);
         this.mysqlStorageService.initializeAsync();
-        this.unifiedDataFile = new UnifiedDataFile(this, mysqlStorageService);
+        this.unifiedDataFile = new UnifiedDataFile(this);
         this.balanceStorage = new BalanceStorage(this, unifiedDataFile);
         this.paySettingsStorage = new PaySettingsStorage(this, unifiedDataFile);
         this.sitSettingsStorage = new SitSettingsStorage(this, unifiedDataFile);
@@ -218,7 +217,6 @@ public class TBFMPPlugin extends JavaPlugin {
         if (chatNotificationTask != null) {
             chatNotificationTask.stop();
         }
-        boolean mysqlEnabled = mysqlStorageService != null && mysqlStorageService.isEnabled();
         if (balanceStorage != null) {
             balanceStorage.save();
         }
@@ -430,7 +428,6 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new DurabilityWarningListener(messageService), this);
-        Bukkit.getPluginManager().registerEvents(new TreeFellerListener(this, getConfig()), this);
         Bukkit.getPluginManager().registerEvents(new BabyFaithListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CritParticleListener(customConfig), this);
         Bukkit.getPluginManager().registerEvents(new DeathParticleListener(this, customConfig), this);
@@ -557,29 +554,6 @@ public class TBFMPPlugin extends JavaPlugin {
         return true;
     }
 
-    public boolean convertLegacyDataToMysql() {
-        if (mysqlStorageService == null) {
-            return false;
-        }
-        if (!mysqlStorageService.isEnabled() || !mysqlStorageService.isConnectionValid()) {
-            return false;
-        }
-        uploadMysql();
-        return true;
-    }
-
-    public boolean isMysqlEnabled() {
-        return mysqlStorageService != null && mysqlStorageService.isEnabled();
-    }
-
-    public boolean isMysqlConnected() {
-        return mysqlStorageService != null && mysqlStorageService.isConnectionValid();
-    }
-
-    public MySqlStorageService getMysqlStorageService() {
-        return mysqlStorageService;
-    }
-
     private void migrateMessagesConfig() {
         if (getConfig().getConfigurationSection("messages") == null) {
             return;
@@ -599,6 +573,14 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         getConfig().set("messages", null);
         saveConfig();
+    }
+
+    private void saveResourceIfMissing(String resourcePath) {
+        File target = new File(getDataFolder(), resourcePath);
+        if (target.exists()) {
+            return;
+        }
+        saveResource(resourcePath, false);
     }
 
     private void moveLegacyDataFiles() {

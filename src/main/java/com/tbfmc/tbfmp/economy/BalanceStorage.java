@@ -70,7 +70,6 @@ public class BalanceStorage {
     }
 
     public Map<UUID, Double> getAllBalances() {
-        refreshFromMysqlIfEnabled();
         return Collections.unmodifiableMap(balances);
     }
 
@@ -104,14 +103,6 @@ public class BalanceStorage {
             return;
         }
         legacyData.set(key, value);
-    }
-
-    public boolean refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return false;
-        }
-        reloadFromUnifiedData();
-        return true;
     }
 
     public void reloadFromUnifiedData() {
