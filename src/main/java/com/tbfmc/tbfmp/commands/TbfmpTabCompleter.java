@@ -15,9 +15,11 @@ public class TbfmpTabCompleter implements TabCompleter {
     private static final List<String> EVENT_ACTIONS = List.of("show", "hide");
     private static final List<String> CUSTOM_ACTIONS = List.of("reload");
     private static final List<String> GAMEMODE_ACTIONS = List.of("survival", "creative", "spectator");
+    private static final List<String> MAIL_ACTIONS = List.of("send", "read");
     private static final List<String> OAKGLOW_ACTIONS = List.of(
             "reload",
             "setspawn",
+            "dragondropset",
             "convert",
             "keepinvtoggle",
             "pvptoggle",
@@ -38,6 +40,7 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "custom" -> filter(CUSTOM_ACTIONS, args[0]);
                 case "oakglow" -> filter(OAKGLOW_ACTIONS, args[0]);
                 case "gamemode", "gm" -> filter(GAMEMODE_ACTIONS, args[0]);
+                case "mail" -> filter(MAIL_ACTIONS, args[0]);
                 case "balance", "pay", "hug", "resetrtp", "tphere", "msg", "tp" ->
                         onlinePlayers(args[0]);
                 default -> Collections.emptyList();
@@ -48,6 +51,9 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "eco" -> onlinePlayers(args[1]);
                 case "pay" -> Collections.emptyList();
                 case "gamemode", "gm", "msg" -> onlinePlayers(args[1]);
+                case "mail" -> "send".equalsIgnoreCase(args[0]) ? onlinePlayers(args[1]) : Collections.emptyList();
+                case "oakglow" -> "convert".equalsIgnoreCase(args[0]) ? filter(List.of("mysql"), args[1])
+                        : Collections.emptyList();
                 default -> Collections.emptyList();
             };
         }

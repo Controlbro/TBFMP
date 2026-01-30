@@ -12,11 +12,13 @@ import java.nio.file.StandardCopyOption;
 public class UnifiedDataFile {
     private static final int DATA_VERSION = 1;
     private final File file;
+    private final com.tbfmc.tbfmp.storage.MySqlStorageService mysqlStorageService;
     private FileConfiguration data;
     private boolean enabled;
 
-    public UnifiedDataFile(JavaPlugin plugin) {
+    public UnifiedDataFile(JavaPlugin plugin, com.tbfmc.tbfmp.storage.MySqlStorageService mysqlStorageService) {
         this.file = new File(plugin.getDataFolder(), "data/data.yml");
+        this.mysqlStorageService = mysqlStorageService;
         File legacyFile = new File(plugin.getDataFolder(), "oakglowutil-data.yml");
         if (!file.exists() && legacyFile.exists()) {
             if (!file.getParentFile().exists()) {
@@ -31,6 +33,12 @@ public class UnifiedDataFile {
     }
 
     public void reload() {
+        if (mysqlStorageService != null && mysqlStorageService.isEnabled() && mysqlStorageService.isConnectionValid()) {
+            this.data = new YamlConfiguration();
+            mysqlStorageService.loadTo(data);
+            this.enabled = true;
+            return;
+        }
         if (file.exists()) {
             this.data = YamlConfiguration.loadConfiguration(file);
             this.enabled = data.getInt("data-version", 0) >= DATA_VERSION;
@@ -55,6 +63,10 @@ public class UnifiedDataFile {
 
     public void save() {
         if (!enabled) {
+            return;
+        }
+        if (mysqlStorageService != null && mysqlStorageService.isEnabled() && mysqlStorageService.isConnectionValid()) {
+            mysqlStorageService.saveFrom(data);
             return;
         }
         if (!file.getParentFile().exists()) {

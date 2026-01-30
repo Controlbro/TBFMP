@@ -19,6 +19,7 @@ import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.GamemodeCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
+import com.tbfmc.tbfmp.commands.MailCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
 import com.tbfmc.tbfmp.commands.MsgCommand;
 import com.tbfmc.tbfmp.commands.NickCommand;
@@ -52,6 +53,7 @@ import com.tbfmc.tbfmp.listeners.AfkListener;
 import com.tbfmc.tbfmp.listeners.BabyFaithListener;
 import com.tbfmc.tbfmp.listeners.CritParticleListener;
 import com.tbfmc.tbfmp.listeners.DeathParticleListener;
+import com.tbfmc.tbfmp.listeners.DragonDropListener;
 import com.tbfmc.tbfmp.listeners.MallWarpRestrictionListener;
 import com.tbfmc.tbfmp.listeners.MallWarpSelectionListener;
 import com.tbfmc.tbfmp.listeners.MiningEventListener;
@@ -74,6 +76,8 @@ import com.tbfmc.tbfmp.listeners.TreeFellerListener;
 import com.tbfmc.tbfmp.mallwarp.MallWarpManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpSelectionManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpService;
+import com.tbfmc.tbfmp.mail.MailStorage;
+import com.tbfmc.tbfmp.nickname.NicknameStorage;
 import com.tbfmc.tbfmp.rtp.RtpManager;
 import com.tbfmc.tbfmp.staff.SocialSpyManager;
 import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
@@ -89,6 +93,7 @@ import com.tbfmc.tbfmp.util.MessageService;
 import com.tbfmc.tbfmp.util.MessagesConfig;
 import com.tbfmc.tbfmp.util.SpawnService;
 import com.tbfmc.tbfmp.util.UnifiedDataFile;
+import com.tbfmc.tbfmp.storage.MySqlStorageService;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -134,6 +139,10 @@ public class TBFMPPlugin extends JavaPlugin {
     private MallWarpManager mallWarpManager;
     private MallWarpSelectionManager mallWarpSelectionManager;
     private SocialSpyManager socialSpyManager;
+    private MailStorage mailStorage;
+    private NicknameStorage nicknameStorage;
+    private MySqlStorageService mysqlStorageService;
+    private BukkitTask mysqlPingTask;
 
     @Override
     public void onEnable() {
@@ -149,7 +158,9 @@ public class TBFMPPlugin extends JavaPlugin {
         this.customConfig = new CustomConfig(this);
         this.messagesConfig = new MessagesConfig(this);
         this.messageService = new MessageService(this, messagesConfig.getConfig());
-        this.unifiedDataFile = new UnifiedDataFile(this);
+        this.mysqlStorageService = new MySqlStorageService(this);
+        this.mysqlStorageService.initialize();
+        this.unifiedDataFile = new UnifiedDataFile(this, mysqlStorageService);
         this.balanceStorage = new BalanceStorage(this, unifiedDataFile);
         this.paySettingsStorage = new PaySettingsStorage(this, unifiedDataFile);
         this.sitSettingsStorage = new SitSettingsStorage(this, unifiedDataFile);
@@ -187,6 +198,8 @@ public class TBFMPPlugin extends JavaPlugin {
         this.mallWarpManager = new MallWarpManager(this, mallWarpService, unifiedDataFile);
         this.mallWarpSelectionManager = new MallWarpSelectionManager();
         this.socialSpyManager = new SocialSpyManager(this, unifiedDataFile);
+        this.mailStorage = new MailStorage(this, unifiedDataFile);
+        this.nicknameStorage = new NicknameStorage(this, unifiedDataFile);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -197,6 +210,7 @@ public class TBFMPPlugin extends JavaPlugin {
         startChatNotifications();
         startAfkTask();
         startTabListTask();
+        startMysqlPingTask();
     }
 
     @Override
@@ -240,8 +254,18 @@ public class TBFMPPlugin extends JavaPlugin {
         if (socialSpyManager != null) {
             socialSpyManager.save();
         }
+        if (mailStorage != null) {
+            mailStorage.save();
+        }
+        if (nicknameStorage != null) {
+            nicknameStorage.save();
+        }
         if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
             unifiedDataFile.save();
+        }
+        if (mysqlPingTask != null) {
+            mysqlPingTask.cancel();
+            mysqlPingTask = null;
         }
         if (afkTask != null) {
             afkTask.cancel();
@@ -322,24 +346,27 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("socialspy").setTabCompleter(tabCompleter);
         getCommand("msg").setExecutor(new MsgCommand(messageService));
         getCommand("msg").setTabCompleter(tabCompleter);
+        getCommand("mail").setExecutor(new MailCommand(mailStorage, messageService));
+        getCommand("mail").setTabCompleter(tabCompleter);
         getCommand("tp").setExecutor(new TpCommand(messageService));
         getCommand("tp").setTabCompleter(tabCompleter);
         getCommand("tphere").setExecutor(new TpHereCommand(messageService));
         getCommand("tphere").setTabCompleter(tabCompleter);
         getCommand("gamemode").setExecutor(new GamemodeCommand(messageService));
         getCommand("gamemode").setTabCompleter(tabCompleter);
-        getCommand("nick").setExecutor(new NickCommand(messageService, tabListService, afkManager));
+        getCommand("nick").setExecutor(new NickCommand(messageService, tabListService, afkManager, nicknameStorage));
         getCommand("nick").setTabCompleter(tabCompleter);
         getCommand("realname").setExecutor(new RealnameCommand(messageService));
         getCommand("realname").setTabCompleter(tabCompleter);
-        getCommand("unnick").setExecutor(new UnnickCommand(messageService, tabListService, afkManager));
+        getCommand("unnick").setExecutor(new UnnickCommand(messageService, tabListService, afkManager, nicknameStorage));
         getCommand("unnick").setTabCompleter(tabCompleter);
         getCommand("workbench").setExecutor(new WorkbenchCommand(messageService));
         getCommand("workbench").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this, messageService, mallWarpManager), this);
+        Bukkit.getPluginManager().registerEvents(
+                new PlayerJoinListener(this, messageService, mallWarpManager, mailStorage, nicknameStorage), this);
         Bukkit.getPluginManager().registerEvents(new AfkListener(afkManager), this);
         Bukkit.getPluginManager().registerEvents(new TabListSessionListener(tabListService), this);
         Bukkit.getPluginManager().registerEvents(new SitListener(sitSettingsStorage, sitManager), this);
@@ -362,6 +389,7 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DeathParticleListener(this, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new PlayerTrailListener(this, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnService), this);
+        Bukkit.getPluginManager().registerEvents(new DragonDropListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MiningEventListener(miningEventService), this);
         Bukkit.getPluginManager().registerEvents(new MiningEventPlayerListener(miningEventService), this);
         Bukkit.getPluginManager().registerEvents(new KeepInventoryListener(keepInventorySettingsStorage), this);
@@ -397,6 +425,18 @@ public class TBFMPPlugin extends JavaPlugin {
         tabListTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             tabListService.updateAll(afkManager::isAfk);
         }, 20L, 20L);
+    }
+
+    private void startMysqlPingTask() {
+        if (mysqlPingTask != null) {
+            mysqlPingTask.cancel();
+        }
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        long intervalTicks = 20L * 60L * 5L;
+        mysqlPingTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
+                () -> mysqlStorageService.pingAndEnsureTables(), intervalTicks, intervalTicks);
     }
 
     public void reloadPluginConfig() {
@@ -475,9 +515,46 @@ public class TBFMPPlugin extends JavaPlugin {
         rtpManager.writeToUnifiedData();
         mallWarpManager.writeToUnifiedData();
         socialSpyManager.writeToUnifiedData();
+        mailStorage.writeToUnifiedData();
+        nicknameStorage.writeToUnifiedData();
         unifiedDataFile.save();
         moveLegacyDataFiles();
         return true;
+    }
+
+    public boolean convertLegacyDataToMysql() {
+        if (unifiedDataFile == null || mysqlStorageService == null) {
+            return false;
+        }
+        if (!mysqlStorageService.isEnabled() || !mysqlStorageService.isConnectionValid()) {
+            return false;
+        }
+        unifiedDataFile.enable();
+        balanceStorage.writeToUnifiedData();
+        paySettingsStorage.writeToUnifiedData();
+        sitSettingsStorage.writeToUnifiedData();
+        chatNotificationSettingsStorage.writeToUnifiedData();
+        eventSettingsStorage.writeToUnifiedData();
+        keepInventorySettingsStorage.writeToUnifiedData();
+        pvpSettingsStorage.writeToUnifiedData();
+        miningEventStorage.writeToUnifiedData();
+        tagSelectionStorage.writeToUnifiedData();
+        rtpManager.writeToUnifiedData();
+        mallWarpManager.writeToUnifiedData();
+        socialSpyManager.writeToUnifiedData();
+        mailStorage.writeToUnifiedData();
+        nicknameStorage.writeToUnifiedData();
+        mysqlStorageService.saveFrom(unifiedDataFile.getData());
+        moveLegacyDataFiles();
+        return true;
+    }
+
+    public boolean isMysqlEnabled() {
+        return mysqlStorageService != null && mysqlStorageService.isEnabled();
+    }
+
+    public boolean isMysqlConnected() {
+        return mysqlStorageService != null && mysqlStorageService.isConnectionValid();
     }
 
     private void migrateMessagesConfig() {
@@ -519,6 +596,8 @@ public class TBFMPPlugin extends JavaPlugin {
                 "rtp-used.yml",
                 "mallwarp-state.yml",
                 "socialspy.yml",
+                "mail.yml",
+                "nicknames.yml",
                 "oakglowutil-data.yml"
         };
         for (String name : files) {

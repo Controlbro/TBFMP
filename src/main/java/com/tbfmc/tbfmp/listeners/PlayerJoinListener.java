@@ -1,6 +1,8 @@
 package com.tbfmc.tbfmp.listeners;
 
+import com.tbfmc.tbfmp.mail.MailStorage;
 import com.tbfmc.tbfmp.mallwarp.MallWarpManager;
+import com.tbfmc.tbfmp.nickname.NicknameStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,11 +21,16 @@ public class PlayerJoinListener implements Listener {
     private final JavaPlugin plugin;
     private final MessageService messages;
     private final MallWarpManager mallWarpManager;
+    private final MailStorage mailStorage;
+    private final NicknameStorage nicknameStorage;
 
-    public PlayerJoinListener(JavaPlugin plugin, MessageService messages, MallWarpManager mallWarpManager) {
+    public PlayerJoinListener(JavaPlugin plugin, MessageService messages, MallWarpManager mallWarpManager,
+                              MailStorage mailStorage, NicknameStorage nicknameStorage) {
         this.plugin = plugin;
         this.messages = messages;
         this.mallWarpManager = mallWarpManager;
+        this.mailStorage = mailStorage;
+        this.nicknameStorage = nicknameStorage;
     }
 
     @EventHandler
@@ -36,7 +43,9 @@ public class PlayerJoinListener implements Listener {
             event.setJoinMessage(joinMessage);
         }
         messages.sendMessage(player, messages.getMessage("messages.motd"));
+        applyNickname(player);
         notifyMallWarpRejoin(player);
+        notifyMail(player);
         maybeGiveJoinBook(player, firstJoin);
     }
 
@@ -79,6 +88,32 @@ public class PlayerJoinListener implements Listener {
         if (!message.isBlank()) {
             messages.sendMessage(player, message);
         }
+    }
+
+    private void notifyMail(Player player) {
+        if (mailStorage == null) {
+            return;
+        }
+        int count = mailStorage.getMailCount(player.getUniqueId());
+        if (count <= 0) {
+            return;
+        }
+        String message = messages.getMessage("messages.mail-notify")
+                .replace("{count}", String.valueOf(count));
+        if (!message.isBlank()) {
+            messages.sendMessage(player, message);
+        }
+    }
+
+    private void applyNickname(Player player) {
+        if (nicknameStorage == null) {
+            return;
+        }
+        String nickname = nicknameStorage.getNickname(player.getUniqueId());
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+        player.setDisplayName(nickname);
     }
 
     private ItemStack createJoinBook(Player player) {

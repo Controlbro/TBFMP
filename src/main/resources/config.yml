@@ -44,6 +44,16 @@ chat-notifications:
   - '&aStuck in someones claim? You can do &f/stuck &ato get out!'
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
 starting-balance: 100.0
+storage:
+  type: txt
+  mysql:
+    host: localhost
+    port: 3306
+    database: oakglow
+    username: root
+    password: ""
+    use-ssl: false
+    log-connection-tests: true
 hug:
   enabled: true
   heart_count: 15
@@ -66,6 +76,18 @@ spawn:
   z: 581.5107662546019
   yaw: 0.4650885
   pitch: 4.1999288
+dragon-drops:
+  enabled: false
+  drop-elytra: true
+  drop-egg: true
+  drop-head: false
+  location:
+    world: world
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
 mallwarp:
   warp:
     enabled: false
