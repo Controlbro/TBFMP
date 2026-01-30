@@ -54,24 +54,27 @@ public class BalanceStorage {
     }
 
     public double getBalance(UUID uuid) {
-        return balances.getOrDefault(uuid, plugin.getConfig().getDouble("starting-balance", 0.0));
+        refreshFromMysqlIfEnabled();
+        return getBalanceInternal(uuid);
     }
 
     public void setBalance(UUID uuid, double amount) {
-        balances.put(uuid, amount);
-        setValue(uuid.toString(), amount);
-        save();
+        refreshFromMysqlIfEnabled();
+        setBalanceInternal(uuid, amount);
     }
 
     public void addBalance(UUID uuid, double amount) {
-        setBalance(uuid, getBalance(uuid) + amount);
+        refreshFromMysqlIfEnabled();
+        setBalanceInternal(uuid, getBalanceInternal(uuid) + amount);
     }
 
     public void subtractBalance(UUID uuid, double amount) {
-        setBalance(uuid, Math.max(0.0, getBalance(uuid) - amount));
+        refreshFromMysqlIfEnabled();
+        setBalanceInternal(uuid, Math.max(0.0, getBalanceInternal(uuid) - amount));
     }
 
     public Map<UUID, Double> getAllBalances() {
+        refreshFromMysqlIfEnabled();
         return Collections.unmodifiableMap(balances);
     }
 
@@ -105,5 +108,23 @@ public class BalanceStorage {
             return;
         }
         legacyData.set(key, value);
+    }
+
+    private void refreshFromMysqlIfEnabled() {
+        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
+            return;
+        }
+        balances.clear();
+        load();
+    }
+
+    private double getBalanceInternal(UUID uuid) {
+        return balances.getOrDefault(uuid, plugin.getConfig().getDouble("starting-balance", 0.0));
+    }
+
+    private void setBalanceInternal(UUID uuid, double amount) {
+        balances.put(uuid, amount);
+        setValue(uuid.toString(), amount);
+        save();
     }
 }

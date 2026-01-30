@@ -159,7 +159,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.messagesConfig = new MessagesConfig(this);
         this.messageService = new MessageService(this, messagesConfig.getConfig());
         this.mysqlStorageService = new MySqlStorageService(this);
-        this.mysqlStorageService.initialize();
+        this.mysqlStorageService.initializeAsync();
         this.unifiedDataFile = new UnifiedDataFile(this, mysqlStorageService);
         this.balanceStorage = new BalanceStorage(this, unifiedDataFile);
         this.paySettingsStorage = new PaySettingsStorage(this, unifiedDataFile);
@@ -218,50 +218,101 @@ public class TBFMPPlugin extends JavaPlugin {
         if (chatNotificationTask != null) {
             chatNotificationTask.stop();
         }
-        if (balanceStorage != null) {
-            balanceStorage.save();
-        }
-        if (paySettingsStorage != null) {
-            paySettingsStorage.save();
-        }
-        if (sitSettingsStorage != null) {
-            sitSettingsStorage.save();
-        }
-        if (chatNotificationSettingsStorage != null) {
-            chatNotificationSettingsStorage.save();
-        }
-        if (eventSettingsStorage != null) {
-            eventSettingsStorage.save();
-        }
-        if (keepInventorySettingsStorage != null) {
-            keepInventorySettingsStorage.save();
-        }
-        if (pvpSettingsStorage != null) {
-            pvpSettingsStorage.save();
-        }
-        if (miningEventStorage != null) {
-            miningEventStorage.save();
-        }
-        if (tagSelectionStorage != null) {
-            tagSelectionStorage.save();
-        }
-        if (rtpManager != null) {
-            rtpManager.save();
-        }
-        if (mallWarpManager != null) {
-            mallWarpManager.save();
-        }
-        if (socialSpyManager != null) {
-            socialSpyManager.save();
-        }
-        if (mailStorage != null) {
-            mailStorage.save();
-        }
-        if (nicknameStorage != null) {
-            nicknameStorage.save();
-        }
-        if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
-            unifiedDataFile.save();
+        boolean mysqlEnabled = mysqlStorageService != null && mysqlStorageService.isEnabled();
+        if (mysqlEnabled) {
+            if (unifiedDataFile != null) {
+                if (balanceStorage != null) {
+                    balanceStorage.writeToUnifiedData();
+                }
+                if (paySettingsStorage != null) {
+                    paySettingsStorage.writeToUnifiedData();
+                }
+                if (sitSettingsStorage != null) {
+                    sitSettingsStorage.writeToUnifiedData();
+                }
+                if (chatNotificationSettingsStorage != null) {
+                    chatNotificationSettingsStorage.writeToUnifiedData();
+                }
+                if (eventSettingsStorage != null) {
+                    eventSettingsStorage.writeToUnifiedData();
+                }
+                if (keepInventorySettingsStorage != null) {
+                    keepInventorySettingsStorage.writeToUnifiedData();
+                }
+                if (pvpSettingsStorage != null) {
+                    pvpSettingsStorage.writeToUnifiedData();
+                }
+                if (miningEventStorage != null) {
+                    miningEventStorage.writeToUnifiedData();
+                }
+                if (tagSelectionStorage != null) {
+                    tagSelectionStorage.writeToUnifiedData();
+                }
+                if (rtpManager != null) {
+                    rtpManager.writeToUnifiedData();
+                }
+                if (mallWarpManager != null) {
+                    mallWarpManager.writeToUnifiedData();
+                }
+                if (socialSpyManager != null) {
+                    socialSpyManager.writeToUnifiedData();
+                }
+                if (mailStorage != null) {
+                    mailStorage.writeToUnifiedData();
+                }
+                if (nicknameStorage != null) {
+                    nicknameStorage.writeToUnifiedData();
+                }
+                if (unifiedDataFile.isEnabled()) {
+                    unifiedDataFile.save();
+                }
+            }
+        } else {
+            if (balanceStorage != null) {
+                balanceStorage.save();
+            }
+            if (paySettingsStorage != null) {
+                paySettingsStorage.save();
+            }
+            if (sitSettingsStorage != null) {
+                sitSettingsStorage.save();
+            }
+            if (chatNotificationSettingsStorage != null) {
+                chatNotificationSettingsStorage.save();
+            }
+            if (eventSettingsStorage != null) {
+                eventSettingsStorage.save();
+            }
+            if (keepInventorySettingsStorage != null) {
+                keepInventorySettingsStorage.save();
+            }
+            if (pvpSettingsStorage != null) {
+                pvpSettingsStorage.save();
+            }
+            if (miningEventStorage != null) {
+                miningEventStorage.save();
+            }
+            if (tagSelectionStorage != null) {
+                tagSelectionStorage.save();
+            }
+            if (rtpManager != null) {
+                rtpManager.save();
+            }
+            if (mallWarpManager != null) {
+                mallWarpManager.save();
+            }
+            if (socialSpyManager != null) {
+                socialSpyManager.save();
+            }
+            if (mailStorage != null) {
+                mailStorage.save();
+            }
+            if (nicknameStorage != null) {
+                nicknameStorage.save();
+            }
+            if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
+                unifiedDataFile.save();
+            }
         }
         if (mysqlPingTask != null) {
             mysqlPingTask.cancel();
@@ -555,6 +606,10 @@ public class TBFMPPlugin extends JavaPlugin {
 
     public boolean isMysqlConnected() {
         return mysqlStorageService != null && mysqlStorageService.isConnectionValid();
+    }
+
+    public MySqlStorageService getMysqlStorageService() {
+        return mysqlStorageService;
     }
 
     private void migrateMessagesConfig() {

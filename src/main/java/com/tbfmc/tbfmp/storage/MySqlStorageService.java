@@ -1,5 +1,6 @@
 package com.tbfmc.tbfmp.storage;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,6 +27,7 @@ public class MySqlStorageService {
     private final String password;
     private final List<SectionTable> tables = new ArrayList<>();
     private boolean connectionValid;
+    private String lastErrorMessage;
 
     public MySqlStorageService(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -36,10 +38,14 @@ public class MySqlStorageService {
         int port = plugin.getConfig().getInt("storage.mysql.port", 3306);
         String database = plugin.getConfig().getString("storage.mysql.database", "oakglow");
         boolean useSsl = plugin.getConfig().getBoolean("storage.mysql.use-ssl", false);
+        int connectTimeoutMs = plugin.getConfig().getInt("storage.mysql.connect-timeout-ms", 5000);
+        int socketTimeoutMs = plugin.getConfig().getInt("storage.mysql.socket-timeout-ms", 5000);
         this.username = plugin.getConfig().getString("storage.mysql.username", "root");
         this.password = plugin.getConfig().getString("storage.mysql.password", "");
         this.jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database
                 + "?useSSL=" + useSsl
+                + "&connectTimeout=" + connectTimeoutMs
+                + "&socketTimeout=" + socketTimeoutMs
                 + "&allowPublicKeyRetrieval=true"
                 + "&useUnicode=true&characterEncoding=utf8";
         registerTables();
@@ -53,6 +59,10 @@ public class MySqlStorageService {
         return connectionValid;
     }
 
+    public String getLastErrorMessage() {
+        return lastErrorMessage;
+    }
+
     public boolean initialize() {
         if (!enabled) {
             return false;
@@ -62,6 +72,18 @@ public class MySqlStorageService {
             ensureTables();
         }
         return connectionValid;
+    }
+
+    public void initializeAsync() {
+        if (!enabled) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            connectionValid = testConnection();
+            if (connectionValid) {
+                ensureTables();
+            }
+        });
     }
 
     public void pingAndEnsureTables() {
@@ -109,6 +131,7 @@ public class MySqlStorageService {
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.WARNING, "Failed to load MySQL data for " + table.tableName, ex);
             connectionValid = false;
+            lastErrorMessage = ex.getMessage();
         }
     }
 
@@ -135,6 +158,7 @@ public class MySqlStorageService {
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.WARNING, "Failed to save MySQL data for " + table.tableName, ex);
             connectionValid = false;
+            lastErrorMessage = ex.getMessage();
         }
     }
 
@@ -142,12 +166,16 @@ public class MySqlStorageService {
         try (Connection connection = getConnection()) {
             boolean valid = connection != null && connection.isValid(2);
             connectionValid = valid;
+            if (valid) {
+                lastErrorMessage = null;
+            }
             if (logConnectionTests) {
                 plugin.getLogger().info(valid ? "MySQL connection test succeeded." : "MySQL connection test failed.");
             }
             return valid;
         } catch (SQLException ex) {
             connectionValid = false;
+            lastErrorMessage = ex.getMessage();
             if (logConnectionTests) {
                 plugin.getLogger().log(Level.WARNING, "MySQL connection test failed.", ex);
             }
@@ -168,8 +196,42 @@ public class MySqlStorageService {
             } catch (SQLException ex) {
                 plugin.getLogger().log(Level.WARNING, "Failed to ensure MySQL table " + table.tableName, ex);
                 connectionValid = false;
+                lastErrorMessage = ex.getMessage();
             }
         }
+    }
+
+    public boolean refreshConnection() {
+        if (!enabled) {
+            return false;
+        }
+        return testConnection();
+    }
+
+    public TableCheckResult checkTables() {
+        if (!enabled) {
+            return new TableCheckResult(false, List.of(), "MySQL storage is not enabled.");
+        }
+        if (!refreshConnection()) {
+            String error = lastErrorMessage == null ? "MySQL connection failed." : lastErrorMessage;
+            return new TableCheckResult(false, List.of(), error);
+        }
+        List<String> missing = new ArrayList<>();
+        try (Connection connection = getConnection()) {
+            for (SectionTable table : tables) {
+                try (ResultSet resultSet = connection.getMetaData().getTables(
+                        connection.getCatalog(), null, table.tableName, new String[]{"TABLE"})) {
+                    if (!resultSet.next()) {
+                        missing.add(table.tableName);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            connectionValid = false;
+            lastErrorMessage = ex.getMessage();
+            return new TableCheckResult(false, List.of(), ex.getMessage());
+        }
+        return new TableCheckResult(missing.isEmpty(), missing, null);
     }
 
     private Connection getConnection() throws SQLException {
@@ -214,5 +276,8 @@ public class MySqlStorageService {
     }
 
     private record SectionTable(String sectionPath, String tableName) {
+    }
+
+    public record TableCheckResult(boolean success, List<String> missingTables, String errorMessage) {
     }
 }

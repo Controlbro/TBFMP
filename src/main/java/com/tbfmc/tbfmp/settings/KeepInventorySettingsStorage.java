@@ -54,12 +54,16 @@ public class KeepInventorySettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
+        refreshFromMysqlIfEnabled();
         boolean enabled = !isEnabled(uuid);
-        setEnabled(uuid, enabled);
+        keepInventory.put(uuid, enabled);
+        setValue(uuid.toString(), enabled);
+        save();
         return enabled;
     }
 
     public void setEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         keepInventory.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
         save();
@@ -95,5 +99,13 @@ public class KeepInventorySettingsStorage {
             return;
         }
         legacyData.set(key, value);
+    }
+
+    public void refreshFromMysqlIfEnabled() {
+        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
+            return;
+        }
+        keepInventory.clear();
+        load();
     }
 }

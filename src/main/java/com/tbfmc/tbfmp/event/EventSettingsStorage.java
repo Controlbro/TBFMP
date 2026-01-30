@@ -54,6 +54,7 @@ public class EventSettingsStorage {
     }
 
     public void setEnabled(UUID uuid, boolean enabled) {
+        refreshFromMysqlIfEnabled();
         eventEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
         save();
@@ -74,8 +75,11 @@ public class EventSettingsStorage {
     }
 
     public boolean toggle(UUID uuid) {
+        refreshFromMysqlIfEnabled();
         boolean enabled = !isEnabled(uuid);
-        setEnabled(uuid, enabled);
+        eventEnabled.put(uuid, enabled);
+        setValue(uuid.toString(), enabled);
+        save();
         return enabled;
     }
 
@@ -95,5 +99,13 @@ public class EventSettingsStorage {
             return;
         }
         legacyData.set(key, value);
+    }
+
+    public void refreshFromMysqlIfEnabled() {
+        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
+            return;
+        }
+        eventEnabled.clear();
+        load();
     }
 }
