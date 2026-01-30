@@ -290,7 +290,7 @@ public class TBFMPPlugin extends JavaPlugin {
         if (mysqlPingTask != null) {
             mysqlPingTask.cancel();
         }
-        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+        if (mysqlStorageService == null || mysqlStorageService.getUploadSections().isEmpty()) {
             return;
         }
         long intervalTicks = 20L * 60L * 5L;
@@ -299,21 +299,24 @@ public class TBFMPPlugin extends JavaPlugin {
     }
 
     private void uploadMysql() {
-        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+        if (mysqlStorageService == null) {
+            return;
+        }
+        java.util.Set<String> sections = mysqlStorageService.getUploadSections();
+        if (sections.isEmpty()) {
             return;
         }
         if (!mysqlStorageService.refreshConnection()) {
             return;
         }
-        java.util.Set<String> sections = java.util.Set.of("balances", "mining-event");
         mysqlStorageService.ensureTables(sections);
         org.bukkit.configuration.file.YamlConfiguration snapshot = new org.bukkit.configuration.file.YamlConfiguration();
-        if (balanceStorage != null) {
+        if (balanceStorage != null && sections.contains("balances")) {
             for (java.util.Map.Entry<java.util.UUID, Double> entry : balanceStorage.getAllBalances().entrySet()) {
                 snapshot.set("balances." + entry.getKey(), entry.getValue());
             }
         }
-        if (miningEventStorage != null) {
+        if (miningEventStorage != null && sections.contains("mining-event")) {
             for (java.util.Map.Entry<java.util.UUID, Integer> entry : miningEventStorage.getAllCounts().entrySet()) {
                 snapshot.set("mining-event." + entry.getKey(), entry.getValue());
             }

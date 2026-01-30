@@ -45,8 +45,11 @@ chat-notifications:
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
 starting-balance: 100.0
 storage:
-  type: txt
+  type: txt # locked
   mysql:
+    enabled: false
+    upload-balances: true
+    upload-event: true
     host: localhost
     port: 3306
     database: oakglow
