@@ -55,7 +55,9 @@ public class KeepInventorySettingsStorage {
 
     public boolean toggle(UUID uuid) {
         boolean enabled = !isEnabled(uuid);
-        setEnabled(uuid, enabled);
+        keepInventory.put(uuid, enabled);
+        setValue(uuid.toString(), enabled);
+        save();
         return enabled;
     }
 
@@ -95,5 +97,10 @@ public class KeepInventorySettingsStorage {
             return;
         }
         legacyData.set(key, value);
+    }
+
+    public void reloadFromUnifiedData() {
+        keepInventory.clear();
+        load();
     }
 }

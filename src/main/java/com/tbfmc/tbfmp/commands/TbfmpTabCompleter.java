@@ -21,6 +21,8 @@ public class TbfmpTabCompleter implements TabCompleter {
             "setspawn",
             "dragondropset",
             "convert",
+            "checkmysql",
+            "checktables",
             "keepinvtoggle",
             "pvptoggle",
             "resetevent",

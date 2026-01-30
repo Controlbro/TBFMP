@@ -73,6 +73,11 @@ public class TagSelectionStorage {
         }
     }
 
+    public void reloadFromUnifiedData() {
+        selections.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

@@ -159,7 +159,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.messagesConfig = new MessagesConfig(this);
         this.messageService = new MessageService(this, messagesConfig.getConfig());
         this.mysqlStorageService = new MySqlStorageService(this);
-        this.mysqlStorageService.initialize();
+        this.mysqlStorageService.initializeAsync();
         this.unifiedDataFile = new UnifiedDataFile(this, mysqlStorageService);
         this.balanceStorage = new BalanceStorage(this, unifiedDataFile);
         this.paySettingsStorage = new PaySettingsStorage(this, unifiedDataFile);
@@ -210,7 +210,7 @@ public class TBFMPPlugin extends JavaPlugin {
         startChatNotifications();
         startAfkTask();
         startTabListTask();
-        startMysqlPingTask();
+        startMysqlUploadTask();
     }
 
     @Override
@@ -218,6 +218,7 @@ public class TBFMPPlugin extends JavaPlugin {
         if (chatNotificationTask != null) {
             chatNotificationTask.stop();
         }
+        boolean mysqlEnabled = mysqlStorageService != null && mysqlStorageService.isEnabled();
         if (balanceStorage != null) {
             balanceStorage.save();
         }
@@ -263,6 +264,7 @@ public class TBFMPPlugin extends JavaPlugin {
         if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
             unifiedDataFile.save();
         }
+        flushMysqlAsync();
         if (mysqlPingTask != null) {
             mysqlPingTask.cancel();
             mysqlPingTask = null;
@@ -275,6 +277,48 @@ public class TBFMPPlugin extends JavaPlugin {
             tabListTask.cancel();
             tabListTask = null;
         }
+    }
+
+    public void flushMysqlAsync() {
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(this, this::uploadMysql);
+    }
+
+    private void startMysqlUploadTask() {
+        if (mysqlPingTask != null) {
+            mysqlPingTask.cancel();
+        }
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        long intervalTicks = 20L * 60L * 5L;
+        mysqlPingTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
+                this::uploadMysql, intervalTicks, intervalTicks);
+    }
+
+    private void uploadMysql() {
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        if (!mysqlStorageService.refreshConnection()) {
+            return;
+        }
+        java.util.Set<String> sections = java.util.Set.of("balances", "mining-event");
+        mysqlStorageService.ensureTables(sections);
+        org.bukkit.configuration.file.YamlConfiguration snapshot = new org.bukkit.configuration.file.YamlConfiguration();
+        if (balanceStorage != null) {
+            for (java.util.Map.Entry<java.util.UUID, Double> entry : balanceStorage.getAllBalances().entrySet()) {
+                snapshot.set("balances." + entry.getKey(), entry.getValue());
+            }
+        }
+        if (miningEventStorage != null) {
+            for (java.util.Map.Entry<java.util.UUID, Integer> entry : miningEventStorage.getAllCounts().entrySet()) {
+                snapshot.set("mining-event." + entry.getKey(), entry.getValue());
+            }
+        }
+        mysqlStorageService.saveSections(snapshot, sections);
     }
 
     private void registerCommands() {
@@ -427,18 +471,6 @@ public class TBFMPPlugin extends JavaPlugin {
         }, 20L, 20L);
     }
 
-    private void startMysqlPingTask() {
-        if (mysqlPingTask != null) {
-            mysqlPingTask.cancel();
-        }
-        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
-            return;
-        }
-        long intervalTicks = 20L * 60L * 5L;
-        mysqlPingTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
-                () -> mysqlStorageService.pingAndEnsureTables(), intervalTicks, intervalTicks);
-    }
-
     public void reloadPluginConfig() {
         ConfigUpdater.updateConfig(this, "config.yml");
         ConfigUpdater.updateConfig(this, "settings-menu.yml");
@@ -523,29 +555,13 @@ public class TBFMPPlugin extends JavaPlugin {
     }
 
     public boolean convertLegacyDataToMysql() {
-        if (unifiedDataFile == null || mysqlStorageService == null) {
+        if (mysqlStorageService == null) {
             return false;
         }
         if (!mysqlStorageService.isEnabled() || !mysqlStorageService.isConnectionValid()) {
             return false;
         }
-        unifiedDataFile.enable();
-        balanceStorage.writeToUnifiedData();
-        paySettingsStorage.writeToUnifiedData();
-        sitSettingsStorage.writeToUnifiedData();
-        chatNotificationSettingsStorage.writeToUnifiedData();
-        eventSettingsStorage.writeToUnifiedData();
-        keepInventorySettingsStorage.writeToUnifiedData();
-        pvpSettingsStorage.writeToUnifiedData();
-        miningEventStorage.writeToUnifiedData();
-        tagSelectionStorage.writeToUnifiedData();
-        rtpManager.writeToUnifiedData();
-        mallWarpManager.writeToUnifiedData();
-        socialSpyManager.writeToUnifiedData();
-        mailStorage.writeToUnifiedData();
-        nicknameStorage.writeToUnifiedData();
-        mysqlStorageService.saveFrom(unifiedDataFile.getData());
-        moveLegacyDataFiles();
+        uploadMysql();
         return true;
     }
 
@@ -555,6 +571,10 @@ public class TBFMPPlugin extends JavaPlugin {
 
     public boolean isMysqlConnected() {
         return mysqlStorageService != null && mysqlStorageService.isConnectionValid();
+    }
+
+    public MySqlStorageService getMysqlStorageService() {
+        return mysqlStorageService;
     }
 
     private void migrateMessagesConfig() {

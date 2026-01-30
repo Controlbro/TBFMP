@@ -111,4 +111,10 @@ public class SitSettingsStorage {
         }
         legacyData.set(key, value);
     }
+
+    public void reloadFromUnifiedData() {
+        chairEnabled.clear();
+        playerEnabled.clear();
+        load();
+    }
 }

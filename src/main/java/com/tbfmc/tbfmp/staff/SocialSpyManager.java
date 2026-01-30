@@ -58,6 +58,11 @@ public class SocialSpyManager {
         }
     }
 
+    public void reloadFromUnifiedData() {
+        enabledPlayers.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

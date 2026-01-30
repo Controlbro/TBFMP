@@ -89,6 +89,11 @@ public class MiningEventStorage {
         return Map.copyOf(counts);
     }
 
+    public void reloadFromUnifiedData() {
+        counts.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

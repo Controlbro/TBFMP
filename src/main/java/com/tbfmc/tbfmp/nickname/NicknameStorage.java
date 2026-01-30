@@ -58,6 +58,11 @@ public class NicknameStorage {
         }
     }
 
+    public void reloadFromUnifiedData() {
+        nicknames.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

@@ -92,4 +92,9 @@ public class ChatNotificationSettingsStorage {
         }
         legacyData.set(key, value);
     }
+
+    public void reloadFromUnifiedData() {
+        enabled.clear();
+        load();
+    }
 }
