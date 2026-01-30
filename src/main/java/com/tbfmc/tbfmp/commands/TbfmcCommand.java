@@ -59,9 +59,46 @@ public class TbfmcCommand implements CommandExecutor {
             return true;
         }
 
+        if (args.length > 0 && args[0].equalsIgnoreCase("dragondropset")) {
+            if (!sender.hasPermission("oakglowutil.admin.dragondropset")) {
+                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
+                return true;
+            }
+            if (!(sender instanceof Player player)) {
+                messages.sendMessage(sender, messages.getMessage("messages.players-only"));
+                return true;
+            }
+            Location location = player.getLocation();
+            plugin.getConfig().set("dragon-drops.enabled", true);
+            plugin.getConfig().set("dragon-drops.location.world", location.getWorld().getName());
+            plugin.getConfig().set("dragon-drops.location.x", location.getX());
+            plugin.getConfig().set("dragon-drops.location.y", location.getY());
+            plugin.getConfig().set("dragon-drops.location.z", location.getZ());
+            plugin.getConfig().set("dragon-drops.location.yaw", location.getYaw());
+            plugin.getConfig().set("dragon-drops.location.pitch", location.getPitch());
+            plugin.saveConfig();
+            messages.sendMessage(sender, messages.getMessage("messages.dragondrop-set"));
+            return true;
+        }
+
         if (args.length > 0 && args[0].equalsIgnoreCase("convert")) {
             if (!sender.isOp()) {
                 messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
+                return true;
+            }
+            if (args.length > 1 && args[1].equalsIgnoreCase("mysql")) {
+                if (!plugin.isMysqlEnabled()) {
+                    messages.sendMessage(sender, messages.getMessage("messages.mysql-convert-disabled"));
+                    return true;
+                }
+                if (!plugin.isMysqlConnected()) {
+                    messages.sendMessage(sender, messages.getMessage("messages.mysql-connection-failed"));
+                    return true;
+                }
+                boolean converted = plugin.convertLegacyDataToMysql();
+                if (converted) {
+                    messages.sendMessage(sender, messages.getMessage("messages.convert-complete"));
+                }
                 return true;
             }
             boolean converted = plugin.convertLegacyData();

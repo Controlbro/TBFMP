@@ -32,8 +32,10 @@ public class BankCommand implements CommandExecutor {
         }
 
         Inventory inventory = Bukkit.createInventory(player, 9, BANK_TITLE);
+        inventory.setItem(2, createItem(Material.DIAMOND_BLOCK, ChatColor.GREEN + "Buy all diamonds"));
         inventory.setItem(3, createItem(Material.DIAMOND, ChatColor.GREEN + "Buy diamond for $" + PRICE));
         inventory.setItem(5, createItem(Material.EMERALD, ChatColor.GOLD + "Sell diamond for $" + PRICE));
+        inventory.setItem(6, createItem(Material.EMERALD_BLOCK, ChatColor.GOLD + "Sell all diamonds"));
         player.openInventory(inventory);
         messages.sendMessage(player, messages.getMessage("messages.bank-opened"));
         return true;

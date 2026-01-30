@@ -4,6 +4,7 @@ import com.tbfmc.tbfmp.economy.BalanceStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,8 +35,8 @@ public class PayCommand implements CommandExecutor {
             return true;
         }
 
-        Player target = Bukkit.getPlayerExact(args[0]);
-        if (target == null) {
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+        if (!target.isOnline() && !target.hasPlayedBefore()) {
             messages.sendMessage(player, messages.getMessage("messages.player-not-found"));
             return true;
         }
@@ -65,12 +66,15 @@ public class PayCommand implements CommandExecutor {
         balanceStorage.subtractBalance(senderId, amount);
         balanceStorage.addBalance(target.getUniqueId(), amount);
 
+        String targetName = target.getName() == null ? "player" : target.getName();
         messages.sendMessage(player, messages.getMessage("messages.pay-sent")
-                .replace("{player}", target.getName() == null ? "player" : target.getName())
+                .replace("{player}", targetName)
                 .replace("{amount}", String.format("%.2f", amount)));
-        messages.sendMessage(target, messages.getMessage("messages.pay-received")
-                .replace("{player}", player.getName())
-                .replace("{amount}", String.format("%.2f", amount)));
+        if (target.isOnline() && target.getPlayer() != null) {
+            messages.sendMessage(target.getPlayer(), messages.getMessage("messages.pay-received")
+                    .replace("{player}", player.getName())
+                    .replace("{amount}", String.format("%.2f", amount)));
+        }
         return true;
     }
 
