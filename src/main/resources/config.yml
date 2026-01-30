@@ -53,6 +53,8 @@ storage:
     username: root
     password: ""
     use-ssl: false
+    connect-timeout-ms: 5000
+    socket-timeout-ms: 5000
     log-connection-tests: true
 hug:
   enabled: true

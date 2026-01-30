@@ -52,11 +52,13 @@ public class PaySettingsStorage {
     }
 
     public boolean isPayEnabled(UUID uuid) {
-        return payEnabled.getOrDefault(uuid, true);
+        refreshFromMysqlIfEnabled();
+        return isPayEnabledInternal(uuid);
     }
 
     public boolean togglePay(UUID uuid) {
-        boolean enabled = !isPayEnabled(uuid);
+        refreshFromMysqlIfEnabled();
+        boolean enabled = !isPayEnabledInternal(uuid);
         payEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
         save();
@@ -93,5 +95,17 @@ public class PaySettingsStorage {
             return;
         }
         legacyData.set(key, value);
+    }
+
+    public void refreshFromMysqlIfEnabled() {
+        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
+            return;
+        }
+        payEnabled.clear();
+        load();
+    }
+
+    private boolean isPayEnabledInternal(UUID uuid) {
+        return payEnabled.getOrDefault(uuid, true);
     }
 }

@@ -108,6 +108,55 @@ public class TbfmcCommand implements CommandExecutor {
             return true;
         }
 
+        if (args.length > 0 && args[0].equalsIgnoreCase("checkmysql")) {
+            if (!sender.isOp()) {
+                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
+                return true;
+            }
+            if (!plugin.isMysqlEnabled()) {
+                messages.sendMessage(sender, messages.getMessage("messages.mysql-check-disabled"));
+                return true;
+            }
+            boolean connected = plugin.getMysqlStorageService().refreshConnection();
+            if (connected) {
+                messages.sendMessage(sender, messages.getMessage("messages.mysql-check-success"));
+                return true;
+            }
+            String error = plugin.getMysqlStorageService().getLastErrorMessage();
+            String message = messages.getMessage("messages.mysql-check-failed")
+                    .replace("{error}", error == null ? "Unknown error" : error);
+            messages.sendMessage(sender, message);
+            return true;
+        }
+
+        if (args.length > 0 && args[0].equalsIgnoreCase("checktables")) {
+            if (!sender.isOp()) {
+                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
+                return true;
+            }
+            if (!plugin.isMysqlEnabled()) {
+                messages.sendMessage(sender, messages.getMessage("messages.mysql-check-disabled"));
+                return true;
+            }
+            com.tbfmc.tbfmp.storage.MySqlStorageService.TableCheckResult result =
+                    plugin.getMysqlStorageService().checkTables();
+            if (result.errorMessage() != null && !result.errorMessage().isBlank()) {
+                String message = messages.getMessage("messages.mysql-tables-error")
+                        .replace("{error}", result.errorMessage());
+                messages.sendMessage(sender, message);
+                return true;
+            }
+            if (result.missingTables().isEmpty()) {
+                messages.sendMessage(sender, messages.getMessage("messages.mysql-tables-ok"));
+                return true;
+            }
+            String missing = String.join(", ", result.missingTables());
+            String message = messages.getMessage("messages.mysql-tables-missing")
+                    .replace("{tables}", missing);
+            messages.sendMessage(sender, message);
+            return true;
+        }
+
         if (args.length > 0 && args[0].equalsIgnoreCase("keepinvtoggle")) {
             if (!(sender instanceof Player player)) {
                 messages.sendMessage(sender, messages.getMessage("messages.players-only"));
