@@ -52,12 +52,10 @@ public class PaySettingsStorage {
     }
 
     public boolean isPayEnabled(UUID uuid) {
-        refreshFromMysqlIfEnabled();
         return isPayEnabledInternal(uuid);
     }
 
     public boolean togglePay(UUID uuid) {
-        refreshFromMysqlIfEnabled();
         boolean enabled = !isPayEnabledInternal(uuid);
         payEnabled.put(uuid, enabled);
         setValue(uuid.toString(), enabled);
@@ -97,10 +95,7 @@ public class PaySettingsStorage {
         legacyData.set(key, value);
     }
 
-    public void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         payEnabled.clear();
         load();
     }

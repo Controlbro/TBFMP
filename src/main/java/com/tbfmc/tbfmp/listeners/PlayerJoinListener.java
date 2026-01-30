@@ -12,19 +12,19 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.tbfmc.tbfmp.TBFMPPlugin;
 
 import java.util.List;
 import java.util.Map;
 
 public class PlayerJoinListener implements Listener {
-    private final JavaPlugin plugin;
+    private final TBFMPPlugin plugin;
     private final MessageService messages;
     private final MallWarpManager mallWarpManager;
     private final MailStorage mailStorage;
     private final NicknameStorage nicknameStorage;
 
-    public PlayerJoinListener(JavaPlugin plugin, MessageService messages, MallWarpManager mallWarpManager,
+    public PlayerJoinListener(TBFMPPlugin plugin, MessageService messages, MallWarpManager mallWarpManager,
                               MailStorage mailStorage, NicknameStorage nicknameStorage) {
         this.plugin = plugin;
         this.messages = messages;
@@ -56,6 +56,7 @@ public class PlayerJoinListener implements Listener {
         if (!quitMessage.isBlank()) {
             event.setQuitMessage(quitMessage);
         }
+        plugin.flushMysqlAsync();
     }
 
     private void maybeGiveJoinBook(Player player, boolean firstJoin) {

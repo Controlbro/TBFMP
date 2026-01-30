@@ -101,10 +101,7 @@ public class EventSettingsStorage {
         legacyData.set(key, value);
     }
 
-    public void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         eventEnabled.clear();
         load();
     }

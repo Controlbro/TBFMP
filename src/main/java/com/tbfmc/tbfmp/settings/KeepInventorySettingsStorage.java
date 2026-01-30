@@ -101,10 +101,7 @@ public class KeepInventorySettingsStorage {
         legacyData.set(key, value);
     }
 
-    public void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         keepInventory.clear();
         load();
     }

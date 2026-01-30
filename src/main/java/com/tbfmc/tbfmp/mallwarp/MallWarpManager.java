@@ -97,6 +97,12 @@ public class MallWarpManager {
         }
     }
 
+    public void reloadFromUnifiedData() {
+        backLocations.clear();
+        mallPlayers.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

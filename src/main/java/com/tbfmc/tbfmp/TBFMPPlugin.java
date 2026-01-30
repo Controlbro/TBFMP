@@ -210,7 +210,7 @@ public class TBFMPPlugin extends JavaPlugin {
         startChatNotifications();
         startAfkTask();
         startTabListTask();
-        startMysqlPingTask();
+        startMysqlUploadTask();
     }
 
     @Override
@@ -219,101 +219,52 @@ public class TBFMPPlugin extends JavaPlugin {
             chatNotificationTask.stop();
         }
         boolean mysqlEnabled = mysqlStorageService != null && mysqlStorageService.isEnabled();
-        if (mysqlEnabled) {
-            if (unifiedDataFile != null) {
-                if (balanceStorage != null) {
-                    balanceStorage.writeToUnifiedData();
-                }
-                if (paySettingsStorage != null) {
-                    paySettingsStorage.writeToUnifiedData();
-                }
-                if (sitSettingsStorage != null) {
-                    sitSettingsStorage.writeToUnifiedData();
-                }
-                if (chatNotificationSettingsStorage != null) {
-                    chatNotificationSettingsStorage.writeToUnifiedData();
-                }
-                if (eventSettingsStorage != null) {
-                    eventSettingsStorage.writeToUnifiedData();
-                }
-                if (keepInventorySettingsStorage != null) {
-                    keepInventorySettingsStorage.writeToUnifiedData();
-                }
-                if (pvpSettingsStorage != null) {
-                    pvpSettingsStorage.writeToUnifiedData();
-                }
-                if (miningEventStorage != null) {
-                    miningEventStorage.writeToUnifiedData();
-                }
-                if (tagSelectionStorage != null) {
-                    tagSelectionStorage.writeToUnifiedData();
-                }
-                if (rtpManager != null) {
-                    rtpManager.writeToUnifiedData();
-                }
-                if (mallWarpManager != null) {
-                    mallWarpManager.writeToUnifiedData();
-                }
-                if (socialSpyManager != null) {
-                    socialSpyManager.writeToUnifiedData();
-                }
-                if (mailStorage != null) {
-                    mailStorage.writeToUnifiedData();
-                }
-                if (nicknameStorage != null) {
-                    nicknameStorage.writeToUnifiedData();
-                }
-                if (unifiedDataFile.isEnabled()) {
-                    unifiedDataFile.save();
-                }
-            }
-        } else {
-            if (balanceStorage != null) {
-                balanceStorage.save();
-            }
-            if (paySettingsStorage != null) {
-                paySettingsStorage.save();
-            }
-            if (sitSettingsStorage != null) {
-                sitSettingsStorage.save();
-            }
-            if (chatNotificationSettingsStorage != null) {
-                chatNotificationSettingsStorage.save();
-            }
-            if (eventSettingsStorage != null) {
-                eventSettingsStorage.save();
-            }
-            if (keepInventorySettingsStorage != null) {
-                keepInventorySettingsStorage.save();
-            }
-            if (pvpSettingsStorage != null) {
-                pvpSettingsStorage.save();
-            }
-            if (miningEventStorage != null) {
-                miningEventStorage.save();
-            }
-            if (tagSelectionStorage != null) {
-                tagSelectionStorage.save();
-            }
-            if (rtpManager != null) {
-                rtpManager.save();
-            }
-            if (mallWarpManager != null) {
-                mallWarpManager.save();
-            }
-            if (socialSpyManager != null) {
-                socialSpyManager.save();
-            }
-            if (mailStorage != null) {
-                mailStorage.save();
-            }
-            if (nicknameStorage != null) {
-                nicknameStorage.save();
-            }
-            if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
-                unifiedDataFile.save();
-            }
+        if (balanceStorage != null) {
+            balanceStorage.save();
         }
+        if (paySettingsStorage != null) {
+            paySettingsStorage.save();
+        }
+        if (sitSettingsStorage != null) {
+            sitSettingsStorage.save();
+        }
+        if (chatNotificationSettingsStorage != null) {
+            chatNotificationSettingsStorage.save();
+        }
+        if (eventSettingsStorage != null) {
+            eventSettingsStorage.save();
+        }
+        if (keepInventorySettingsStorage != null) {
+            keepInventorySettingsStorage.save();
+        }
+        if (pvpSettingsStorage != null) {
+            pvpSettingsStorage.save();
+        }
+        if (miningEventStorage != null) {
+            miningEventStorage.save();
+        }
+        if (tagSelectionStorage != null) {
+            tagSelectionStorage.save();
+        }
+        if (rtpManager != null) {
+            rtpManager.save();
+        }
+        if (mallWarpManager != null) {
+            mallWarpManager.save();
+        }
+        if (socialSpyManager != null) {
+            socialSpyManager.save();
+        }
+        if (mailStorage != null) {
+            mailStorage.save();
+        }
+        if (nicknameStorage != null) {
+            nicknameStorage.save();
+        }
+        if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
+            unifiedDataFile.save();
+        }
+        flushMysqlAsync();
         if (mysqlPingTask != null) {
             mysqlPingTask.cancel();
             mysqlPingTask = null;
@@ -326,6 +277,48 @@ public class TBFMPPlugin extends JavaPlugin {
             tabListTask.cancel();
             tabListTask = null;
         }
+    }
+
+    public void flushMysqlAsync() {
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(this, this::uploadMysql);
+    }
+
+    private void startMysqlUploadTask() {
+        if (mysqlPingTask != null) {
+            mysqlPingTask.cancel();
+        }
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        long intervalTicks = 20L * 60L * 5L;
+        mysqlPingTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
+                this::uploadMysql, intervalTicks, intervalTicks);
+    }
+
+    private void uploadMysql() {
+        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
+            return;
+        }
+        if (!mysqlStorageService.refreshConnection()) {
+            return;
+        }
+        java.util.Set<String> sections = java.util.Set.of("balances", "mining-event");
+        mysqlStorageService.ensureTables(sections);
+        org.bukkit.configuration.file.YamlConfiguration snapshot = new org.bukkit.configuration.file.YamlConfiguration();
+        if (balanceStorage != null) {
+            for (java.util.Map.Entry<java.util.UUID, Double> entry : balanceStorage.getAllBalances().entrySet()) {
+                snapshot.set("balances." + entry.getKey(), entry.getValue());
+            }
+        }
+        if (miningEventStorage != null) {
+            for (java.util.Map.Entry<java.util.UUID, Integer> entry : miningEventStorage.getAllCounts().entrySet()) {
+                snapshot.set("mining-event." + entry.getKey(), entry.getValue());
+            }
+        }
+        mysqlStorageService.saveSections(snapshot, sections);
     }
 
     private void registerCommands() {
@@ -478,18 +471,6 @@ public class TBFMPPlugin extends JavaPlugin {
         }, 20L, 20L);
     }
 
-    private void startMysqlPingTask() {
-        if (mysqlPingTask != null) {
-            mysqlPingTask.cancel();
-        }
-        if (mysqlStorageService == null || !mysqlStorageService.isEnabled()) {
-            return;
-        }
-        long intervalTicks = 20L * 60L * 5L;
-        mysqlPingTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this,
-                () -> mysqlStorageService.pingAndEnsureTables(), intervalTicks, intervalTicks);
-    }
-
     public void reloadPluginConfig() {
         ConfigUpdater.updateConfig(this, "config.yml");
         ConfigUpdater.updateConfig(this, "settings-menu.yml");
@@ -574,29 +555,13 @@ public class TBFMPPlugin extends JavaPlugin {
     }
 
     public boolean convertLegacyDataToMysql() {
-        if (unifiedDataFile == null || mysqlStorageService == null) {
+        if (mysqlStorageService == null) {
             return false;
         }
         if (!mysqlStorageService.isEnabled() || !mysqlStorageService.isConnectionValid()) {
             return false;
         }
-        unifiedDataFile.enable();
-        balanceStorage.writeToUnifiedData();
-        paySettingsStorage.writeToUnifiedData();
-        sitSettingsStorage.writeToUnifiedData();
-        chatNotificationSettingsStorage.writeToUnifiedData();
-        eventSettingsStorage.writeToUnifiedData();
-        keepInventorySettingsStorage.writeToUnifiedData();
-        pvpSettingsStorage.writeToUnifiedData();
-        miningEventStorage.writeToUnifiedData();
-        tagSelectionStorage.writeToUnifiedData();
-        rtpManager.writeToUnifiedData();
-        mallWarpManager.writeToUnifiedData();
-        socialSpyManager.writeToUnifiedData();
-        mailStorage.writeToUnifiedData();
-        nicknameStorage.writeToUnifiedData();
-        mysqlStorageService.saveFrom(unifiedDataFile.getData());
-        moveLegacyDataFiles();
+        uploadMysql();
         return true;
     }
 

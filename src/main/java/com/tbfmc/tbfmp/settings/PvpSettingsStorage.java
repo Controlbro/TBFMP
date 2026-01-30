@@ -101,10 +101,7 @@ public class PvpSettingsStorage {
         legacyData.set(key, value);
     }
 
-    public void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         pvpEnabled.clear();
         load();
     }

@@ -94,10 +94,7 @@ public class ChatNotificationSettingsStorage {
         legacyData.set(key, value);
     }
 
-    public void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         enabled.clear();
         load();
     }

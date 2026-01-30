@@ -54,22 +54,18 @@ public class BalanceStorage {
     }
 
     public double getBalance(UUID uuid) {
-        refreshFromMysqlIfEnabled();
         return getBalanceInternal(uuid);
     }
 
     public void setBalance(UUID uuid, double amount) {
-        refreshFromMysqlIfEnabled();
         setBalanceInternal(uuid, amount);
     }
 
     public void addBalance(UUID uuid, double amount) {
-        refreshFromMysqlIfEnabled();
         setBalanceInternal(uuid, getBalanceInternal(uuid) + amount);
     }
 
     public void subtractBalance(UUID uuid, double amount) {
-        refreshFromMysqlIfEnabled();
         setBalanceInternal(uuid, Math.max(0.0, getBalanceInternal(uuid) - amount));
     }
 
@@ -110,10 +106,7 @@ public class BalanceStorage {
         legacyData.set(key, value);
     }
 
-    private void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         balances.clear();
         load();
     }

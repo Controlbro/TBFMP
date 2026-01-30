@@ -33,12 +33,6 @@ public class UnifiedDataFile {
     }
 
     public void reload() {
-        if (mysqlStorageService != null && mysqlStorageService.isEnabled() && mysqlStorageService.isConnectionValid()) {
-            this.data = new YamlConfiguration();
-            mysqlStorageService.loadTo(data);
-            this.enabled = true;
-            return;
-        }
         if (file.exists()) {
             this.data = YamlConfiguration.loadConfiguration(file);
             this.enabled = data.getInt("data-version", 0) >= DATA_VERSION;
@@ -80,10 +74,6 @@ public class UnifiedDataFile {
 
     public void save() {
         if (!enabled) {
-            return;
-        }
-        if (mysqlStorageService != null && mysqlStorageService.isEnabled() && mysqlStorageService.isConnectionValid()) {
-            mysqlStorageService.saveFrom(data);
             return;
         }
         if (!file.getParentFile().exists()) {

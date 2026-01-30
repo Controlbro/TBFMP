@@ -126,6 +126,12 @@ public class RtpManager {
         }
     }
 
+    public void reloadFromUnifiedData() {
+        usedRtp.clear();
+        pendingConfirmations.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

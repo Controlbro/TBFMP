@@ -70,6 +70,11 @@ public class MailStorage {
         }
     }
 
+    public void reloadFromUnifiedData() {
+        mail.clear();
+        load();
+    }
+
     public void writeToUnifiedData() {
         if (!unifiedDataFile.isEnabled()) {
             return;

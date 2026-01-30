@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -115,6 +116,18 @@ public class MySqlStorageService {
         }
     }
 
+    public void saveSections(FileConfiguration data, Collection<String> sections) {
+        if (!enabled || !connectionValid) {
+            return;
+        }
+        for (SectionTable table : tables) {
+            if (!sections.contains(table.sectionPath)) {
+                continue;
+            }
+            saveSection(data, table);
+        }
+    }
+
     private void loadSection(FileConfiguration data, SectionTable table) {
         String sql = "SELECT entry_key, entry_value FROM " + table.tableName;
         try (Connection connection = getConnection();
@@ -185,6 +198,27 @@ public class MySqlStorageService {
 
     private void ensureTables() {
         for (SectionTable table : tables) {
+            String sql = "CREATE TABLE IF NOT EXISTS " + table.tableName + " ("
+                    + "entry_key VARCHAR(64) NOT NULL,"
+                    + "entry_value LONGTEXT NOT NULL,"
+                    + "PRIMARY KEY (entry_key)"
+                    + ")";
+            try (Connection connection = getConnection();
+                 Statement statement = connection.createStatement()) {
+                statement.execute(sql);
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.WARNING, "Failed to ensure MySQL table " + table.tableName, ex);
+                connectionValid = false;
+                lastErrorMessage = ex.getMessage();
+            }
+        }
+    }
+
+    public void ensureTables(Collection<String> sections) {
+        for (SectionTable table : tables) {
+            if (!sections.contains(table.sectionPath)) {
+                continue;
+            }
             String sql = "CREATE TABLE IF NOT EXISTS " + table.tableName + " ("
                     + "entry_key VARCHAR(64) NOT NULL,"
                     + "entry_value LONGTEXT NOT NULL,"

@@ -114,10 +114,7 @@ public class SitSettingsStorage {
         legacyData.set(key, value);
     }
 
-    public void refreshFromMysqlIfEnabled() {
-        if (!unifiedDataFile.refreshFromMysqlIfEnabled()) {
-            return;
-        }
+    public void reloadFromUnifiedData() {
         chairEnabled.clear();
         playerEnabled.clear();
         load();
