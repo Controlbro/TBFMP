@@ -3,18 +3,17 @@ package com.tbfmc.tbfmp.listeners;
 import com.tbfmc.tbfmp.mail.MailStorage;
 import com.tbfmc.tbfmp.mallwarp.MallWarpManager;
 import com.tbfmc.tbfmp.nickname.NicknameStorage;
+import com.tbfmc.tbfmp.util.FirstJoinOnboardingService;
+import com.tbfmc.tbfmp.util.HelpBookService;
 import com.tbfmc.tbfmp.util.MessageService;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import com.tbfmc.tbfmp.TBFMPPlugin;
 
-import java.util.List;
 import java.util.Map;
 
 public class PlayerJoinListener implements Listener {
@@ -23,6 +22,8 @@ public class PlayerJoinListener implements Listener {
     private final MallWarpManager mallWarpManager;
     private final MailStorage mailStorage;
     private final NicknameStorage nicknameStorage;
+    private final HelpBookService helpBookService;
+    private final FirstJoinOnboardingService onboardingService;
 
     public PlayerJoinListener(TBFMPPlugin plugin, MessageService messages, MallWarpManager mallWarpManager,
                               MailStorage mailStorage, NicknameStorage nicknameStorage) {
@@ -31,6 +32,8 @@ public class PlayerJoinListener implements Listener {
         this.mallWarpManager = mallWarpManager;
         this.mailStorage = mailStorage;
         this.nicknameStorage = nicknameStorage;
+        this.helpBookService = new HelpBookService(plugin, messages);
+        this.onboardingService = new FirstJoinOnboardingService();
     }
 
     @EventHandler
@@ -46,6 +49,9 @@ public class PlayerJoinListener implements Listener {
         applyNickname(player);
         notifyMallWarpRejoin(player);
         notifyMail(player);
+        if (firstJoin) {
+            onboardingService.send(player);
+        }
         maybeGiveJoinBook(player, firstJoin);
     }
 
@@ -60,13 +66,13 @@ public class PlayerJoinListener implements Listener {
     }
 
     private void maybeGiveJoinBook(Player player, boolean firstJoin) {
-        if (!plugin.getConfig().getBoolean("join-book.enabled", false)) {
+        if (!helpBookService.isEnabled()) {
             return;
         }
-        if (plugin.getConfig().getBoolean("join-book.only-first-join", true) && !firstJoin) {
+        if (helpBookService.isOnlyFirstJoin() && !firstJoin) {
             return;
         }
-        ItemStack book = createJoinBook(player);
+        ItemStack book = helpBookService.createHelpBook(player);
         if (book == null) {
             return;
         }
@@ -117,34 +123,4 @@ public class PlayerJoinListener implements Listener {
         player.setDisplayName(nickname);
     }
 
-    private ItemStack createJoinBook(Player player) {
-        String materialName = plugin.getConfig().getString("join-book.material", "WRITTEN_BOOK");
-        Material material = Material.matchMaterial(materialName == null ? "" : materialName);
-        if (material == null || material == Material.AIR) {
-            material = Material.WRITTEN_BOOK;
-        }
-        ItemStack book = new ItemStack(material);
-        if (!(book.getItemMeta() instanceof BookMeta meta)) {
-            return null;
-        }
-        String title = plugin.getConfig().getString("join-book.title", "Welcome");
-        String author = plugin.getConfig().getString("join-book.author", "Server");
-        meta.setTitle(messages.colorize(replacePlaceholders(title, player)));
-        meta.setAuthor(messages.colorize(replacePlaceholders(author, player)));
-        List<String> pages = plugin.getConfig().getStringList("join-book.pages");
-        if (pages != null && !pages.isEmpty()) {
-            meta.setPages(pages.stream()
-                    .map(page -> messages.colorize(replacePlaceholders(page, player)))
-                    .toList());
-        }
-        book.setItemMeta(meta);
-        return book;
-    }
-
-    private String replacePlaceholders(String input, Player player) {
-        if (input == null) {
-            return "";
-        }
-        return input.replace("{player}", player.getName());
-    }
 }
