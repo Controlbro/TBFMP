@@ -1,0 +1,9 @@
+join-book:
+  enabled: false
+  only-first-join: true
+  material: WRITTEN_BOOK
+  title: "&6Welcome"
+  author: "Server"
+  pages:
+    - "&aWelcome, {player}, to the Server!"
+    - "&7Enjoy your stay!"

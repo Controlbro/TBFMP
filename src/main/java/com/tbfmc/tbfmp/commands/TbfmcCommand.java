@@ -4,8 +4,11 @@ import com.tbfmc.tbfmp.TBFMPPlugin;
 import com.tbfmc.tbfmp.event.MiningEventService;
 import com.tbfmc.tbfmp.settings.KeepInventorySettingsStorage;
 import com.tbfmc.tbfmp.settings.PvpSettingsStorage;
+import com.tbfmc.tbfmp.util.FirstJoinOnboardingService;
+import com.tbfmc.tbfmp.util.HelpBookService;
 import com.tbfmc.tbfmp.util.SpawnService;
 import com.tbfmc.tbfmp.util.MessageService;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,6 +22,8 @@ public class TbfmcCommand implements CommandExecutor {
     private final KeepInventorySettingsStorage keepInventorySettingsStorage;
     private final PvpSettingsStorage pvpSettingsStorage;
     private final MiningEventService miningEventService;
+    private final HelpBookService helpBookService;
+    private final FirstJoinOnboardingService onboardingService;
 
     public TbfmcCommand(TBFMPPlugin plugin, MessageService messages, SpawnService spawnService,
                         KeepInventorySettingsStorage keepInventorySettingsStorage,
@@ -30,6 +35,8 @@ public class TbfmcCommand implements CommandExecutor {
         this.keepInventorySettingsStorage = keepInventorySettingsStorage;
         this.pvpSettingsStorage = pvpSettingsStorage;
         this.miningEventService = miningEventService;
+        this.helpBookService = new HelpBookService(plugin, messages);
+        this.onboardingService = new FirstJoinOnboardingService();
     }
 
     @Override
@@ -133,6 +140,57 @@ public class TbfmcCommand implements CommandExecutor {
             }
             miningEventService.resetEvent();
             messages.sendMessage(sender, messages.getMessage("messages.event-reset"));
+            return true;
+        }
+
+        if (args.length > 0 && args[0].equalsIgnoreCase("givehelpbook")) {
+            if (!sender.hasPermission("oakglowutil.admin.givehelpbook")) {
+                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
+                return true;
+            }
+            if (args.length < 2) {
+                messages.sendMessage(sender, messages.getMessage("messages.givehelpbook-usage"));
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                messages.sendMessage(sender, messages.getMessage("messages.player-not-found"));
+                return true;
+            }
+            org.bukkit.inventory.ItemStack book = helpBookService.createHelpBook(target);
+            if (book == null) {
+                messages.sendMessage(sender, messages.getMessage("messages.helpbook-failed"));
+                return true;
+            }
+            java.util.Map<Integer, org.bukkit.inventory.ItemStack> leftover = target.getInventory().addItem(book);
+            if (!leftover.isEmpty()) {
+                for (org.bukkit.inventory.ItemStack item : leftover.values()) {
+                    target.getWorld().dropItemNaturally(target.getLocation(), item);
+                }
+            }
+            messages.sendMessage(sender, messages.getMessage("messages.helpbook-given")
+                    .replace("{player}", target.getName()));
+            messages.sendMessage(target, messages.getMessage("messages.helpbook-received"));
+            return true;
+        }
+
+        if (args.length > 0 && args[0].equalsIgnoreCase("sendonboarding")) {
+            if (!sender.hasPermission("oakglowutil.admin.sendonboarding")) {
+                messages.sendMessage(sender, messages.getMessage("messages.no-permission"));
+                return true;
+            }
+            if (args.length < 2) {
+                messages.sendMessage(sender, messages.getMessage("messages.sendonboarding-usage"));
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                messages.sendMessage(sender, messages.getMessage("messages.player-not-found"));
+                return true;
+            }
+            onboardingService.send(target);
+            messages.sendMessage(sender, messages.getMessage("messages.sendonboarding-sent")
+                    .replace("{player}", target.getName()));
             return true;
         }
 
