@@ -1,9 +1,17 @@
 join-book:
-  enabled: false
+  enabled: true
   only-first-join: true
   material: WRITTEN_BOOK
-  title: "&6Welcome"
-  author: "Server"
+  title: "&6&lOakGlow Guide"
+  author: "OakGlow"
   pages:
-    - "&aWelcome, {player}, to the Server!"
-    - "&7Enjoy your stay!"
+
+    - "&6&lWelcome to OakGlow\n\n&0Semi-Vanilla Survival\n&0Custom Coded Systems\n&0Player Economy\n\n&6You spawned at the Mall\n&0All shops are player-owned."
+
+    - "&6&lGetting Started\n\n&6/help &0- View all commands\n&6/settings &0- Toggle PVP / KeepInv\n&6/sethome &0- Set your home\n&6/home &0- Teleport home\n&6/warp &0- Return to spawn/mall"
+
+    - "&6&lMall Commands\n\n&6/mall claim &0- Claim open plot\n&6/mall &0- Manage your shop\n&6/mallrules &0- View mall rules\n&6/shoptut &0- Shop tutorial"
+
+    - "&6&lEconomy\n\n&6/bank &0- Convert Diamonds ↔ Money\n&6/bal &0- Check balance\n&6/pay <player> <amount>\n\n&0Rate: 1 Diamond = $2000"
+
+    - "&6&lCommunity\n\n&6/discord &0- Join our Discord\n\n&0Inactive shops (2+ months)\n&0may be removed.\n\n&6Build. Trade. Grow."
