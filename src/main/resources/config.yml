@@ -1,31 +1,31 @@
-prefix: "&f[&6OGN&f]"
+prefix: '&f[&6OGN&f]'
 chat:
-  format: "{prefix}{name}&r %tag% &7>> {message-color}{message}"
+  format: '{prefix}{name}&r %tag% &7>> {message-color}{message}'
 afk:
   timeout-seconds: 300
 tab-list:
   header:
-    - "&f&lOakGlow"
-    - ""
+  - '&f&lOakGlow'
+  - ''
   footer:
-    - ""
-    - "&7Powered by blockbuddy.host"
+  - ''
+  - '&fOnline for: &a%sessiontime%'
 rtp:
-  world: "world"
+  world: world
   min-radius: 500
-  max-radius: 3000
+  max-radius: 1500
   max-attempts: 20
   confirm-timeout-seconds: 60
   excluded-biomes:
-    - OCEAN
-    - DEEP_OCEAN
-    - COLD_OCEAN
-    - DEEP_COLD_OCEAN
-    - FROZEN_OCEAN
-    - DEEP_FROZEN_OCEAN
-    - LUKEWARM_OCEAN
-    - DEEP_LUKEWARM_OCEAN
-    - WARM_OCEAN
+  - OCEAN
+  - DEEP_OCEAN
+  - COLD_OCEAN
+  - DEEP_COLD_OCEAN
+  - FROZEN_OCEAN
+  - DEEP_FROZEN_OCEAN
+  - LUKEWARM_OCEAN
+  - DEEP_LUKEWARM_OCEAN
+  - WARM_OCEAN
 chat-notifications:
   enabled: true
   interval-seconds: 1200
@@ -36,31 +36,31 @@ chat-notifications:
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
 starting-balance: 100.0
 storage:
-  type: txt # locked
+  type: txt
   mysql:
-    enabled: false
+    enabled: true
     upload-balances: true
     upload-event: true
     host: localhost
     port: 3306
-    database: oakglow
-    username: root
-    password: ""
+    database: oakglown_ogu
+    username: oakglown_ogu
+    password: okay
     use-ssl: false
     connect-timeout-ms: 5000
     socket-timeout-ms: 5000
-    log-connection-tests: true
+    log-connection-tests: false
 hug:
   enabled: true
   heart_count: 15
-  cooldown: 15 # seconds
+  cooldown: 15
 event:
-  enabled: true
+  enabled: false
   acceptedblocks:
-    - STONE
-    - COBBLESTONE
-    - DEEPSLATE
-    - COBBLED_DEEPSLATE
+  - STONE
+  - COBBLESTONE
+  - DEEPSLATE
+  - COBBLED_DEEPSLATE
 spawn:
   enabled: true
   world: world
@@ -70,32 +70,14 @@ spawn:
   yaw: 0.4650885
   pitch: 4.1999288
 dragon-drops:
-  enabled: false
+  enabled: true
   drop-elytra: true
   drop-egg: true
-  drop-head: false
+  drop-head: true
   location:
     world: world
     x: 0.0
-    y: 0.0
+    y: 65.0
     z: 0.0
     yaw: 0.0
     pitch: 0.0
-mallwarp:
-  warp:
-    enabled: false
-    world: world
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    yaw: 0.0
-    pitch: 0.0
-  region:
-    enabled: false
-    world: world
-    min-x: 0.0
-    min-y: 0.0
-    min-z: 0.0
-    max-x: 0.0
-    max-y: 0.0
-    max-z: 0.0
