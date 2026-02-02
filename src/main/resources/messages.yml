@@ -137,6 +137,8 @@ messages:
   mysql-tables-ok: '&aMySQL tables are present.'
   mysql-tables-missing: '&aMissing MySQL tables: &f{tables}'
   mysql-tables-error: '&aUnable to check MySQL tables: &f{error}'
+  gratuity-new: '&7Thank you for supporting the community. Here''s &f${amount} &7for your kindness!'
+  gratuity-returning: '&7Thank you for supporting the community. Here''s &f${amount} &7for your kindness!'
   givehelpbook-usage: '&aUsage: &f/oakglow givehelpbook <player>'
   helpbook-given: '&aGave the help book to &f{player}&a.'
   helpbook-received: '&aYou received the OakGlow help book.'
