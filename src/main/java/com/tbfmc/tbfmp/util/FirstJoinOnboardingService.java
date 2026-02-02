@@ -13,7 +13,7 @@ public class FirstJoinOnboardingService {
     public void send(Player player) {
         Title title = Title.title(
                 Component.text("Welcome to OakGlow!", NamedTextColor.GOLD),
-                Component.text("Semi-Vanilla • No TP • Player Economy", NamedTextColor.GRAY),
+                Component.text("Semi-Vanilla • Custom Coded • Player Economy", NamedTextColor.GRAY),
                 Title.Times.times(ticksToDuration(10), ticksToDuration(60), ticksToDuration(20))
         );
         player.showTitle(title);
