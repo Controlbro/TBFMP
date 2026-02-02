@@ -26,10 +26,14 @@ import com.tbfmc.tbfmp.commands.MailCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
 import com.tbfmc.tbfmp.commands.MsgCommand;
 import com.tbfmc.tbfmp.commands.NickCommand;
+import com.tbfmc.tbfmp.commands.EnderChestCommand;
 import com.tbfmc.tbfmp.commands.RealnameCommand;
 import com.tbfmc.tbfmp.commands.UnnickCommand;
 import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
+import com.tbfmc.tbfmp.commands.PlaytimeCommand;
+import com.tbfmc.tbfmp.commands.PTimeCommand;
+import com.tbfmc.tbfmp.commands.PWeatherCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
 import com.tbfmc.tbfmp.commands.SetHomeCommand;
@@ -91,6 +95,12 @@ import com.tbfmc.tbfmp.mallwarp.MallWarpSelectionManager;
 import com.tbfmc.tbfmp.mallwarp.MallWarpService;
 import com.tbfmc.tbfmp.mail.MailStorage;
 import com.tbfmc.tbfmp.nickname.NicknameStorage;
+import com.tbfmc.tbfmp.playtime.PlaytimeListener;
+import com.tbfmc.tbfmp.playtime.PlaytimeRewardsConfig;
+import com.tbfmc.tbfmp.playtime.PlaytimeRewardsListener;
+import com.tbfmc.tbfmp.playtime.PlaytimeRewardsService;
+import com.tbfmc.tbfmp.playtime.PlaytimeStorage;
+import com.tbfmc.tbfmp.playtime.PlaytimeTracker;
 import com.tbfmc.tbfmp.rtp.RtpManager;
 import com.tbfmc.tbfmp.staff.SocialSpyManager;
 import com.tbfmc.tbfmp.settings.SettingsMenuConfig;
@@ -166,6 +176,10 @@ public class TBFMPPlugin extends JavaPlugin {
     private NicknameStorage nicknameStorage;
     private MySqlStorageService mysqlStorageService;
     private BukkitTask mysqlPingTask;
+    private PlaytimeStorage playtimeStorage;
+    private PlaytimeTracker playtimeTracker;
+    private PlaytimeRewardsConfig playtimeRewardsConfig;
+    private PlaytimeRewardsService playtimeRewardsService;
 
     @Override
     public void onEnable() {
@@ -178,6 +192,7 @@ public class TBFMPPlugin extends JavaPlugin {
         saveResourceIfMissing("tags.yml");
         saveResourceIfMissing("tag-menu.yml");
         saveResourceIfMissing("CustomConfig.yml");
+        saveResourceIfMissing("playtime-rewards.yml");
         this.customConfig = new CustomConfig(this);
         this.messagesConfig = new MessagesConfig(this);
         this.messageService = new MessageService(this, messagesConfig.getConfig());
@@ -192,6 +207,11 @@ public class TBFMPPlugin extends JavaPlugin {
         this.keepInventorySettingsStorage = new KeepInventorySettingsStorage(this, unifiedDataFile);
         this.pvpSettingsStorage = new PvpSettingsStorage(this, unifiedDataFile);
         this.tpaSettingsStorage = new TpaSettingsStorage(this, unifiedDataFile);
+        this.playtimeStorage = new PlaytimeStorage(this, unifiedDataFile);
+        this.playtimeTracker = new PlaytimeTracker(playtimeStorage);
+        for (org.bukkit.entity.Player player : Bukkit.getOnlinePlayers()) {
+            playtimeTracker.startSession(player);
+        }
         this.miningEventStorage = new MiningEventStorage(this, unifiedDataFile);
         this.miningEventService = new MiningEventService(this, miningEventStorage, eventSettingsStorage);
         this.sitManager = new SitManager(messageService, this);
@@ -229,6 +249,8 @@ public class TBFMPPlugin extends JavaPlugin {
         this.socialSpyManager = new SocialSpyManager(this, unifiedDataFile);
         this.mailStorage = new MailStorage(this, unifiedDataFile);
         this.nicknameStorage = new NicknameStorage(this, unifiedDataFile);
+        this.playtimeRewardsConfig = new PlaytimeRewardsConfig(this);
+        this.playtimeRewardsService = new PlaytimeRewardsService(playtimeRewardsConfig, playtimeStorage, playtimeTracker, messageService);
 
         VaultEconomyProvider economyProvider = new VaultEconomyProvider(balanceStorage);
         Bukkit.getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economyProvider, this, ServicePriority.Normal);
@@ -298,6 +320,10 @@ public class TBFMPPlugin extends JavaPlugin {
         if (nicknameStorage != null) {
             nicknameStorage.save();
         }
+        if (playtimeStorage != null) {
+            playtimeTracker.flushOnlineSessions();
+            playtimeStorage.save();
+        }
         if (tpaSettingsStorage != null) {
             tpaSettingsStorage.save();
         }
@@ -350,6 +376,9 @@ public class TBFMPPlugin extends JavaPlugin {
             return;
         }
         mysqlStorageService.ensureTables(sections);
+        if (playtimeTracker != null) {
+            playtimeTracker.flushOnlineSessions();
+        }
         org.bukkit.configuration.file.YamlConfiguration snapshot = new org.bukkit.configuration.file.YamlConfiguration();
         if (balanceStorage != null && sections.contains("balances")) {
             for (java.util.Map.Entry<java.util.UUID, Double> entry : balanceStorage.getAllBalances().entrySet()) {
@@ -359,6 +388,11 @@ public class TBFMPPlugin extends JavaPlugin {
         if (miningEventStorage != null && sections.contains("mining-event")) {
             for (java.util.Map.Entry<java.util.UUID, Integer> entry : miningEventStorage.getAllCounts().entrySet()) {
                 snapshot.set("mining-event." + entry.getKey(), entry.getValue());
+            }
+        }
+        if (playtimeStorage != null && sections.contains("playtime")) {
+            for (java.util.Map.Entry<java.util.UUID, Long> entry : playtimeStorage.getAllPlaytimeSeconds().entrySet()) {
+                snapshot.set("playtime." + entry.getKey(), entry.getValue());
             }
         }
         mysqlStorageService.saveSections(snapshot, sections);
@@ -473,6 +507,14 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("tpdeny").setTabCompleter(tabCompleter);
         getCommand("tpatoggle").setExecutor(new TpaToggleCommand(tpaSettingsStorage, messageService));
         getCommand("tpatoggle").setTabCompleter(tabCompleter);
+        getCommand("enderchest").setExecutor(new EnderChestCommand(messageService));
+        getCommand("enderchest").setTabCompleter(tabCompleter);
+        getCommand("ptime").setExecutor(new PTimeCommand(messageService));
+        getCommand("ptime").setTabCompleter(tabCompleter);
+        getCommand("pweather").setExecutor(new PWeatherCommand(messageService));
+        getCommand("pweather").setTabCompleter(tabCompleter);
+        getCommand("playtime").setExecutor(new PlaytimeCommand(playtimeTracker, playtimeRewardsService, messageService));
+        getCommand("playtime").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {
@@ -509,6 +551,8 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MallWarpRestrictionListener(mallWarpManager, messageService), this);
         Bukkit.getPluginManager().registerEvents(new SocialSpyListener(socialSpyManager, messageService), this);
         Bukkit.getPluginManager().registerEvents(new BackLocationListener(backLocationManager), this);
+        Bukkit.getPluginManager().registerEvents(new PlaytimeListener(playtimeTracker), this);
+        Bukkit.getPluginManager().registerEvents(new PlaytimeRewardsListener(playtimeRewardsService), this);
     }
 
     private void startChatNotifications() {
@@ -586,6 +630,12 @@ public class TBFMPPlugin extends JavaPlugin {
                 chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage, eventSettingsStorage,
                 tpaSettingsStorage,
                 messageService, new NamespacedKey(this, "settings-option"));
+        if (this.playtimeRewardsConfig == null) {
+            this.playtimeRewardsConfig = new PlaytimeRewardsConfig(this);
+        } else {
+            this.playtimeRewardsConfig.reload();
+        }
+        this.playtimeRewardsService = new PlaytimeRewardsService(playtimeRewardsConfig, playtimeStorage, playtimeTracker, messageService);
         registerCommands();
         miningEventService.reloadSettings();
         miningEventService.applyToOnlinePlayers();
@@ -622,6 +672,7 @@ public class TBFMPPlugin extends JavaPlugin {
         mailStorage.writeToUnifiedData();
         nicknameStorage.writeToUnifiedData();
         tpaSettingsStorage.writeToUnifiedData();
+        playtimeStorage.writeToUnifiedData();
         unifiedDataFile.save();
         moveLegacyDataFiles();
         return true;
@@ -680,6 +731,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 "mail.yml",
                 "nicknames.yml",
                 "tpa-settings.yml",
+                "playtime.yml",
                 "oakglowutil-data.yml"
         };
         for (String name : files) {
