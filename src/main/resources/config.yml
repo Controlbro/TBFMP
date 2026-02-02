@@ -34,6 +34,19 @@ chat-notifications:
   - '&aVisit our website: &fhttps://OakGlow.net'
   - '&aStuck in someones claim? You can do &f/stuck &ato get out!'
   - '&aTired of system messages like this? You can do &f/settings &aand disable them!'
+gratuity:
+  enabled: true
+  window-seconds: 30
+  new-player-reward: 10.0
+  returning-player-reward: 7.0
+  new-player-triggers:
+  - welcome
+  - welcome to the server
+  - welcome to oakglow
+  returning-player-triggers:
+  - welcome back
+  - wb
+  - welcome back to the server
 starting-balance: 100.0
 storage:
   type: txt

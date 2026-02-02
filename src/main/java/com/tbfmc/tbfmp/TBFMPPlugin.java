@@ -66,6 +66,7 @@ import com.tbfmc.tbfmp.listeners.BabyFaithListener;
 import com.tbfmc.tbfmp.listeners.CritParticleListener;
 import com.tbfmc.tbfmp.listeners.DeathParticleListener;
 import com.tbfmc.tbfmp.listeners.DragonDropListener;
+import com.tbfmc.tbfmp.listeners.GratuityWelcomeListener;
 import com.tbfmc.tbfmp.listeners.MallWarpRestrictionListener;
 import com.tbfmc.tbfmp.listeners.MallWarpSelectionListener;
 import com.tbfmc.tbfmp.listeners.MiningEventListener;
@@ -494,6 +495,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new DurabilityWarningListener(messageService), this);
         Bukkit.getPluginManager().registerEvents(new BabyFaithListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new GratuityWelcomeListener(this, balanceStorage, messageService), this);
         Bukkit.getPluginManager().registerEvents(new CritParticleListener(customConfig), this);
         Bukkit.getPluginManager().registerEvents(new DeathParticleListener(this, customConfig), this);
         Bukkit.getPluginManager().registerEvents(new PlayerTrailListener(this, customConfig), this);
