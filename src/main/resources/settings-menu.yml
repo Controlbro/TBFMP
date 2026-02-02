@@ -68,3 +68,12 @@ items:
       - "&7leaderboard display."
       - ""
       - "&7Status: {status}"
+  tpa:
+    slot: 25
+    material: "ENDER_PEARL"
+    name: "&aTeleport Requests"
+    lore:
+      - "&7Toggle whether players"
+      - "&7can send you requests."
+      - ""
+      - "&7Status: {status}"

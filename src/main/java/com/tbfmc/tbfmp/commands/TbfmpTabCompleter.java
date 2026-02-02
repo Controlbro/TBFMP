@@ -41,7 +41,7 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "oakglow" -> filter(OAKGLOW_ACTIONS, args[0]);
                 case "gamemode", "gm" -> filter(GAMEMODE_ACTIONS, args[0]);
                 case "mail" -> filter(MAIL_ACTIONS, args[0]);
-                case "balance", "pay", "hug", "resetrtp", "tphere", "msg", "tp" ->
+                case "balance", "pay", "hug", "resetrtp", "tphere", "msg", "tp", "tpa", "tpahere" ->
                         onlinePlayers(args[0]);
                 default -> Collections.emptyList();
             };

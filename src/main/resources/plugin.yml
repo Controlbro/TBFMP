@@ -1,6 +1,6 @@
 name: OakGlowUtil
 main: com.tbfmc.tbfmp.TBFMPPlugin
-version: 1.4.2
+version: 1.4.3
 api-version: '1.21'
 load: POSTWORLD
 depend: [Vault]
@@ -142,6 +142,43 @@ commands:
     description: Open a crafting table.
     usage: /<command>
     permission: oakglowutil.workbench
+  home:
+    description: Teleport to one of your homes.
+    usage: /<command> [name]
+  homes:
+    description: List your homes.
+    usage: /<command>
+  sethome:
+    description: Set a home at your current location.
+    usage: /<command> <name>
+  warp:
+    description: Teleport to a warp.
+    usage: /<command> [name]
+  warps:
+    description: List warps.
+    usage: /<command>
+  setwarp:
+    description: Set a warp at your current location.
+    usage: /<command> <name>
+    permission: oakglowutil.admin.setwarp
+  back:
+    description: Return to your previous location.
+    usage: /<command>
+  tpa:
+    description: Request to teleport to a player.
+    usage: /<command> <player>
+  tpahere:
+    description: Request a player teleport to you.
+    usage: /<command> <player>
+  tpaccept:
+    description: Accept a teleport request.
+    usage: /<command>
+  tpdeny:
+    description: Deny a teleport request.
+    usage: /<command>
+  tpatoggle:
+    description: Toggle receiving teleport requests.
+    usage: /<command>
 permissions:
   oakglowutil.admin.eco:
     description: Allows use of /eco commands.
@@ -211,6 +248,9 @@ permissions:
     default: op
   oakglowutil.workbench:
     description: Allows use of /workbench.
+    default: op
+  oakglowutil.admin.setwarp:
+    description: Allows setting warps with /setwarp.
     default: op
   critcolor.gold:
     description: Use gold critical hit particles.

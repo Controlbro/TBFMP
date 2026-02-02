@@ -4,6 +4,7 @@ import com.tbfmc.tbfmp.chat.ChatNotificationSettingsStorage;
 import com.tbfmc.tbfmp.economy.PaySettingsStorage;
 import com.tbfmc.tbfmp.event.EventSettingsStorage;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
+import com.tbfmc.tbfmp.teleport.TpaSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -25,6 +26,7 @@ public class SettingsMenuService {
     private final KeepInventorySettingsStorage keepInventorySettingsStorage;
     private final PvpSettingsStorage pvpSettingsStorage;
     private final EventSettingsStorage eventSettingsStorage;
+    private final TpaSettingsStorage tpaSettingsStorage;
     private final MessageService messages;
     private final NamespacedKey settingKey;
 
@@ -34,6 +36,7 @@ public class SettingsMenuService {
                                KeepInventorySettingsStorage keepInventorySettingsStorage,
                                PvpSettingsStorage pvpSettingsStorage,
                                EventSettingsStorage eventSettingsStorage,
+                               TpaSettingsStorage tpaSettingsStorage,
                                MessageService messages, NamespacedKey settingKey) {
         this.config = config;
         this.paySettingsStorage = paySettingsStorage;
@@ -42,6 +45,7 @@ public class SettingsMenuService {
         this.keepInventorySettingsStorage = keepInventorySettingsStorage;
         this.pvpSettingsStorage = pvpSettingsStorage;
         this.eventSettingsStorage = eventSettingsStorage;
+        this.tpaSettingsStorage = tpaSettingsStorage;
         this.messages = messages;
         this.settingKey = settingKey;
     }
@@ -114,6 +118,7 @@ public class SettingsMenuService {
             case KEEP_INVENTORY -> keepInventorySettingsStorage.isEnabled(player.getUniqueId());
             case PVP -> pvpSettingsStorage.isEnabled(player.getUniqueId());
             case EVENT_LEADERBOARD -> eventSettingsStorage.isEnabled(player.getUniqueId());
+            case TPA -> tpaSettingsStorage.isEnabled(player.getUniqueId());
         };
     }
 }
