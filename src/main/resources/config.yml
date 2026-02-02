@@ -54,6 +54,7 @@ storage:
     enabled: true
     upload-balances: true
     upload-event: true
+    upload-playtime: true
     host: localhost
     port: 3306
     database: oakglown_ogu

@@ -138,10 +138,26 @@ commands:
     usage: /<command>
     permission: oakglowutil.nick
   workbench:
-    aliases: [wb]
+    aliases: [wb, craft]
     description: Open a crafting table.
     usage: /<command>
     permission: oakglowutil.workbench
+  enderchest:
+    aliases: [ec]
+    description: Open your ender chest.
+    usage: /<command>
+    permission: oakglowutil.enderchest
+  ptime:
+    description: Set your personal time.
+    usage: /<command> <day|night|sunrise|sunset>
+    permission: oakglowutil.ptime
+  pweather:
+    description: Set your personal weather.
+    usage: /<command> <sun|rain|thunder>
+    permission: oakglowutil.pweather
+  playtime:
+    description: Check or claim playtime rewards.
+    usage: /<command> [player|claim]
   home:
     description: Teleport to one of your homes.
     usage: /<command> [name]
@@ -248,6 +264,18 @@ permissions:
     default: op
   oakglowutil.workbench:
     description: Allows use of /workbench.
+    default: op
+  oakglowutil.enderchest:
+    description: Allows use of /enderchest.
+    default: op
+  oakglowutil.ptime:
+    description: Allows use of /ptime.
+    default: op
+  oakglowutil.pweather:
+    description: Allows use of /pweather.
+    default: op
+  oakglowutil.playtime.others:
+    description: Allows viewing other players' playtime.
     default: op
   oakglowutil.admin.setwarp:
     description: Allows setting warps with /setwarp.

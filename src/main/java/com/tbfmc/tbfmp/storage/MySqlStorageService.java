@@ -21,6 +21,7 @@ public class MySqlStorageService {
     private final boolean enabled;
     private final boolean uploadBalances;
     private final boolean uploadMiningEvent;
+    private final boolean uploadPlaytime;
     private final boolean logConnectionTests;
     private final String jdbcUrl;
     private final String username;
@@ -33,6 +34,7 @@ public class MySqlStorageService {
         this.enabled = plugin.getConfig().getBoolean("storage.mysql.enabled", false);
         this.uploadBalances = plugin.getConfig().getBoolean("storage.mysql.upload-balances", true);
         this.uploadMiningEvent = plugin.getConfig().getBoolean("storage.mysql.upload-event", true);
+        this.uploadPlaytime = plugin.getConfig().getBoolean("storage.mysql.upload-playtime", true);
         this.logConnectionTests = plugin.getConfig().getBoolean("storage.mysql.log-connection-tests", true);
         String host = plugin.getConfig().getString("storage.mysql.host", "localhost");
         int port = plugin.getConfig().getInt("storage.mysql.port", 3306);
@@ -65,6 +67,9 @@ public class MySqlStorageService {
         }
         if (uploadMiningEvent) {
             sections.add("mining-event");
+        }
+        if (uploadPlaytime) {
+            sections.add("playtime");
         }
         return java.util.Collections.unmodifiableSet(sections);
     }
@@ -202,6 +207,9 @@ public class MySqlStorageService {
         }
         if (uploadMiningEvent) {
             tables.add(new SectionTable("mining-event", "mining_event"));
+        }
+        if (uploadPlaytime) {
+            tables.add(new SectionTable("playtime", "playtime"));
         }
     }
 

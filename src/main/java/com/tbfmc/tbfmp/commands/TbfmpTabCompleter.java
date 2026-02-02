@@ -16,6 +16,9 @@ public class TbfmpTabCompleter implements TabCompleter {
     private static final List<String> CUSTOM_ACTIONS = List.of("reload");
     private static final List<String> GAMEMODE_ACTIONS = List.of("survival", "creative", "spectator");
     private static final List<String> MAIL_ACTIONS = List.of("send", "read");
+    private static final List<String> PLAYTIME_ACTIONS = List.of("claim");
+    private static final List<String> PTIME_ACTIONS = List.of("day", "night", "sunrise", "sunset");
+    private static final List<String> PWEATHER_ACTIONS = List.of("sun", "rain", "thunder");
     private static final List<String> OAKGLOW_ACTIONS = List.of(
             "reload",
             "setspawn",
@@ -41,6 +44,13 @@ public class TbfmpTabCompleter implements TabCompleter {
                 case "oakglow" -> filter(OAKGLOW_ACTIONS, args[0]);
                 case "gamemode", "gm" -> filter(GAMEMODE_ACTIONS, args[0]);
                 case "mail" -> filter(MAIL_ACTIONS, args[0]);
+                case "playtime" -> {
+                    List<String> options = new ArrayList<>(PLAYTIME_ACTIONS);
+                    options.addAll(onlinePlayers(args[0]));
+                    yield filter(options, args[0]);
+                }
+                case "ptime" -> filter(PTIME_ACTIONS, args[0]);
+                case "pweather" -> filter(PWEATHER_ACTIONS, args[0]);
                 case "balance", "pay", "hug", "resetrtp", "tphere", "msg", "tp", "tpa", "tpahere" ->
                         onlinePlayers(args[0]);
                 default -> Collections.emptyList();
