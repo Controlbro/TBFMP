@@ -7,7 +7,8 @@ public enum SettingsOption {
     AUTO_MESSAGES("auto-messages"),
     KEEP_INVENTORY("keep-inventory"),
     PVP("pvp"),
-    EVENT_LEADERBOARD("toggleleaderboard");
+    EVENT_LEADERBOARD("toggleleaderboard"),
+    TPA("tpa");
 
     private final String key;
 

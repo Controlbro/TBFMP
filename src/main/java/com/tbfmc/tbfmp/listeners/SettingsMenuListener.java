@@ -9,6 +9,7 @@ import com.tbfmc.tbfmp.settings.SettingsOption;
 import com.tbfmc.tbfmp.settings.KeepInventorySettingsStorage;
 import com.tbfmc.tbfmp.settings.PvpSettingsStorage;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
+import com.tbfmc.tbfmp.teleport.TpaSettingsStorage;
 import com.tbfmc.tbfmp.util.MessageService;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -27,6 +28,7 @@ public class SettingsMenuListener implements Listener {
     private final KeepInventorySettingsStorage keepInventorySettingsStorage;
     private final PvpSettingsStorage pvpSettingsStorage;
     private final MiningEventService miningEventService;
+    private final TpaSettingsStorage tpaSettingsStorage;
     private final MessageService messages;
     private final NamespacedKey settingKey;
 
@@ -36,6 +38,7 @@ public class SettingsMenuListener implements Listener {
                                 KeepInventorySettingsStorage keepInventorySettingsStorage,
                                 PvpSettingsStorage pvpSettingsStorage,
                                 MiningEventService miningEventService,
+                                TpaSettingsStorage tpaSettingsStorage,
                                 MessageService messages, NamespacedKey settingKey) {
         this.menuService = menuService;
         this.paySettingsStorage = paySettingsStorage;
@@ -44,6 +47,7 @@ public class SettingsMenuListener implements Listener {
         this.keepInventorySettingsStorage = keepInventorySettingsStorage;
         this.pvpSettingsStorage = pvpSettingsStorage;
         this.miningEventService = miningEventService;
+        this.tpaSettingsStorage = tpaSettingsStorage;
         this.messages = messages;
         this.settingKey = settingKey;
     }
@@ -116,6 +120,11 @@ public class SettingsMenuListener implements Listener {
                 boolean enabled = miningEventService.toggleLeaderboard(player);
                 messages.sendMessage(player, messages.getMessage(
                         enabled ? "messages.event-leaderboard-enabled" : "messages.event-leaderboard-disabled"));
+            }
+            case TPA -> {
+                boolean enabled = tpaSettingsStorage.toggle(player.getUniqueId());
+                messages.sendMessage(player, messages.getMessage(
+                        enabled ? "messages.tpa-toggle-on" : "messages.tpa-toggle-off"));
             }
         }
         player.openInventory(menuService.createMenu(player));

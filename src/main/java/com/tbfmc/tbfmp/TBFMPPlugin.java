@@ -10,6 +10,7 @@ import com.tbfmc.tbfmp.commands.AfkCommand;
 import com.tbfmc.tbfmp.commands.BalanceCommand;
 import com.tbfmc.tbfmp.commands.BalanceTopCommand;
 import com.tbfmc.tbfmp.commands.BankCommand;
+import com.tbfmc.tbfmp.commands.BackCommand;
 import com.tbfmc.tbfmp.commands.BackWarpCommand;
 import com.tbfmc.tbfmp.commands.ConfirmCommand;
 import com.tbfmc.tbfmp.commands.EcoCommand;
@@ -18,6 +19,8 @@ import com.tbfmc.tbfmp.commands.EventCommand;
 import com.tbfmc.tbfmp.commands.FlyCommand;
 import com.tbfmc.tbfmp.commands.GamemodeCommand;
 import com.tbfmc.tbfmp.commands.HugCommand;
+import com.tbfmc.tbfmp.commands.HomeCommand;
+import com.tbfmc.tbfmp.commands.HomesCommand;
 import com.tbfmc.tbfmp.commands.InfoCommand;
 import com.tbfmc.tbfmp.commands.MailCommand;
 import com.tbfmc.tbfmp.commands.MallWarpCommand;
@@ -29,8 +32,10 @@ import com.tbfmc.tbfmp.commands.PayCommand;
 import com.tbfmc.tbfmp.commands.PayToggleCommand;
 import com.tbfmc.tbfmp.commands.ResetRtpCommand;
 import com.tbfmc.tbfmp.commands.RtpCommand;
+import com.tbfmc.tbfmp.commands.SetHomeCommand;
 import com.tbfmc.tbfmp.commands.SetMallWarpCommand;
 import com.tbfmc.tbfmp.commands.SetMallWarpRegionCommand;
+import com.tbfmc.tbfmp.commands.SetWarpCommand;
 import com.tbfmc.tbfmp.commands.SettingsCommand;
 import com.tbfmc.tbfmp.commands.SitCommand;
 import com.tbfmc.tbfmp.commands.SitSettingCommand;
@@ -39,8 +44,15 @@ import com.tbfmc.tbfmp.commands.StaffChatCommand;
 import com.tbfmc.tbfmp.commands.TagMenuCommand;
 import com.tbfmc.tbfmp.commands.TbfmcCommand;
 import com.tbfmc.tbfmp.commands.TbfmpTabCompleter;
+import com.tbfmc.tbfmp.commands.TpAcceptCommand;
 import com.tbfmc.tbfmp.commands.TpCommand;
+import com.tbfmc.tbfmp.commands.TpDenyCommand;
 import com.tbfmc.tbfmp.commands.TpHereCommand;
+import com.tbfmc.tbfmp.commands.TpaCommand;
+import com.tbfmc.tbfmp.commands.TpaHereCommand;
+import com.tbfmc.tbfmp.commands.TpaToggleCommand;
+import com.tbfmc.tbfmp.commands.WarpCommand;
+import com.tbfmc.tbfmp.commands.WarpsCommand;
 import com.tbfmc.tbfmp.commands.WorkbenchCommand;
 import com.tbfmc.tbfmp.afk.AfkManager;
 import com.tbfmc.tbfmp.economy.BalanceStorage;
@@ -66,6 +78,7 @@ import com.tbfmc.tbfmp.listeners.KeepInventoryListener;
 import com.tbfmc.tbfmp.listeners.PvpToggleListener;
 import com.tbfmc.tbfmp.listeners.PlayerJoinListener;
 import com.tbfmc.tbfmp.listeners.PlayerTrailListener;
+import com.tbfmc.tbfmp.listeners.BackLocationListener;
 import com.tbfmc.tbfmp.listeners.SitDamageListener;
 import com.tbfmc.tbfmp.listeners.SitListener;
 import com.tbfmc.tbfmp.listeners.SocialSpyListener;
@@ -86,6 +99,11 @@ import com.tbfmc.tbfmp.settings.PvpSettingsStorage;
 import com.tbfmc.tbfmp.sit.SitManager;
 import com.tbfmc.tbfmp.sit.SitSettingsStorage;
 import com.tbfmc.tbfmp.tablist.TabListService;
+import com.tbfmc.tbfmp.teleport.BackLocationManager;
+import com.tbfmc.tbfmp.teleport.HomeManager;
+import com.tbfmc.tbfmp.teleport.TpaManager;
+import com.tbfmc.tbfmp.teleport.TpaSettingsStorage;
+import com.tbfmc.tbfmp.teleport.WarpManager;
 import com.tbfmc.tbfmp.util.ConfigUpdater;
 import com.tbfmc.tbfmp.util.CustomConfig;
 import com.tbfmc.tbfmp.util.MessageService;
@@ -112,8 +130,13 @@ public class TBFMPPlugin extends JavaPlugin {
     private EventSettingsStorage eventSettingsStorage;
     private KeepInventorySettingsStorage keepInventorySettingsStorage;
     private PvpSettingsStorage pvpSettingsStorage;
+    private TpaSettingsStorage tpaSettingsStorage;
     private SitManager sitManager;
     private RtpManager rtpManager;
+    private BackLocationManager backLocationManager;
+    private HomeManager homeManager;
+    private WarpManager warpManager;
+    private TpaManager tpaManager;
     private MessageService messageService;
     private MessagesConfig messagesConfig;
     private ChatNotificationTask chatNotificationTask;
@@ -167,6 +190,7 @@ public class TBFMPPlugin extends JavaPlugin {
         this.eventSettingsStorage = new EventSettingsStorage(this, unifiedDataFile);
         this.keepInventorySettingsStorage = new KeepInventorySettingsStorage(this, unifiedDataFile);
         this.pvpSettingsStorage = new PvpSettingsStorage(this, unifiedDataFile);
+        this.tpaSettingsStorage = new TpaSettingsStorage(this, unifiedDataFile);
         this.miningEventStorage = new MiningEventStorage(this, unifiedDataFile);
         this.miningEventService = new MiningEventService(this, miningEventStorage, eventSettingsStorage);
         this.sitManager = new SitManager(messageService, this);
@@ -178,6 +202,10 @@ public class TBFMPPlugin extends JavaPlugin {
         this.hugCommand = new HugCommand(this, messageService);
         this.sitCommand = new SitCommand(sitManager, messageService);
         this.sitSettingCommand = new SitSettingCommand(sitSettingsStorage, messageService);
+        this.backLocationManager = new BackLocationManager(this, unifiedDataFile);
+        this.homeManager = new HomeManager(this, unifiedDataFile);
+        this.warpManager = new WarpManager(this, unifiedDataFile);
+        this.tpaManager = new TpaManager(this, messageService, tpaSettingsStorage);
         this.vaultChat = getServer().getServicesManager().getRegistration(Chat.class) != null
                 ? getServer().getServicesManager().getRegistration(Chat.class).getProvider()
                 : null;
@@ -191,6 +219,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 messageService, vaultChat, tagKey, navigationKey);
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
                 chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage, eventSettingsStorage,
+                tpaSettingsStorage,
                 messageService, new NamespacedKey(this, "settings-option"));
         this.spawnService = new SpawnService(this);
         MallWarpService mallWarpService = new MallWarpService(this);
@@ -247,6 +276,15 @@ public class TBFMPPlugin extends JavaPlugin {
         if (rtpManager != null) {
             rtpManager.save();
         }
+        if (backLocationManager != null) {
+            backLocationManager.save();
+        }
+        if (homeManager != null) {
+            homeManager.save();
+        }
+        if (warpManager != null) {
+            warpManager.save();
+        }
         if (mallWarpManager != null) {
             mallWarpManager.save();
         }
@@ -258,6 +296,9 @@ public class TBFMPPlugin extends JavaPlugin {
         }
         if (nicknameStorage != null) {
             nicknameStorage.save();
+        }
+        if (tpaSettingsStorage != null) {
+            tpaSettingsStorage.save();
         }
         if (unifiedDataFile != null && unifiedDataFile.isEnabled()) {
             unifiedDataFile.save();
@@ -407,6 +448,30 @@ public class TBFMPPlugin extends JavaPlugin {
         getCommand("unnick").setTabCompleter(tabCompleter);
         getCommand("workbench").setExecutor(new WorkbenchCommand(messageService));
         getCommand("workbench").setTabCompleter(tabCompleter);
+        getCommand("home").setExecutor(new HomeCommand(homeManager, messageService));
+        getCommand("home").setTabCompleter(tabCompleter);
+        getCommand("homes").setExecutor(new HomesCommand(homeManager, messageService));
+        getCommand("homes").setTabCompleter(tabCompleter);
+        getCommand("sethome").setExecutor(new SetHomeCommand(homeManager, messageService));
+        getCommand("sethome").setTabCompleter(tabCompleter);
+        getCommand("warp").setExecutor(new WarpCommand(warpManager, messageService));
+        getCommand("warp").setTabCompleter(tabCompleter);
+        getCommand("warps").setExecutor(new WarpsCommand(warpManager, messageService));
+        getCommand("warps").setTabCompleter(tabCompleter);
+        getCommand("setwarp").setExecutor(new SetWarpCommand(warpManager, messageService));
+        getCommand("setwarp").setTabCompleter(tabCompleter);
+        getCommand("back").setExecutor(new BackCommand(backLocationManager, messageService));
+        getCommand("back").setTabCompleter(tabCompleter);
+        getCommand("tpa").setExecutor(new TpaCommand(tpaManager, messageService));
+        getCommand("tpa").setTabCompleter(tabCompleter);
+        getCommand("tpahere").setExecutor(new TpaHereCommand(tpaManager, messageService));
+        getCommand("tpahere").setTabCompleter(tabCompleter);
+        getCommand("tpaccept").setExecutor(new TpAcceptCommand(tpaManager, messageService));
+        getCommand("tpaccept").setTabCompleter(tabCompleter);
+        getCommand("tpdeny").setExecutor(new TpDenyCommand(tpaManager, messageService));
+        getCommand("tpdeny").setTabCompleter(tabCompleter);
+        getCommand("tpatoggle").setExecutor(new TpaToggleCommand(tpaSettingsStorage, messageService));
+        getCommand("tpatoggle").setTabCompleter(tabCompleter);
     }
 
     private void registerListeners() {
@@ -423,7 +488,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
         Bukkit.getPluginManager().registerEvents(new SettingsMenuListener(settingsMenuService, paySettingsStorage,
                 sitSettingsStorage, chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage,
-                miningEventService, messageService,
+                miningEventService, tpaSettingsStorage, messageService,
                 new NamespacedKey(this, "settings-option")), this);
         Bukkit.getPluginManager().registerEvents(new ChatFormatListener(tagConfig, tagSelectionStorage, messageService,
                 vaultChat, getConfig().getString("chat.format", "{prefix}{name}&r %tag% &7>> {message-color}{message}")), this);
@@ -441,6 +506,7 @@ public class TBFMPPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MallWarpSelectionListener(mallWarpSelectionManager, messageService), this);
         Bukkit.getPluginManager().registerEvents(new MallWarpRestrictionListener(mallWarpManager, messageService), this);
         Bukkit.getPluginManager().registerEvents(new SocialSpyListener(socialSpyManager, messageService), this);
+        Bukkit.getPluginManager().registerEvents(new BackLocationListener(backLocationManager), this);
     }
 
     private void startChatNotifications() {
@@ -516,6 +582,7 @@ public class TBFMPPlugin extends JavaPlugin {
                 messageService, vaultChat, new NamespacedKey(this, "tag-id"), new NamespacedKey(this, "tag-menu-page"));
         this.settingsMenuService = new SettingsMenuService(settingsMenuConfig, paySettingsStorage, sitSettingsStorage,
                 chatNotificationSettingsStorage, keepInventorySettingsStorage, pvpSettingsStorage, eventSettingsStorage,
+                tpaSettingsStorage,
                 messageService, new NamespacedKey(this, "settings-option"));
         registerCommands();
         miningEventService.reloadSettings();
@@ -545,10 +612,14 @@ public class TBFMPPlugin extends JavaPlugin {
         miningEventStorage.writeToUnifiedData();
         tagSelectionStorage.writeToUnifiedData();
         rtpManager.writeToUnifiedData();
+        backLocationManager.writeToUnifiedData();
+        homeManager.writeToUnifiedData();
+        warpManager.writeToUnifiedData();
         mallWarpManager.writeToUnifiedData();
         socialSpyManager.writeToUnifiedData();
         mailStorage.writeToUnifiedData();
         nicknameStorage.writeToUnifiedData();
+        tpaSettingsStorage.writeToUnifiedData();
         unifiedDataFile.save();
         moveLegacyDataFiles();
         return true;
@@ -599,10 +670,14 @@ public class TBFMPPlugin extends JavaPlugin {
                 "mining-event.yml",
                 "tag-selections.yml",
                 "rtp-used.yml",
+                "back-locations.yml",
+                "homes.yml",
+                "warps.yml",
                 "mallwarp-state.yml",
                 "socialspy.yml",
                 "mail.yml",
                 "nicknames.yml",
+                "tpa-settings.yml",
                 "oakglowutil-data.yml"
         };
         for (String name : files) {
